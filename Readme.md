@@ -41,7 +41,7 @@ void increment(long *d, const long *s) {
 - We set up the boilerplate to use MeasureSuite from TypeScript-land in the [Plus 1 Test](./test/ts/plus1.test.ts)
 - And analyze the measurement Result
 
-### $\mu$CA: Curve25519 throughput estimation (TS-land)
+### uiCA: Curve25519 throughput estimation (TS-land)
 
 - Find two implementations of the Curve25519-SQ method as `functionA` and `functionB` in the [functions-sq.ts](./test/ts/functions_sq.ts)
 - MeasureSuite can be called from TypeScript-land in the [ui CA test](./test/ts/uica.test.ts)
