@@ -1,0 +1,73 @@
+{
+  "name": "measuresuite",
+  "version": "1.0.0",
+  "description": "Typescript wrapper on the measure function",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "cpu": [
+    "x64"
+  ],
+  "os": [
+    "linux"
+  ],
+  "gypfile": true,
+  "scripts": {
+    "postinstall": "tsc -p .",
+    "test": "jest --coverage"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "printWidth": 110
+  },
+  "repository": {
+    "type": "git",
+    "homepage": "https://github.com/0xADE1AIDE/MeasureSuite.git"
+  },
+  "keywords": [
+    "measure",
+    "intel"
+  ],
+  "author": "joel.kuepper@adelaide.edu.au",
+  "contributors": [
+    "david.wu@student.adelaide.edu.au"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/0xADE1AIDE/MeasureSuite#readme",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "measure-addon": "file:./build/Release/measuresuite.node"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.5",
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^18.0.6",
+    "jest": "^28.1.3",
+    "node-gyp": "^9.0.0",
+    "ts-jest": "^28.0.6",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "jest": {
+    "coverageReporters": [
+      [
+        "cobertura",
+        {
+          "file": "coverage.xml"
+        }
+      ],
+      "text"
+    ],
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/ts/*.test.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "./src/*.ts"
+    ],
+    "verbose": true
+  }
+}

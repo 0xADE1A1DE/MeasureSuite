@@ -1,0 +1,3 @@
+[submodule "uiCA"]
+	path = uiCA
+	url = https://github.com/andreas-abel/uiCA.git
