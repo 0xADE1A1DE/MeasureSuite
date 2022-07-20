@@ -1,7 +1,7 @@
 # MeasureSuite
+![Checks](https://img.shields.io/github/checks-status/0xADE1A1DE/MeasureSuite/main?logo=github&style=flat)
 ![Unit Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/c-check.yml/badge.svg)
 ![Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/clang-format-check.yml/badge.svg)
-![Checks](https://img.shields.io/github/checks-status/0xADE1A1DE/MeasureSuite/main?logo=github&style=flat)
 ![Version](https://img.shields.io/github/v/release/0xADE1A1DE/MeasureSuite?logo=github&style=flat)
 
 This library measures the execution time for code.
