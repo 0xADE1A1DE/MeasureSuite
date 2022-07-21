@@ -4,7 +4,6 @@ describe("native_ms", () => {
     expect(native_ms).toBeTruthy();
     expect(native_ms).toHaveProperty("init");
     expect(native_ms).toHaveProperty("measure");
-    expect(typeof native_ms.init).toBe("function");
-    expect(typeof native_ms.measure).toBe("function");
+    expect(typeof native_ms.init).toBe("function"); expect(typeof native_ms.measure).toBe("function");
   });
 });
