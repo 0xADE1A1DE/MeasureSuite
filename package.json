@@ -55,7 +55,8 @@
           "file": "coverage.xml"
         }
       ],
-      "text"
+      "text",
+      "html"
     ],
     "preset": "ts-jest",
     "testEnvironment": "node",

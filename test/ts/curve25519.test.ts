@@ -12,14 +12,17 @@ it("sanity check", () => {
   expect(functionB.length).toBe(4900);
 });
 
+beforeAll(() => {
+  Measuresuite.libcheckfunctionssuffix = "fiat-curve25519";
+  compileFiat(Measuresuite.libcheckfunctionsFilename);
+});
+
+afterAll(() => {
+  unlinkSync(Measuresuite.libcheckfunctionsFilename);
+});
+
 describe("measure curve25519-sq", () => {
-  const SUFF = "fiat";
-  afterAll(() => {
-    unlinkSync(Measuresuite.libcheckfunctionsFilename);
-  });
   it("check A/B versions", () => {
-    Measuresuite.libcheckfunctionssuffix = SUFF;
-    compileFiat(Measuresuite.libcheckfunctionsFilename);
     const measureTest = new Measuresuite(
       width,
       numArgsIn,
@@ -35,8 +38,6 @@ describe("measure curve25519-sq", () => {
     expect(result!.stats?.checkResult).toBe(true);
   });
   it("check A/A versions", () => {
-    Measuresuite.libcheckfunctionssuffix = SUFF;
-    compileFiat(Measuresuite.libcheckfunctionsFilename);
     const measureTest = new Measuresuite(
       width,
       numArgsIn,
@@ -55,8 +56,6 @@ describe("measure curve25519-sq", () => {
   describe("throw", () => {
     it("should throw if argwidth does not match bounds width", () => {
       expect(() => {
-        Measuresuite.libcheckfunctionssuffix = SUFF;
-        compileFiat(Measuresuite.libcheckfunctionsFilename);
         new Measuresuite(
           bounds.length + 1,
           numArgsIn,

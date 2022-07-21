@@ -122,6 +122,10 @@ export class Measuresuite {
     "RKL",
   ];
 
+  public static get uiCAinitialized(): boolean {
+    return existsSync(uiCAPY);
+  }
+
   public static measure_uiCA(functionA: string, functionB: string, arch: string): uiCAResult {
     if (!Measuresuite.supportedUicaArchs.includes(arch)) {
       throw new Error(
@@ -139,6 +143,10 @@ export class Measuresuite {
       spawnSync(`asmline`, ["-P", binFile, asmFile]);
 
       // call uiCA
+      if (!Measuresuite.uiCAinitialized) {
+        throw new Error(`uiCA seems to be not initialized.`);
+      }
+
       const uiCACmd = `${uiCAPY} ${binFile} -raw -TPonly -arch ${arch}`;
       try {
         const tp = execSync(uiCACmd).toString();

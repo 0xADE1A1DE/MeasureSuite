@@ -50,23 +50,25 @@ void increment(long *d, const long *s) {
 
 ## Dependencies
 - [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
-- git, make
+- `git`, `make`
+- For C-tests coverage `lcov` 
 - For TS: [Node.js](https://nodejs.org/en/)
 
 ## Build for TS-land
 
 1. Install dependencies
-1. Run `$ npm install` in a terminal
+1. Run `$ npm install`
 
 ## Build for C-land
 
 1. Install dependencies
 1. Run `make`
-1. Find `./libmeasuresuite.so` and use the methods from [`./src/include/measuresuite.h`](./src/include/measuresuite.h)
+1. Find `./libmeasuresuite.{a,so}` and use the methods from [`./src/include/measuresuite.h`](./src/include/measuresuite.h)
 
 ## Run tests
 
 1. For TypeScript-land tests `npm i && npm test`
 1. For C-land tests `make check`
+1. Find the html versions of the test report in `coverage{,-c}/index.html`
 
 

@@ -3,7 +3,9 @@ import { functionA, functionB } from "./functions_sq";
 
 Measuresuite.libcheckfunctionssuffix = "clang-AMD";
 
-describe("uiCA", () => {
+const describeif = (condition: boolean) => (condition ? describe : describe.skip);
+
+describeif(Measuresuite.uiCAinitialized)("uiCA", () => {
   it("should throw if an unsupported arch is requested", () => {
     expect(() => {
       Measuresuite.measure_uiCA(functionA, functionB, "arch-does-not-exist");

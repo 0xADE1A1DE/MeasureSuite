@@ -6,7 +6,7 @@ import { compileTestlib } from "./test-helper";
 describe("general with test_lib", () => {
   it("should get the right stats", () => {
     // We need to tell Measuresuite the suffix of how the so-file-will end.
-    Measuresuite.libcheckfunctionssuffix = "test_lib";
+    Measuresuite.libcheckfunctionssuffix = "test_lib-plus1";
 
     // Then, measuresuite's libcheckfunctionsFilename will tell us where to compile our all_lib.c file to.
     compileTestlib(Measuresuite.libcheckfunctionsFilename);
@@ -89,9 +89,8 @@ describe("general with test_lib", () => {
 
     // that's a bit risky though... As it depends on the machine
     expect(timeForAllB).toBeGreaterThan(timeForAllA); // But we just cross our fingers here.
-  });
 
-  afterAll(() => {
+    // cleanup for the testfile lib
     unlinkSync(Measuresuite.libcheckfunctionsFilename);
   });
 });
