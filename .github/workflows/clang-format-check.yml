@@ -9,7 +9,7 @@ on:
 
 jobs:
   formatting-check:
-    name: Expressive Formatting Check
+    name: C Expressive Formatting Check
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,7 @@ jobs:
         clang-format-version: '13'
 
   lint:
-    name: Lint Check
+    name: C Lint Check
     runs-on: ubuntu-latest
     steps:    
       - uses: actions/checkout@v3

@@ -9,7 +9,7 @@ on:
 
 jobs:
   formatting-check:
-    name: Prettier formatting check
+    name: TS Prettier formatting check
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
         echo "Some files failed the formatting checks!"; exit 1
 
   lint:
-    name: Lint check
+    name: TS Lint check
     runs-on: ubuntu-latest
     steps:
 
