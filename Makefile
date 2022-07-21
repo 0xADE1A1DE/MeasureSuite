@@ -54,7 +54,7 @@ deepclean: clean
 	rm -rf package-lock.json node_modules libmeasuresuite.a libmeasuresuite.so
 
 install-uiCA: uiCA/setup.sh
-	ce uiCA && git apply ../uiCA.patch
+	cd uiCA && git apply ../uiCA.patch
 	cd uiCA && (test -d instrData || ./setup.sh)
 
 uiCA/setup.sh:
