@@ -14,7 +14,8 @@
   "scripts": {
     "postinstall": "tsc -p .",
     "test": "jest --coverage",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "formatting": "prettier -c ./**/*.ts"
   },
   "prettier": {
     "trailingComma": "all",
