@@ -33,7 +33,7 @@
   "contributors": [
     "david.wu@student.adelaide.edu.au"
   ],
-  "license": "ISC",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/0xADE1AIDE/MeasureSuite#readme",
   "dependencies": {
     "lodash": "^4.17.21",
