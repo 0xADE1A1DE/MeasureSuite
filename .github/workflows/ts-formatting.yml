@@ -1,0 +1,46 @@
+name: TS Code formatting
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  formatting-check:
+    name: Prettier formatting check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: sudo apt install -y prettier
+
+    - uses: actions/checkout@v3
+
+    - name: Check
+      run: prettier --list-different ./**/*.ts
+
+    - name: Fail fast?!
+      if: failure()
+      run: |
+        echo "Some files failed the formatting checks!"; exit 1
+
+  lint:
+    name: Lint check
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    
+    - uses: actions/checkout@v3
+  
+    - name: Check
+      run: npm install && npm run lint
+  
+    - name: Fail fast?!
+      if: failure()
+      run: |
+        echo "Some files failed the linting checks!"; exit 1
