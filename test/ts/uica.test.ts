@@ -20,8 +20,8 @@ describeif(Measuresuite.uiCAinitialized)("uiCA", () => {
     expect(resultuiCA).not.toBeFalsy();
 
     // but estimate the throughput as -1,
-    expect(resultuiCA!.throughputA).toBe(-1);
-    expect(resultuiCA!.throughputB).toBe(-1);
+    expect(resultuiCA?.throughputA).toBe(-1);
+    expect(resultuiCA?.throughputB).toBe(-1);
   });
 
   it("check uiCA", () => {
@@ -29,7 +29,7 @@ describeif(Measuresuite.uiCAinitialized)("uiCA", () => {
 
     expect(resultuiCA).not.toBeFalsy();
 
-    expect(resultuiCA!.throughputA).toBe(39.25);
-    expect(resultuiCA!.throughputB).toBe(37);
+    expect(resultuiCA?.throughputA).toBe(39.25);
+    expect(resultuiCA?.throughputB).toBe(37);
   });
 });

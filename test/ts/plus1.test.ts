@@ -31,7 +31,12 @@ describe("general with test_lib", () => {
     const batchSize = 10000;
 
     // measure
-    const measurementResult = ms.measure(functionA, functionB, batchSize, nob)!;
+    const measurementResult = ms.measure(functionA, functionB, batchSize, nob);
+    expect(measurementResult).toBeTruthy();
+    if (!measurementResult) {
+      // this is more or less for typescript tooling to assert, that measurementResult is not nullish
+      throw new Error("measurementResult is nullish. This should not happen.");
+    }
 
     // minimum of both must be nob
     // measurementResult contains the general 'stats'

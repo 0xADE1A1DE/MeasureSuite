@@ -35,7 +35,7 @@ describe("measure curve25519-sq", () => {
     const result = measureTest.measure(functionA, functionB, numBatches, batchSize);
 
     expect(result).not.toBeFalsy();
-    expect(result!.stats?.checkResult).toBe(true);
+    expect(result?.stats?.checkResult).toBe(true);
   });
   it("check A/A versions", () => {
     const measureTest = new Measuresuite(
@@ -51,7 +51,7 @@ describe("measure curve25519-sq", () => {
 
     const result = measureTest.measure(functionA, functionA, numBatches, batchSize);
     expect(result).not.toBeFalsy();
-    expect(result!.stats?.checkResult).toBe(true);
+    expect(result?.stats?.checkResult).toBe(true);
   });
   describe("throw", () => {
     it("should throw if argwidth does not match bounds width", () => {

@@ -133,6 +133,8 @@ export class Measuresuite {
       );
     }
     const tmpDir = mkdtempSync(resolve(tmpdir(), "measure"));
+    const tmpDir2 = mkdtempSync(resolve(tmpdir(), "measure")) || undefined;
+    tmpDir2.toString();
     const [throughputA, throughputB] = [functionA, functionB].map((fun) => {
       // write to disk
       const asmFile = resolve(tmpDir, "func.asm");
