@@ -17,12 +17,10 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
-    - uses: 0xADE1A1DE/AssemblyLine@dev
-
     - uses: actions/checkout@v3
 
     - name: Check
-      run: npm install && npm run formatting
+      run: npx prettier --check ./**/*.ts
 
     - name: Fail fast?!
       if: failure()
@@ -37,10 +35,10 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
-    - uses: 0xADE1A1DE/AssemblyLine@dev
     
     - uses: actions/checkout@v3
   
+    - uses: 0xADE1A1DE/AssemblyLine@dev
     - name: Check
       run: npm install && npm run lint
   
