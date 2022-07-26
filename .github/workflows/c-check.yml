@@ -40,6 +40,7 @@ jobs:
       run: npm test
 
     - name: Code Coverage Summary
+      if: ${{ github.actor != 'dependabot[bot]' }}
       uses: irongut/CodeCoverageSummary@v1.2.0
       with:
         badge: true
@@ -48,8 +49,10 @@ jobs:
         filename: ./coverage/coverage.xml,coverage-c/coverage.xml
 
     - uses: jwalton/gh-find-current-pr@v1
+      if: ${{ github.actor != 'dependabot[bot]' }}
       id: finder
     - name: Add Coverage PR Comment
+      if: ${{ github.actor != 'dependabot[bot]' }}
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         number: ${{ steps.finder.outputs.pr }}
