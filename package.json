@@ -5,6 +5,11 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
+  "files": [
+    "./dist/index.js",
+    "./dist/index.d.ts",
+    "./dist/measuresuite.node"
+  ],
   "cpu": [
     "x64"
   ],
@@ -38,7 +43,7 @@
   "homepage": "https://github.com/0xADE1AIDE/MeasureSuite#readme",
   "dependencies": {
     "lodash-es": "^4.17.21",
-    "measure-addon": "file:./build/Release/measuresuite.node"
+    "measure-addon": "file:./dist/measuresuite.node"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.3",
@@ -54,6 +59,8 @@
     "node-gyp": "^9.0.0",
     "prettier": "^2.7.1",
     "rollup": "^2.77.0",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-dts": "^4.2.2",
     "ts-jest": "^28.0.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.7.4"
