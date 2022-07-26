@@ -27,8 +27,7 @@
       ],
       "include_dirs": [
         "./src/include",
-        "./src/lib",
-        "<(module_root_dir)/../../../bins/node/include"
+        "./src/lib"
       ],
       "libraries": [
         "-lassemblyline"

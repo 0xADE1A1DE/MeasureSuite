@@ -1,3 +1,20 @@
+## Building for TS
+
+- When running `npm i`, node-gyp errors out with
+```
+../src/binding/measuresuite_binding.c:18:10: fatal error: node/node_api.h: No such file or directory
+   18 | #include <node/node_api.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+```
+- This means that the `node/node_api.h`-header file could not be found.
+- Try using `find / -type f -name 'node_api.h'` to find the file and  
+    - either add the path to the `node` folder to the `include_dirs` in `binding.gyp` in the `measuresuite` target;
+    - or use `CFLAGS=-I/path/to/node npm i` while installing.
+- If `node/node_api.h` could not be found, get the node-package from [the node.js website](https://nodejs.org/en/download/current/) extract, find the `node_api.h` in there and set the paths accordingly.
+
+
+
 ## Running C Tests
 
 - When running `make check`
