@@ -71,4 +71,12 @@ void increment(long *d, const long *s) {
 1. For C-land tests `make check`
 1. Find the html versions of the test report in `coverage{,-c}/index.html`
 
-
+## Acknowledgements
+#### This project was supported by:  
+* The Air Force Office of Scientific Research (AFOSR) under award number FA9550-20-1-0425
+* An ARC Discovery Early Career Researcher Award (project number DE200101577) 
+* An ARC Discovery Project (project number DP210102670)  
+* The Blavatnik ICRC at Tel-Aviv University  
+* the Defense Advanced Research Projects Agency (DARPA) and Air Force Research Laboratory (AFRL) under contracts FA8750-19-C-0531 and HR001120C0087
+* the National Science Foundation under grant CNS-1954712
+* Gifts from AMD, Google, and Intel  
