@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Measuresuite from "../../src/";
+import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut } from "./functions";
 
 const chunkSize = 16;

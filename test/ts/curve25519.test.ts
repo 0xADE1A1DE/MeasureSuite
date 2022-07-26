@@ -16,7 +16,7 @@
 
 import { unlinkSync } from "fs";
 
-import Measuresuite from "../../src/";
+import { Measuresuite } from "../../src/";
 import { bounds, functionA, functionB, width, numArgsIn, numArgsOut } from "./functions_sq";
 import { numBatches, batchSize } from "./constants";
 import { compileFiat } from "./test-helper";

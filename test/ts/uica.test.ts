@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Measuresuite from "../../src/";
+import { Measuresuite } from "../../src/";
 import { functionA, functionB } from "./functions_sq";
 
 Measuresuite.libcheckfunctionssuffix = "clang-AMD";

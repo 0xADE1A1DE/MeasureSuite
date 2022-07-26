@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Measuresuite from "../../src/";
+import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
 import { unlinkSync } from "fs";
 import { compileTestlib } from "./test-helper";
