@@ -34,7 +34,7 @@ jobs:
       run: make install-uiCA
 
     - name: TS build
-      run: npm install
+      run: npm clean-install
 
     - name: TS checks (including coverage)
       run: npm test
