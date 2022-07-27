@@ -18,11 +18,8 @@ jobs:
           node-version: 16
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm clean-install
-        
-      - name: Check
-        run: npm run formatting
+      - name: Check Format
+        run: npm run format-check
 
       - name: Fail fast?!
         if: failure()
@@ -37,15 +34,10 @@ jobs:
         with:
           node-version: 16
 
-      - uses: 0xADE1A1DE/AssemblyLine@dev
-
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm clean-install
-
       - name: Check Lint
-        run: npm run lint
+        run: npm run lint-check
 
       - name: Fail fast?!
         if: failure()
