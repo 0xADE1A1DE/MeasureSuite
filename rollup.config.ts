@@ -3,7 +3,7 @@ import copy from "rollup-plugin-copy";
 
 import dts from "rollup-plugin-dts";
 
-const external = ["lodash-es", "measureaddon", "child_process", "fs", "os", "path"];
+const external = ["child_process", "fs", "lodash-es", "measureaddon", "module", "os", "path"];
 export default [
   {
     input: "src/index.ts",
