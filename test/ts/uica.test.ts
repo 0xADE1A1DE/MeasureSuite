@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
+import { resolve } from "path";
 import { Measuresuite } from "../../src/";
 import { functionA, functionB } from "./functions_sq";
 
-Measuresuite.libcheckfunctionssuffix = "clang-AMD";
+describe("uiCA", () => {
+  beforeAll(() => {
+    Measuresuite.setUiCaPath(resolve(process.cwd(), 'uiCA', "uiCA.py"));
+  });
 
-const describeif = (condition: boolean) => (condition ? describe : describe.skip);
-
-describeif(Measuresuite.uiCAinitialized)("uiCA", () => {
   it("should throw if an unsupported arch is requested", () => {
     expect(() => {
-      Measuresuite.measure_uiCA(functionA, functionB, "arch-does-not-exist");
+      Measuresuite.measureUiCA(functionA, functionB, "arch-does-not-exist");
     }).toThrow();
   });
 
   it("should return -1 as throughput, if the arch does not support instructions", () => {
     // SNB => Sandy bridge.
-    const resultuiCA = Measuresuite.measure_uiCA(functionA, functionB, "SNB");
+    const resultuiCA = Measuresuite.measureUiCA(functionA, functionB, "SNB");
 
     // It should return a valid object
     expect(resultuiCA).not.toBeFalsy();
@@ -41,7 +42,7 @@ describeif(Measuresuite.uiCAinitialized)("uiCA", () => {
   });
 
   it("check uiCA", () => {
-    const resultuiCA = Measuresuite.measure_uiCA(functionA, functionB, "CFL");
+    const resultuiCA = Measuresuite.measureUiCA(functionA, functionB, "CFL");
 
     expect(resultuiCA).not.toBeFalsy();
 

@@ -3,7 +3,7 @@ import copy from "rollup-plugin-copy";
 
 import dts from 'rollup-plugin-dts'
 
-const external = ["lodash-es", "measure-addon", "child_process", "fs", "os", "path"];
+const external = ["lodash-es", "measureaddon", "child_process", "fs", "os", "path"];
 export default [
   {
     input: "src/index.ts",
@@ -17,7 +17,7 @@ export default [
       targets: [
         {
           src: [
-            "build/Release/measuresuite.node",
+            "build/Release/measureaddon.node",
           ],
           dest: "./dist",
         },
@@ -26,7 +26,6 @@ export default [
     ],
   },
   {
-    // path to your declaration files root
     input: './dist/dts/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'es' }],
     plugins: [dts()],

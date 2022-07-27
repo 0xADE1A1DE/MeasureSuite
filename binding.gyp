@@ -18,7 +18,7 @@
       ]
     },
     {
-      "target_name": "measuresuite",
+      "target_name": "measureaddon",
       "sources": [
         "./src/binding/measuresuite_binding.c"
       ],

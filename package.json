@@ -8,7 +8,7 @@
   "files": [
     "./dist/index.js",
     "./dist/index.d.ts",
-    "./dist/measuresuite.node"
+    "./dist/measureaddon.node"
   ],
   "cpu": [
     "x64"
@@ -19,7 +19,7 @@
   "gypfile": true,
   "scripts": {
     "postinstall": "rollup --config rollup.config.ts",
-    "test": "jest --coverage",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "lint": "eslint .",
     "formatting": "prettier -c ./**/*.ts"
   },
@@ -43,7 +43,7 @@
   "homepage": "https://github.com/0xADE1AIDE/MeasureSuite#readme",
   "dependencies": {
     "lodash-es": "^4.17.21",
-    "measure-addon": "file:./dist/measuresuite.node"
+    "measureaddon": "file:./dist/measureaddon.node"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.3",
@@ -76,6 +76,17 @@
       "text",
       "html"
     ],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
+    },
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
     "preset": "ts-jest",
     "testEnvironment": "node",
     "testMatch": [

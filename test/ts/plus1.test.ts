@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { resolve } from "path";
+import { unlinkSync } from "fs";
 
 import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
-import { unlinkSync } from "fs";
 import { compileTestlib } from "./test-helper";
 
+const sharedObject = resolve(process.cwd(), "libcheckfunctions-fiat-libtest.so");
 describe("general with test_lib", () => {
   it("should get the right stats", () => {
-    // We need to tell Measuresuite the suffix of how the so-file-will end.
-    Measuresuite.libcheckfunctionssuffix = "test_lib-plus1";
 
-    // Then, measuresuite's libcheckfunctionsFilename will tell us where to compile our all_lib.c file to.
-    compileTestlib(Measuresuite.libcheckfunctionsFilename);
+    // We need to compile into the shared object from our all_lib.c.
+    compileTestlib(sharedObject);
 
     // set up as the bound  (to Binary-and the inpot and results with)
     const bounds = ["0xffffffffffffffff"];
@@ -37,7 +37,7 @@ describe("general with test_lib", () => {
     const chunkSize = 16;
 
     // create a Measuresuite object
-    const ms = new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, bounds, symbol);
+    const ms = new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, bounds, sharedObject, symbol);
 
     // number of batches: each function will have at least this many time-measurements
     const nob = 50;
@@ -112,6 +112,6 @@ describe("general with test_lib", () => {
     expect(timeForAllB).toBeGreaterThan(timeForAllA); // But we just cross our fingers here.
 
     // cleanup for the testfile lib
-    unlinkSync(Measuresuite.libcheckfunctionsFilename);
+    unlinkSync(sharedObject);
   });
 });

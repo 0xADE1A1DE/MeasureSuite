@@ -15,7 +15,7 @@
  */
 
 // c interface
-declare module "measure-addon" {
+declare module "measureaddon" {
   function measuresuite_init(
     argWidth: number,
     numArgIn: number,

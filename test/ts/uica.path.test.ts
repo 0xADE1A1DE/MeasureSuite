@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-import type { uiCAResult, MeasureResult } from "./measure.interface";
-import { Measuresuite, native_ms } from "./measuresuite";
+import { Measuresuite } from "../../src";
+import { functionA, functionB } from "./functions_sq";
 
-export type { uiCAResult, MeasureResult };
-export { Measuresuite, native_ms };
+
+describe("uiCA", () => {
+  it("should throw if the uica-Path is unset", () => {
+    expect(() => {
+      Measuresuite.measureUiCA(functionA, functionB, "RKL")
+    }).toThrow();
+  });
+  it("should throw if we set the uica-Path to something non existent", () => {
+    expect(() => {
+      Measuresuite.setUiCaPath("does not exist.");
+      Measuresuite.measureUiCA(functionA, functionB, "RKL")
+    }).toThrow();
+  });
+});

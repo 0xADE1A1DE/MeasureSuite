@@ -19,12 +19,12 @@ import { existsSync } from "fs";
 import { execSync } from "child_process";
 
 export function compileTestlib(outfile: string) {
-  const testlib_C = resolve(__dirname, "..", "all_lib.c");
+  const testlib_C = resolve(process.cwd(), "test", "all_lib.c");
   compile(testlib_C, outfile);
 }
 
 export function compileFiat(outile: string) {
-  const fiat_C = resolve(__dirname, "..", "all_fiat.c");
+  const fiat_C = resolve(process.cwd(), "test", "all_fiat.c");
   compile(fiat_C, outile);
 }
 
