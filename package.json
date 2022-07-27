@@ -20,7 +20,7 @@
   "scripts": {
     "postinstall": "rollup --config rollup.config.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "lint-check": "npx eslint .",
+    "lint-check": "eslint .",
     "format-check": "npx prettier --check \"./**/*.ts\" \"!./dist\""
   },
   "prettier": {
