@@ -17,7 +17,6 @@
 import { unlinkSync } from "fs";
 import { resolve } from "path";
 
-
 import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
 import { compileTestlib } from "./test-helper";
@@ -42,11 +41,27 @@ describe("general with test_lib", () => {
 
   it("should throw if argwidth does not match bounds width", () => {
     expect(() => {
-      new Measuresuite(width + 1, numArgsIn, numArgsOut, chunkSize, ["0xffffffffffffffff"], sharedObject, "increment");
+      new Measuresuite(
+        width + 1,
+        numArgsIn,
+        numArgsOut,
+        chunkSize,
+        ["0xffffffffffffffff"],
+        sharedObject,
+        "increment",
+      );
     }).toThrow();
   });
   it("should measure", () => {
-    const ms = new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, ["0xffffffffffffffff"], sharedObject, "increment");
+    const ms = new Measuresuite(
+      width,
+      numArgsIn,
+      numArgsOut,
+      chunkSize,
+      ["0xffffffffffffffff"],
+      sharedObject,
+      "increment",
+    );
     const res = ms.measure(functionA, functionB, 10, 10);
     expect(res).toBeTruthy();
     expect(res?.stats.checkResult).toBe(true);

@@ -17,17 +17,16 @@
 import { Measuresuite } from "../../src";
 import { functionA, functionB } from "./functions_sq";
 
-
 describe("uiCA", () => {
   it("should throw if the uica-Path is unset", () => {
     expect(() => {
-      Measuresuite.measureUiCA(functionA, functionB, "RKL")
+      Measuresuite.measureUiCA(functionA, functionB, "RKL");
     }).toThrow();
   });
   it("should throw if we set the uica-Path to something non existent", () => {
     expect(() => {
       Measuresuite.setUiCaPath("does not exist.");
-      Measuresuite.measureUiCA(functionA, functionB, "RKL")
+      Measuresuite.measureUiCA(functionA, functionB, "RKL");
     }).toThrow();
   });
 });

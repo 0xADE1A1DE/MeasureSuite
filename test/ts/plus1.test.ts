@@ -23,7 +23,6 @@ import { compileTestlib } from "./test-helper";
 const sharedObject = resolve(process.cwd(), "libcheckfunctions-fiat-libtest.so");
 describe("general with test_lib", () => {
   it("should get the right stats", () => {
-
     // We need to compile into the shared object from our all_lib.c.
     compileTestlib(sharedObject);
 

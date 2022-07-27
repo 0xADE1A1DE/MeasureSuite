@@ -45,7 +45,8 @@ describe("measure curve25519-sq", () => {
       numArgsIn,
       numArgsOut,
       chunkSize,
-      bounds, sharedObject,
+      bounds,
+      sharedObject,
       "fiat_curve25519_carry_square",
     );
 
@@ -60,7 +61,8 @@ describe("measure curve25519-sq", () => {
       numArgsIn,
       numArgsOut,
       chunkSize,
-      bounds, sharedObject,
+      bounds,
+      sharedObject,
       "fiat_curve25519_carry_square",
     );
 
@@ -78,7 +80,8 @@ describe("measure curve25519-sq", () => {
           numArgsIn,
           numArgsOut,
           chunkSize,
-          bounds, sharedObject,
+          bounds,
+          sharedObject,
           "fiat_curve25519_carry_square",
         );
       }).toThrow();

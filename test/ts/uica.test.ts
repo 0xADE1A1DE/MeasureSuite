@@ -20,7 +20,7 @@ import { functionA, functionB } from "./functions_sq";
 
 describe("uiCA", () => {
   beforeAll(() => {
-    Measuresuite.setUiCaPath(resolve(process.cwd(), 'uiCA', "uiCA.py"));
+    Measuresuite.setUiCaPath(resolve(process.cwd(), "uiCA", "uiCA.py"));
   });
 
   it("should throw if an unsupported arch is requested", () => {

@@ -1,7 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import copy from "rollup-plugin-copy";
 
-import dts from 'rollup-plugin-dts'
+import dts from "rollup-plugin-dts";
 
 const external = ["lodash-es", "measureaddon", "child_process", "fs", "os", "path"];
 export default [
@@ -12,22 +12,21 @@ export default [
       format: "es",
     },
     external,
-    plugins: [typescript(),
-    copy({
-      targets: [
-        {
-          src: [
-            "build/Release/measureaddon.node",
-          ],
-          dest: "./dist",
-        },
-      ],
-    }),
+    plugins: [
+      typescript(),
+      copy({
+        targets: [
+          {
+            src: ["build/Release/measureaddon.node"],
+            dest: "./dist",
+          },
+        ],
+      }),
     ],
   },
   {
-    input: './dist/dts/index.d.ts',
-    output: [{ file: 'dist/index.d.ts', format: 'es' }],
+    input: "./dist/dts/index.d.ts",
+    output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [dts()],
   },
 ];

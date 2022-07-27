@@ -32,7 +32,6 @@ export const native_ms = {
 };
 
 export class Measuresuite {
-
   /**
    *
    * @param bounds is a string array of length @param argwidth. It must contain hex-numbers representing a mask or an upper bound.
@@ -125,7 +124,6 @@ export class Measuresuite {
     "TGL",
     "RKL",
   ];
-
 
   private static uiCAPath: string;
 
