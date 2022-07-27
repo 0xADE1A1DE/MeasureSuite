@@ -21,7 +21,7 @@
     "postinstall": "rollup --config rollup.config.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "lint": "eslint .",
-    "formatting": "prettier -c ./**/*.ts"
+    "formatting": "prettier --check \"./**/*.ts\" \"!./dist\""
   },
   "prettier": {
     "trailingComma": "all",
