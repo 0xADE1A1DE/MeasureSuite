@@ -61,7 +61,7 @@ test/%.test:test/%.c Makefile test/helper.o libmeasuresuite.so
 
 clean:
 	rm -rf build dist coverage $(C_COV_DIR) test/.deps 
-	find . -type f -not -path "./uiCA/*" \( -name "*.gcda" -o -name "*.gcno" -o -name "*.o" -o -name "*.so" -o -name "*.html" \) -delete
+	find . -type f -not -path "./uiCA/*" \( -name "*.gcda" -o -name "*.gcno" -o -name "*.a" -o -name "*.o" -o -name "*.so" -o -name "*.html" \) -delete
 	rm -f $(TESTS)
 
 deepclean: clean
