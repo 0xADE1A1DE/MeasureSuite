@@ -18,6 +18,9 @@ jobs:
           node-version: 16
       - uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: npm clean-install
+        
       - name: Check
         run: npm run formatting
 
