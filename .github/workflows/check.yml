@@ -36,8 +36,8 @@ jobs:
     - name: TS build
       run: npm clean-install
 
-    - name: TS checks (including coverage)
-      run: npm test
+    - name: TS checks
+      run: npm run test-cov
 
     - name: Code Coverage Summary
       if: ${{ github.actor != 'dependabot[bot]' }}
@@ -46,7 +46,7 @@ jobs:
         badge: true
         format: markdown
         output: both
-        filename: ./coverage/coverage.xml,coverage-c/coverage.xml
+        filename: ./coverage/cobertura-coverage.xml,coverage-c/coverage.xml
 
     - uses: jwalton/gh-find-current-pr@v1
       if: ${{ github.actor != 'dependabot[bot]' }}

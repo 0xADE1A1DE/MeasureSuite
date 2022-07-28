@@ -8,14 +8,9 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "declaration": true,
-    "declarationDir": "dist/dts",
+    "declarationDir": "dist/dts"
   },
-  "include": [
-    "./src/*.ts"
-  ],
-  "exclude": [
-    "./node_modules",
-    "dist",
-    "coverage"
-  ]
+  "include": ["./src/*.ts"],
+  "exclude": ["./node_modules", "dist", "coverage"]
 }
+

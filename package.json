@@ -16,89 +16,53 @@
   "os": [
     "linux"
   ],
-  "gypfile": true,
-  "scripts": {
-    "postinstall": "rollup --config rollup.config.ts",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "lint-check": "eslint .",
-    "format-check": "npx prettier --check \"./**/*.ts\" \"!./dist\""
-  },
-  "prettier": {
-    "trailingComma": "all",
-    "printWidth": 110
-  },
   "repository": {
     "type": "git",
     "homepage": "https://github.com/0xADE1AIDE/MeasureSuite.git"
   },
-  "keywords": [
-    "measure",
-    "intel"
-  ],
   "author": "joel.kuepper@adelaide.edu.au",
   "contributors": [
     "david.wu@student.adelaide.edu.au"
   ],
   "license": "Apache-2.0",
   "homepage": "https://github.com/0xADE1AIDE/MeasureSuite#readme",
+  "scripts": {
+    "postinstall": "$npm_execpath run pack",
+    "test": "vitest",
+    "test-cov": "vitest --coverage",
+    "lint-check": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "format-check": "npx prettier --check \"./**/*.ts\" \"!./dist\"",
+    "pack": "rollup --config rollup.config.ts"
+  },
+  "gypfile": true,
+  "prettier": {
+    "trailingComma": "all",
+    "printWidth": 110
+  },
   "dependencies": {
     "lodash-es": "^4.17.21",
     "measureaddon": "file:./dist/measureaddon.node"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.3",
-    "@types/jest": "^28.1.5",
     "@types/lodash-es": "^4.17.6",
     "@types/node": "^18.6.1",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.31.0",
+    "c8": "^7.12.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "^28.1.3",
     "node-gyp": "^9.0.0",
     "prettier": "^2.7.1",
     "rollup": "^2.77.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-dts": "^4.2.2",
-    "ts-jest": "^28.0.6",
     "ts-node": "^10.4.0",
-    "typescript": "^4.7.4"
-  },
-  "jest": {
-    "coverageReporters": [
-      [
-        "cobertura",
-        {
-          "file": "coverage.xml"
-        }
-      ],
-      "text",
-      "html"
-    ],
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "useESM": true
-      }
-    },
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/test/ts/*.test.ts"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "collectCoverageFrom": [
-      "./src/*.ts"
-    ],
-    "verbose": true
+    "typescript": "^4.7.4",
+    "vite": "^3.0.3",
+    "vitest": "^0.19.1"
   },
   "eslintConfig": {
     "root": true,

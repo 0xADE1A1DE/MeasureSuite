@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { beforeAll, describe, expect, it } from "vitest";
+
 import { resolve } from "path";
 import { Measuresuite } from "../../src/";
 import { functionA, functionB } from "./functions_sq";

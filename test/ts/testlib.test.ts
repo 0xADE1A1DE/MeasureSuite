@@ -16,6 +16,7 @@
 
 import { unlinkSync } from "fs";
 import { resolve } from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
