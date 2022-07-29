@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "target": "ES2019",
-    "module": "CommonJS",
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
-    "declaration": true
+    "declaration": true,
+    "declarationDir": "dist/dts"
   },
   "include": ["./src/*.ts"],
   "exclude": ["./node_modules", "dist", "coverage"]
 }
+

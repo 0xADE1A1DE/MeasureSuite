@@ -14,36 +14,55 @@
  * limitations under the License.
  */
 
-import Measuresuite from "../../src/";
-import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
 import { unlinkSync } from "fs";
+import { resolve } from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+import { Measuresuite } from "../../src/";
+import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
 import { compileTestlib } from "./test-helper";
 
 const chunkSize = 16;
+const sharedObject = resolve(process.cwd(), "libcheckfunctions-fiat-libtest-2.so");
 
 beforeAll(() => {
-  Measuresuite.libcheckfunctionssuffix = "test_lib";
-  compileTestlib(Measuresuite.libcheckfunctionsFilename);
+  compileTestlib(sharedObject);
 });
 
 afterAll(() => {
-  unlinkSync(Measuresuite.libcheckfunctionsFilename);
+  unlinkSync(sharedObject);
 });
 
 describe("general with test_lib", () => {
   it("should accept an empty bounds array ", () => {
     expect(() => {
-      new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, [], "increment");
+      new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, [], sharedObject, "increment");
     }).not.toThrow();
   });
 
   it("should throw if argwidth does not match bounds width", () => {
     expect(() => {
-      new Measuresuite(width + 1, numArgsIn, numArgsOut, chunkSize, ["0xffffffffffffffff"], "increment");
+      new Measuresuite(
+        width + 1,
+        numArgsIn,
+        numArgsOut,
+        chunkSize,
+        ["0xffffffffffffffff"],
+        sharedObject,
+        "increment",
+      );
     }).toThrow();
   });
   it("should measure", () => {
-    const ms = new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, ["0xffffffffffffffff"], "increment");
+    const ms = new Measuresuite(
+      width,
+      numArgsIn,
+      numArgsOut,
+      chunkSize,
+      ["0xffffffffffffffff"],
+      sharedObject,
+      "increment",
+    );
     const res = ms.measure(functionA, functionB, 10, 10);
     expect(res).toBeTruthy();
     expect(res?.stats.checkResult).toBe(true);

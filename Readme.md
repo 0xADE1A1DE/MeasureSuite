@@ -1,8 +1,7 @@
 # MeasureSuite
-![Checks](https://img.shields.io/github/checks-status/0xADE1A1DE/MeasureSuite/main?logo=github&style=flat)
 ![Unit Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/c-check.yml/badge.svg)
 ![Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/clang-format-check.yml/badge.svg)
-![Version](https://img.shields.io/github/v/release/0xADE1A1DE/MeasureSuite?logo=github&style=flat)
+<!-- ![Version](https://img.shields.io/github/v/release/0xADE1A1DE/MeasureSuite?logo=github&style=flat) -->
 
 This library measures the execution time for code.
 In a nutshell, input is two assembly strings and a symbol in a shared object and the output is robust timing measures.

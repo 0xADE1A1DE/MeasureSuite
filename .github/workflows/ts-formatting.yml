@@ -13,40 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-    - uses: actions/checkout@v3
-
-    - name: Check
-      run: npx prettier --check ./**/*.ts
-
-    - name: Fail fast?!
-      if: failure()
-      run: |
-        echo "Some files failed the formatting checks!"; exit 1
+      - name: Check Format
+        run: npm run format-check
 
   lint:
     name: TS Lint check
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-  
-    - uses: 0xADE1A1DE/AssemblyLine@dev
+      - uses: actions/checkout@v3
 
-    - uses: actions/checkout@v3
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Check Lint
-      run: npm  run lint
-
-    - name: Fail fast?!
-      if: failure()
-      run: |
-        echo "Some files failed the linting checks!"; exit 1
+      - name: Install dependencies
+        run: npm clean-install --ignore-scripts
+        
+      - name: Check Lint
+        run: npm run lint-check

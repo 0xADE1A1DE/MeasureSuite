@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { unlinkSync } from "fs";
+import { resolve } from "path";
 
-import Measuresuite from "../../src/";
+import { Measuresuite } from "../../src/";
 import { bounds, functionA, functionB, width, numArgsIn, numArgsOut } from "./functions_sq";
 import { numBatches, batchSize } from "./constants";
 import { compileFiat } from "./test-helper";
 
 const chunkSize = 16;
+const sharedObject = resolve(process.cwd(), "libcheckfunctions-fiat-curve25519.so");
 
 it("sanity check", () => {
   expect(functionA.length).toBe(5363);
@@ -29,12 +32,11 @@ it("sanity check", () => {
 });
 
 beforeAll(() => {
-  Measuresuite.libcheckfunctionssuffix = "fiat-curve25519";
-  compileFiat(Measuresuite.libcheckfunctionsFilename);
+  compileFiat(sharedObject);
 });
 
 afterAll(() => {
-  unlinkSync(Measuresuite.libcheckfunctionsFilename);
+  unlinkSync(sharedObject);
 });
 
 describe("measure curve25519-sq", () => {
@@ -45,6 +47,7 @@ describe("measure curve25519-sq", () => {
       numArgsOut,
       chunkSize,
       bounds,
+      sharedObject,
       "fiat_curve25519_carry_square",
     );
 
@@ -60,6 +63,7 @@ describe("measure curve25519-sq", () => {
       numArgsOut,
       chunkSize,
       bounds,
+      sharedObject,
       "fiat_curve25519_carry_square",
     );
 
@@ -78,6 +82,7 @@ describe("measure curve25519-sq", () => {
           numArgsOut,
           chunkSize,
           bounds,
+          sharedObject,
           "fiat_curve25519_carry_square",
         );
       }).toThrow();

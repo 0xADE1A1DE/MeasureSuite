@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import { writeFileSync, mkdtempSync, existsSync } from "fs";
+import { writeFileSync, mkdtempSync, existsSync, rmSync } from "fs";
 import { resolve } from "path";
 import { tmpdir } from "os";
 import { execSync, spawnSync } from "child_process";
-import ms from "measure-addon";
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const ms = require("measureaddon");
 
 import type { uiCAResult, MeasureResult } from "./measure.interface";
 
@@ -27,24 +30,8 @@ export const native_ms = {
   init: ms.measuresuite_init,
   measure: ms.measuresuite_measure,
 };
-const uiCAPY = resolve(__dirname, `../uiCA/uiCA.py`);
 
 export class Measuresuite {
-  private static _libcheckfunctionsFilename: string;
-  private static chunkSize: number;
-
-  // the idea behind that is, to have different libcheckfunctions-p256-mul.so to be able to run multiple instances at the same time. otherwise one would overwrite the other
-  public static set libcheckfunctionssuffix(suff: string) {
-    this._libcheckfunctionsFilename = `${__dirname}/libcheckfunctions-${suff}.so`;
-  }
-
-  public static get libcheckfunctionsFilename(): string {
-    if (!Measuresuite._libcheckfunctionsFilename) {
-      throw new Error("set Measuresuite.libcheckfunctionssuffix first;");
-    }
-    return Measuresuite._libcheckfunctionsFilename;
-  }
-
   /**
    *
    * @param bounds is a string array of length @param argwidth. It must contain hex-numbers representing a mask or an upper bound.
@@ -59,14 +46,14 @@ export class Measuresuite {
     argNumOut: number,
     chunkSize: number,
     bounds: string[],
+    libcheckfunctionsFilename: string,
     functionSymbol: string,
   ) {
-    if (!existsSync(Measuresuite.libcheckfunctionsFilename)) {
+    if (!existsSync(libcheckfunctionsFilename)) {
       throw new Error(
-        `${Measuresuite.libcheckfunctionsFilename} does not exist. Cannot use measuresuite if there is no so for check the functions' results against.`,
+        `${libcheckfunctionsFilename} does not exist. Cannot use measuresuite if there is no shared object for check the functions' results against.`,
       );
     }
-    Measuresuite.chunkSize = chunkSize;
     if (bounds.length === 0) {
       // default to 'use all bits'
       bounds = Array(argwidth).fill("0xffffffffffffffff");
@@ -89,7 +76,7 @@ export class Measuresuite {
         argNumOut,
         chunkSize,
         bounds_u64,
-        Measuresuite.libcheckfunctionsFilename,
+        libcheckfunctionsFilename,
         functionSymbol,
       );
     } catch (e) {
@@ -138,16 +125,29 @@ export class Measuresuite {
     "RKL",
   ];
 
-  public static get uiCAinitialized(): boolean {
-    return existsSync(uiCAPY);
+  private static uiCAPath: string;
+
+  public static setUiCaPath(path: string) {
+    Measuresuite.uiCAPath = path;
   }
 
-  public static measure_uiCA(functionA: string, functionB: string, arch: string): uiCAResult {
-    if (!Measuresuite.supportedUicaArchs.includes(arch)) {
+  private static assertOkUiCaPath() {
+    if (!Measuresuite.uiCAPath || !existsSync(Measuresuite.uiCAPath)) {
       throw new Error(
-        `unsupported architecture. supported are: ${Measuresuite.supportedUicaArchs.join(",")}`,
+        `${Measuresuite.uiCAPath} does not exist. Cannot execute uiCA if the path does not even exist.`,
       );
     }
+  }
+
+  public static measureUiCA(functionA: string, functionB: string, arch: string): uiCAResult {
+    Measuresuite.assertOkUiCaPath();
+
+    if (!Measuresuite.supportedUicaArchs.includes(arch)) {
+      throw new Error(
+        `unsupported architecture. Supported are: ${Measuresuite.supportedUicaArchs.join(", ")}`,
+      );
+    }
+
     const tmpDir = mkdtempSync(resolve(tmpdir(), "measure"));
     const [throughputA, throughputB] = [functionA, functionB].map((fun) => {
       // write to disk
@@ -159,11 +159,7 @@ export class Measuresuite {
       spawnSync(`asmline`, ["-P", binFile, asmFile]);
 
       // call uiCA
-      if (!Measuresuite.uiCAinitialized) {
-        throw new Error(`uiCA seems to be not initialized.`);
-      }
-
-      const uiCACmd = `${uiCAPY} ${binFile} -raw -TPonly -arch ${arch}`;
+      const uiCACmd = `python3 ${Measuresuite.uiCAPath} ${binFile} -raw -TPonly -arch ${arch}`;
       try {
         const tp = execSync(uiCACmd).toString();
         const nu = Number(tp);
@@ -175,7 +171,7 @@ export class Measuresuite {
       }
       return -1;
     });
-    // rmSync(tmpDir, { recursive: true });
+    rmSync(tmpDir, { recursive: true });
 
     return {
       throughputA,

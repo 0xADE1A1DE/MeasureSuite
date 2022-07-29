@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-import type { uiCAResult, MeasureResult } from "./measure.interface";
-import { Measuresuite, native_ms } from "./measuresuite";
-
-export type { uiCAResult, MeasureResult };
-export { Measuresuite, native_ms };
+// c interface
+declare module "measureaddon" {
+  function measuresuite_init(
+    argWidth: number,
+    numArgIn: number,
+    numArgOut: number,
+    chunkSize: number,
+    bounds: BigUint64Array,
+    libCheckFunctionsFilename: string,
+    checkFunctionSymbolname: string,
+  ): void;
+  function measuresuite_measure(
+    functionA: string,
+    functionB: string,
+    batchSize: number,
+    numBatches: number,
+  ): string;
+}
