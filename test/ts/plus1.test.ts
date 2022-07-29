@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { resolve } from "path";
 import { unlinkSync } from "fs";
+import { resolve } from "path";
+import { describe, expect, it } from "vitest";
 
 import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";

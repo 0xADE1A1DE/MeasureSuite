@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { describe, expect, it } from "vitest";
+
 import { native_ms } from "../../src/";
 describe("native_ms", () => {
   it("should export the native interface with the correct properties", () => {

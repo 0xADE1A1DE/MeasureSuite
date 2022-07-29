@@ -21,11 +21,6 @@ jobs:
       - name: Check Format
         run: npm run format-check
 
-      - name: Fail fast?!
-        if: failure()
-        run: |
-          echo "Some files failed the formatting checks!"; exit 1
-
   lint:
     name: TS Lint check
     runs-on: ubuntu-latest
@@ -41,8 +36,3 @@ jobs:
         
       - name: Check Lint
         run: npm run lint-check
-
-      - name: Fail fast?!
-        if: failure()
-        run: |
-          echo "Some files failed the linting checks!"; exit 1
