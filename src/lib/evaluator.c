@@ -229,28 +229,38 @@ static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
   size_t bs = ms->batch_size;
   int w = ms->arg_width;
 
-  uint64_t *arg1 = ms->random_data;
-  uint64_t *arg2 = ms->random_data + w;
-  uint64_t *arg3 = ms->random_data + 2 * w;
+  // this is the initial config for the case that we have one out-variable
+  uint64_t *a0 = out;
+  uint64_t *a1 = ms->random_data;
+  uint64_t *a2 = ms->random_data + w;
+  uint64_t *a3 = ms->random_data + 2 * w;
+  uint64_t *a4 = NULL;
+  uint64_t *a5 = NULL;
+
+  if (ms->num_arg_out == 2) {
+    // shift them all one
+    a4 = a3;
+    a3 = a2;
+    a2 = a1;
+    // and add the new out
+    a1 = out + w;
+
+  } else if (ms->num_arg_out == 3) {
+    a5 = a3;
+    a4 = a2;
+    a3 = a1;
+    a2 = out + 2 * w;
+    a1 = out + w;
+  }
 
   uint64_t start_time = 0;
+  ms_start_timer(&start_time);
+  /** while (bs--) */
+  /**   func(a0, a1, a2, a3, a4, a5); */
 
-  switch (ms->num_arg_out) {
-  case 1:
-    ms_start_timer(&start_time);
-    while (bs--)
-      func(out, arg1, arg2, arg3);
-    break;
-  case 2:
-    ms_start_timer(&start_time);
-    while (bs--)
-      func(out, out + w, arg1, arg2, arg3);
-    break;
-  case 3:
-    ms_start_timer(&start_time);
-    while (bs--)
-      func(out, out + w, out + w + w, arg1, arg2, arg3);
-    break;
+  for (; bs > 0;) {
+    func(a0, a1, a2, a3, a4, a5);
+    bs--;
   }
 
   *count = ms_stop_timer(start_time);
