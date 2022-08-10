@@ -23,7 +23,7 @@ It can also predict the throughput of a Assembly program with the help of [uiCA 
 
 ### Increment a number (C-land)
 
-- Find `increment`-function in [the test library](./test/all_lib.c)h
+- Find `increment`-function in [the test library](./test/all_lib.c)
 ```c
 void increment(long *d, const long *s) {
     *d = *s + 1;
