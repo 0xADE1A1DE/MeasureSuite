@@ -1,5 +1,5 @@
 # MeasureSuite
-![Unit Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/c-check.yml/badge.svg)
+![Unit Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/check.yml/badge.svg)
 ![Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/clang-format-check.yml/badge.svg)
 <!-- ![Version](https://img.shields.io/github/v/release/0xADE1A1DE/MeasureSuite?logo=github&style=flat) -->
 
