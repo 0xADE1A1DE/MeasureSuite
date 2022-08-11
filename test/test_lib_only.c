@@ -29,12 +29,8 @@ int main() {
   void (*err)(measuresuite_t, const char *) =
       error_handling_helper_template_str;
 
-  char fa[] = {"mov rax, [rsi]\n"
-               "add rax, 1\n"
-               "mov [rdi], rax\n"
-               "ret\n"};
   const int num_batches = 200;
-  const int batch_size = 2;
+  const size_t batch_size = 200;
 
   // INIT
   const int arg_width = 1;
@@ -51,30 +47,26 @@ int main() {
   }
 
   // measure
-  if (ms_measure(ms, fa, fa, batch_size, num_batches)) {
-    err(ms, "Failed to measure. Reason: %s.");
+  if (ms_measure_lib_only(ms, batch_size, num_batches)) {
+    err(ms, "Failed to ms_measure_lib_only. Reason: %s.");
     return 1;
   }
-  const char *output = NULL;
-  size_t jsonlen = 0;
-  ms_getJson(ms, &output, &jsonlen);
 
-  const char *found = output;
-  int num_found = 0;
-  while ((found = strchr(found, '[')) != NULL) {
-    num_found++;
-    found += 1; // and continue searching from the next char.
-  };
-  printf("num_batches of %d resulted in %d x '[' char.\n", num_batches,
-         num_found);
+  const uint64_t *dest = NULL;
+  ms_get_libcycles(ms, &dest);
+
+  for (size_t i = 0; i < batch_size; i++) {
+    // every measurement should be bigger than 0
+    if (dest[i] <= 0) {
+      fprintf(stderr, "%lu should be bigger than 0\n", dest[i]);
+      return 1;
+    }
+  }
 
   // END
   if (ms_measure_end(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }
-  // numFound must be bigger than 2*num_batches, because each batch produces 2
-  // [a,b,c] pairs.
-  // if it is smaller (true), return 1;
-  return num_found <= 2 * num_batches;
+  return 0;
 }

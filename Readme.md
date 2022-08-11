@@ -18,6 +18,7 @@ It can also predict the throughput of a Assembly program with the help of [uiCA 
 - Reports chunk size counting. (i.e. how many instructions of a function beaks a chunk boundary)
 - Returns a JSON string with the measurement metrics.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
+- Features a measure-lib-only mode: Only provide a shared object file and a symbol. Be Aware: no checking and no random measurement possible (as there is nothing to inerleave / check against)
 
 ## Examples
 

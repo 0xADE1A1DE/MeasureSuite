@@ -145,10 +145,29 @@ int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
   return 0;
 }
 
+int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches) {
+  ms->num_batches = num_batches;
+  ms->batch_size = batch_size;
+
+  // running measurement
+  if (run_measurement_lib_only(ms) != 0) {
+    return 1;
+  }
+
+  ms->errorno = E_SUCCESS;
+  return 0;
+}
+
+void ms_get_libcycles(measuresuite_t ms, const size_t **dest) {
+  *dest = ms->cycle_results;
+
+  ms->errorno = E_SUCCESS;
+}
+
 /**
  * frees memory used for randomness and scratches
  * frees memory and mmaps
- * returns 0 on success, -1 in case of failure
+ * returns 0 on success, 1 in case of failure
  */
 int ms_measure_end(measuresuite_t ms) {
 

@@ -85,6 +85,27 @@ export class Measuresuite {
     }
   }
 
+  public measureLibOnly(batchSize: number, numBatches: number): number[] | null {
+    let result: ArrayBuffer | undefined;
+    try {
+      result = ms.measuresuite_measure_lib_only(batchSize, numBatches);
+    } catch (e) {
+      console.error("Measuresuite: in measuresuite_measure_lib_only, an error occurred", e);
+      throw new Error(`Could not measure.${e}`);
+    }
+
+    if (result) {
+      // I am not really sure how to create an number[] from this ArrayBuffer
+      const array = Object.values(result);
+      if (array.every((r) => typeof r === "number")) {
+        return array;
+      }
+    }
+
+    console.error(`>>${result}<< is not a number[]`);
+    return null;
+  }
+
   public measure(
     functionA: string,
     functionB: string,

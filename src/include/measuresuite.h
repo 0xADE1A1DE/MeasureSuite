@@ -58,13 +58,30 @@ int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
                int batch_size, int num_batches);
 
 /**
- * will print set the json result of the last measurement stored in @param ms
- * to @param json. Will write the length needed for that JSON into @param
- * json_len len.
+ * will set the json result of the last measurement stored in @param ms to
+ * @param json. Will write the length needed for that JSON into @param json_len
  *
  * @returns void
  */
 void ms_getJson(measuresuite_t ms, const char **json, size_t *json_len);
+
+/**
+ * like ms_measure, but will only measure the symbol from the
+ * check_function_symbolname use in conjunction with ms_get_libcycles.
+ *
+ * @returns 0 on success
+ * @returns 1 on failure
+ */
+int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches);
+
+/**
+ * will set @param dest to the array of measurements
+ * The array will have length of batch_size with which ms_measure_lib_only was
+ * called
+ *
+ * @returns void
+ */
+void ms_get_libcycles(measuresuite_t ms, const uint64_t **dest);
 
 /**
  * Will release all resources allocated with @param ms

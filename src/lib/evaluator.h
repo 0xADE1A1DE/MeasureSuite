@@ -24,4 +24,12 @@
  * @returns 0 on success, 1 on fail
  */
 int run_measurement(struct measuresuite *ms);
+
+/**
+ * executes the lib check function only
+ * writes the results to cycle_results in @param ms
+ * @returns 0 on success, 1 on fail
+ */
+int run_measurement_lib_only(struct measuresuite *ms);
+
 #endif
