@@ -31,4 +31,5 @@ declare module "measureaddon" {
     batchSize: number,
     numBatches: number,
   ): string;
+  function measuresuite_measure_lib_only(batchSize: number, numBatches: number): number[];
 }

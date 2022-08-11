@@ -242,6 +242,76 @@ napi_value measuresuite_measure(napi_env env, napi_callback_info info) {
   return result;
 }
 
+napi_value measuresuite_measure_lib_only(napi_env env,
+                                         napi_callback_info info) {
+
+  // getting back the instance
+  void *instance_data = NULL;
+  if (napi_get_instance_data(env, &instance_data) != napi_ok) {
+    return throw_and_return_napi_val(env, "Unable to get instance data.");
+  }
+  measuresuite_t ms = (measuresuite_t)instance_data;
+
+  // argument parsing
+  size_t argc = MS_MEASURE_ARGC;
+  napi_value argv[MS_MEASURE_ARGC]; // holds the values;
+  // this pointer points to the next free element in the argv-array
+  napi_value *cur_napi = argv;
+  int batchSize = 0;
+  int numBatches = 0;
+
+  // parse all args
+  if (napi_get_cb_info(env, info, &argc, argv, NULL, NULL) != napi_ok)
+    return throw_and_return_napi_val(env, "Failed to parse arguments");
+
+  // parse batchSize
+  if (napi_get_value_int32(env, *cur_napi++, &batchSize) != napi_ok)
+    return throw_and_return_napi_val(
+        env, "Invalid batchSize was passed as argument 1");
+
+  // parse numBatches
+  if (napi_get_value_int32(env, *cur_napi++, &numBatches) != napi_ok)
+    return throw_and_return_napi_val(
+        env, "Invalid numBatches was passed as argument 1");
+
+  // measure
+  int measure_res = ms_measure_lib_only(ms, batchSize, numBatches);
+  if (measure_res != 0) {
+    return throw_and_return_napi_val(env, ms_str_error(ms));
+  }
+
+  // get a pointer to the cycle results
+  const uint64_t *cycle_results = NULL;
+  ms_get_libcycles(ms, &cycle_results);
+
+  // length of elements in the typed array
+  size_t length = (size_t)numBatches;
+
+  // WE WILL CAST THEM TO uint32_t!
+
+  // create a JS arraybuffer from it
+  napi_value result = NULL;
+  if (napi_create_arraybuffer(env, sizeof(uint32_t) * length, NULL, &result)) {
+    return throw_and_return_napi_val(env,
+                                     "Unable to create result arraybuffer.");
+  }
+
+  // fill the array
+  napi_value js_element;
+  uint32_t c_element;
+
+  for (size_t i = 0; i < length; i++) {
+    c_element = (uint32_t)cycle_results[i];
+
+    if (napi_create_uint32(env, c_element, &js_element) != napi_ok ||
+        napi_set_element(env, result, i, js_element) != napi_ok) {
+      return throw_and_return_napi_val(env, "Unable to create result array.");
+    };
+  };
+
+  return result;
+}
+
 void registerFunction(napi_env env, napi_value exports, void *function,
                       const char *symbol) {
   napi_value _function = NULL;
@@ -260,6 +330,8 @@ napi_value Init(napi_env env, napi_value exports) {
 
   registerFunction(env, exports, measuresuite_init, "measuresuite_init");
   registerFunction(env, exports, measuresuite_measure, "measuresuite_measure");
+  registerFunction(env, exports, measuresuite_measure_lib_only,
+                   "measuresuite_measure_lib_only");
 
   return exports;
 }
