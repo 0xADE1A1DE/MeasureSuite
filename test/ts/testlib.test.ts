@@ -67,4 +67,17 @@ describe("general with test_lib", () => {
     expect(res).toBeTruthy();
     expect(res?.stats.checkResult).toBe(true);
   });
+
+  it("should run measureLibOnly", () => {
+    const ms = new Measuresuite(width, numArgsIn, numArgsOut, chunkSize, [], sharedObject, "increment");
+    const numBatches = 100;
+    const batchSize = 10000;
+    const result = ms.measureLibOnly(batchSize, numBatches);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result).toHaveLength(numBatches);
+    result.every((r) => {
+      expect(typeof r).toBe("number");
+      expect(r).toBeGreaterThanOrEqual(10);
+    });
+  });
 });
