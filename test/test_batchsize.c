@@ -58,7 +58,6 @@ int main() {
   const char *output = NULL;
   size_t jsonlen = 0;
   ms_getJson(ms, &output, &jsonlen);
-  printf("%s\n", output);
 
   const char *found = output;
   int num_found = 0;
