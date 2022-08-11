@@ -37,6 +37,47 @@ static int generate_json_from_measurement_results(
 static int realloc_or_fail(struct measuresuite *ms, void **dest,
                            size_t new_len);
 
+int run_measurement_lib_only(struct measuresuite *ms) {
+
+  // init arith_result mem;
+  // setting for each measurement to 0
+  memset(ms->arithmetic_results, 0,
+         ms->arithmetic_results_size_u64 * sizeof(uint64_t));
+
+  // init cyclecount mem
+  memset(ms->cycle_results, 0, ms->cycle_results_size_u64 * sizeof(uint64_t));
+  size_t count_c = 0;
+
+  // START MEASUREMENT
+  do {
+    if (randomize(ms) != 0) {
+      return 1;
+    }
+
+    run_batch(ms, ms->cycle_results + count_c, ms->arithmetic_results,
+              ms->function_check);
+
+    count_c++;
+
+    // if we fall out of space
+    if (count_c >= ms->cycle_results_size_u64) {
+      // new size, *2 backoff
+      ms->cycle_results_size_u64 *= 2;
+
+      if (realloc_or_fail(ms, (void **)&(ms->cycle_results),
+                          ms->cycle_results_size_u64 * sizeof(uint64_t))) {
+        return 1;
+      }
+      // memset'ing is done as init in recursive step
+      return run_measurement(ms);
+    }
+
+    // as long we did not finish num_batches
+  } while (count_c < (size_t)ms->num_batches);
+
+  return 0;
+}
+
 int run_measurement(struct measuresuite *ms) {
 
   // getting pointers
