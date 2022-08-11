@@ -120,7 +120,7 @@ void measuresuite_init(napi_env env, napi_callback_info info) {
   }
   if (type != napi_biguint64_array) {
     return throw_error_return_void(
-        env, "Invalid object was passes as argument 4. Expected arraybuffer.");
+        env, "Invalid object was passed as argument 4. Expected arraybuffer.");
   }
 
   if (bounds_len != (size_t)arg_width) {
