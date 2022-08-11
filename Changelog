@@ -1,2 +1,9 @@
-version 1.0.0 (today)
+version 1.1.0 (2022-08-02)
+	- new feature to ms_measure_lib_only and return an array of cycle measurements.
+
+version 1.0.1 (2022-08-02)
+	- Replace Jest with vite
+	- bundle as ESM
+
+version 1.0.0 (2022-07-21)
 	- initial release
