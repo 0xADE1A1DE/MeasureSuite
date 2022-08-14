@@ -103,7 +103,7 @@ static void measuresuite_time_pmc(uint64_t *t) {
   }
 #else
   // fallback
-  *t = current_timestamp();
+  *t = ms_current_timestamp();
 #endif
 }
 
