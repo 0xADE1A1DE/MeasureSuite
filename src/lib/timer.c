@@ -41,6 +41,10 @@ static void init_fdperf() {
     return;
   }
   buf = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ, MAP_SHARED, fdperf, 0);
+  // NOLINTNEXTLINE (mmap - api)
+  if (buf == MAP_FAILED) {
+    fdperf = -1;
+  }
 }
 
 static void measuresuite_time_pmc(uint64_t *t) {
