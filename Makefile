@@ -15,10 +15,10 @@
 # Files / Directories
 SRCS        = $(wildcard ./src/lib/*.c)
 TEST_SRCS   = $(wildcard ./test/test_*.c)
-TESTS       = $(TEST_SRCS:.c=.test)
+TESTS      ?= $(TEST_SRCS:.c=.test)
 C_COV_DIR   = coverage-c
 
-CFLAGS     ?= -Wall -Wextra -Werror
+CFLAGS     ?= -O2 -Wall -Wextra -Werror
 CPPFLAGS   += -I. -I./src/lib/ -I./src/include
 LDLIBS     += -lm -ldl
 
@@ -38,7 +38,7 @@ endif
 all: libmeasuresuite.so libmeasuresuite.a
 check: test report
 
-test: CFLAGS=-g -Wextra --coverage
+test: CFLAGS = -g -Wall -Wextra -Werror --coverage
 test: LDLIBS+= -L. -lmeasuresuite
 test: test/liball_fiat.so test/liball_lib.so $(TESTS) Makefile 
 
