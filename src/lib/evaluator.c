@@ -72,7 +72,7 @@ int run_measurement_lib_only(struct measuresuite *ms) {
         return 1;
       }
       // memset'ing is done as init in recursive step
-      return run_measurement(ms);
+      return run_measurement_lib_only(ms);
     }
 
     // as long we did not finish num_batches
