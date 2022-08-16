@@ -22,8 +22,14 @@ CFLAGS     ?= -O2 -Wall -Wextra -Werror
 CPPFLAGS   += -I. -I./src/lib/ -I./src/include
 LDLIBS     += -lm -ldl
 
+# to exclude Assemblyline, use `make NO_AL=1`
+ifdef NO_AL
+CPPFLAGS   += -DNO_AL
+else
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline)
 LDLIBS     += $(shell pkg-config --libs assemblyline)
+endif
+
 
 .PHONY: all check test report clean deepclean install-uiCA
 

@@ -45,6 +45,7 @@ int ms_measure_init(measuresuite_t *ms, int arg_width, int num_arg_in,
                     const char *lib_check_functions_filename,
                     const char *check_function_symbolname);
 
+#ifndef NO_AL
 /**
  * Needs an init'ed @param ms.
  * Will then assembles @param functionA and @param functionB to memory.
@@ -56,6 +57,7 @@ int ms_measure_init(measuresuite_t *ms, int arg_width, int num_arg_in,
  */
 int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
                int batch_size, int num_batches);
+#endif
 
 /**
  * will set the json result of the last measurement stored in @param ms to

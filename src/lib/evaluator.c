@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#ifndef NO_AL
 #include <assemblyline.h> // asm_get_code
-#include <errno.h>        // errno
-#include <stdio.h>        // snprintf
-#include <stdlib.h>       // alloc / size_t
-#include <string.h>       // memset / strerror
+#endif
+#include <errno.h>  // errno
+#include <stdio.h>  // snprintf
+#include <stdlib.h> // alloc / size_t
+#include <string.h> // memset / strerror
 
 #include "checker.h" // check
 #include "evaluator.h"
@@ -81,6 +83,7 @@ int run_measurement_lib_only(struct measuresuite *ms) {
   return 0;
 }
 
+#ifndef NO_AL
 static int generate_json_from_measurement_results(
     struct measuresuite *ms, uint64_t start_time, int check_result,
     size_t count_a, size_t count_c, uint64_t cycl_res_test[],
@@ -253,6 +256,7 @@ int run_measurement(struct measuresuite *ms) {
   return 0;
 }
 
+#endif
 
 static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
                       void (*func)(uint64_t *o, ...)) {

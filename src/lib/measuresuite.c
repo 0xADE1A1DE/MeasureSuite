@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef NO_AL
 #include <assemblyline.h>
+#endif
 #include <measuresuite.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +100,7 @@ int ms_measure_init(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
 
   ms_init_timer();
 
+#ifndef NO_AL
   ms->al_A = asm_create_instance(NULL, 0);
   ms->al_B = asm_create_instance(NULL, 0);
 
@@ -111,11 +114,13 @@ int ms_measure_init(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
 
   asm_set_all(ms->al_A, SMART);
   asm_set_all(ms->al_B, SMART);
+#endif
 
   ms->errorno = E_SUCCESS;
   return 0;
 }
 
+#ifndef NO_AL
 int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
                int batch_size, int num_batches) {
   asm_set_offset(ms->al_A, 0);
@@ -144,6 +149,7 @@ int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
   ms->errorno = E_SUCCESS;
   return 0;
 }
+#endif
 
 int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches) {
   ms->num_batches = num_batches;
@@ -171,6 +177,7 @@ void ms_get_libcycles(measuresuite_t ms, const size_t **dest) {
  */
 int ms_measure_end(measuresuite_t ms) {
 
+#ifndef NO_AL
   // destroying the assemblers.
   if (ms->al_A == NULL || asm_destroy_instance(ms->al_A)) {
     if (ms->al_A == NULL) {
@@ -186,6 +193,7 @@ int ms_measure_end(measuresuite_t ms) {
     ms->errorno = E_INTERNAL_MEASURE__FREE_B;
     return 1;
   }
+#endif
 
   // free random data spot
   if (end_random(ms)) {
