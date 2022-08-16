@@ -29,7 +29,9 @@ int main() {
   void (*err)(measuresuite_t, const char *) =
       error_handling_helper_template_str;
 
-  const int num_batches = 200;
+  const int num_batches = 2000;
+  // must be big enough to overflow the preallocated buffer once, to
+  // test the realloc_or_fail in ms_measure_lib_only
   const size_t batch_size = 200;
 
   // INIT
