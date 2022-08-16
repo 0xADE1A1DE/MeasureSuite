@@ -35,7 +35,15 @@ static int generate_json_from_measurement_results(
     uint64_t cycl_res_chk[]);
 
 static int realloc_or_fail(struct measuresuite *ms, void **dest,
-                           size_t new_len);
+                           size_t new_len) {
+  *dest = realloc(*dest, new_len);
+  if (*dest == NULL) {
+    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+  return 0;
+}
 
 int run_measurement_lib_only(struct measuresuite *ms) {
 
@@ -198,16 +206,6 @@ int run_measurement(struct measuresuite *ms) {
   return 0;
 }
 
-static int realloc_or_fail(struct measuresuite *ms, void **dest,
-                           size_t new_len) {
-  *dest = realloc(*dest, new_len);
-  if (*dest == NULL) {
-    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
-    ms->additional_info = strerror(errno);
-    return 1;
-  }
-  return 0;
-}
 
 static int generate_json_from_measurement_results(
     struct measuresuite *ms, uint64_t start_time, int check_result,
