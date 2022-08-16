@@ -83,7 +83,7 @@ int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches);
  *
  * @returns void
  */
-void ms_get_libcycles(measuresuite_t ms, const uint64_t **dest);
+void ms_get_libcycles(measuresuite_t ms, uint64_t **dest);
 
 /**
  * Will release all resources allocated with @param ms
