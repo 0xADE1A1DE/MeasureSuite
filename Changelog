@@ -1,3 +1,6 @@
+version 1.2.2 (2022-08-16)
+	- Chore, tests address sanitized
+
 version 1.2.1 (2022-08-16)
 	- remove const specifier when getting the cycles
 
