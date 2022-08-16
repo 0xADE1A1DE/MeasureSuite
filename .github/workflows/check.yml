@@ -23,11 +23,11 @@ jobs:
       with:
         submodules: recursive
 
-    - name: C checks (no assemblyline)
-      run: make check -f ./Makefile.noal
-
     - name: C checks (including coverage)
       run: make clean check
+
+    - name: C checks (no assemblyline)
+      run: make check -f ./Makefile.noal
 
     - uses: actions/setup-node@v3
       with:

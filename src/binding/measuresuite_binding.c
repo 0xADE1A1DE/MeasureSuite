@@ -281,7 +281,7 @@ napi_value measuresuite_measure_lib_only(napi_env env,
   }
 
   // get a pointer to the cycle results
-  const uint64_t *cycle_results = NULL;
+  uint64_t *cycle_results = NULL;
   ms_get_libcycles(ms, &cycle_results);
 
   // length of elements in the typed array
@@ -297,8 +297,8 @@ napi_value measuresuite_measure_lib_only(napi_env env,
   }
 
   // fill the array
-  napi_value js_element;
-  uint32_t c_element;
+  napi_value js_element = NULL;
+  uint32_t c_element = 0;
 
   for (size_t i = 0; i < length; i++) {
     c_element = (uint32_t)cycle_results[i];
