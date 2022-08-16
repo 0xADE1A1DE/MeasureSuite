@@ -151,7 +151,7 @@ int ms_measure(measuresuite_t ms, char *functionA, char *functionB,
 }
 #endif
 
-int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches) {
+int ms_measure_lib_only(measuresuite_t ms, size_t batch_size, int num_batches) {
   ms->num_batches = num_batches;
   ms->batch_size = batch_size;
 
@@ -181,14 +181,14 @@ int ms_measure_end(measuresuite_t ms) {
   // destroying the assemblers.
   if (ms->al_A == NULL || asm_destroy_instance(ms->al_A)) {
     if (ms->al_A == NULL) {
-      printf("ms dev should fix the struct and now overwrite in ms\n");
+      printf("ms ->al_A is null. \n");
     }
     ms->errorno = E_INTERNAL_MEASURE__FREE_A;
     return 1;
   }
   if (ms->al_B == NULL || asm_destroy_instance(ms->al_B)) {
     if (ms->al_B == NULL) {
-      printf("ms dev should fix the struct and now overwrite in ms\n");
+      printf("ms ->al_B is null. \n");
     }
     ms->errorno = E_INTERNAL_MEASURE__FREE_B;
     return 1;

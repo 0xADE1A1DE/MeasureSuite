@@ -74,7 +74,7 @@ void ms_getJson(measuresuite_t ms, const char **json, size_t *json_len);
  * @returns 0 on success
  * @returns 1 on failure
  */
-int ms_measure_lib_only(measuresuite_t ms, int batch_size, int num_batches);
+int ms_measure_lib_only(measuresuite_t ms, size_t batch_size, int num_batches);
 
 /**
  * will set @param dest to the array of measurements

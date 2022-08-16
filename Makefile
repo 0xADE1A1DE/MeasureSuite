@@ -18,7 +18,7 @@ TEST_SRCS   = $(wildcard ./test/test_*.c)
 TESTS       = $(TEST_SRCS:.c=.test)
 C_COV_DIR   = coverage-c
 
-CFLAGS     ?= -O2 -Wall -Wextra -Werror
+CFLAGS     ?= -Wall -Wextra -Werror
 CPPFLAGS   += -I. -I./src/lib/ -I./src/include
 LDLIBS     += -lm -ldl
 

@@ -97,6 +97,8 @@ int init_measure_scratch(struct measuresuite *ms) {
 int end_measure_scratch(struct measuresuite *ms) {
   // free allocated memory
   free(ms->arithmetic_results);
+  free(ms->run_order);
+  free(ms->cycle_results);
   free(ms->json);
   return 0;
 }

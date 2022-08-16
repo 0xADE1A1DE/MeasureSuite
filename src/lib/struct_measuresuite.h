@@ -29,7 +29,7 @@ struct measuresuite {
       bounds; // array of length arg_width and prodives bitmasks. Defaults to -1
 
   // how many measurements are done at least for function_A / B
-  int num_batches;
+  size_t num_batches;
 
   // how many times function_A/B is called in a row resulting in one measurement
   size_t batch_size;

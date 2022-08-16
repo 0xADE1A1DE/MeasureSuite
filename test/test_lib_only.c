@@ -52,7 +52,7 @@ int main() {
     return 1;
   }
 
-  const uint64_t *dest = NULL;
+  uint64_t *dest = NULL;
   ms_get_libcycles(ms, &dest);
 
   for (size_t i = 0; i < batch_size; i++) {

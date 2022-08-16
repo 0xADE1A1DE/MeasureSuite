@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "struct_measuresuite.h"
 #include <measuresuite.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,7 +24,6 @@
 const char symbol[] = {"fiat_p521_carry_mul"};
 const int arg_width = 9;
 const int arg_num_in = 2;
-// those arrays are below
 
 int main() {
 
@@ -53,6 +53,14 @@ int main() {
     };
 
     free(s);
+    // cannot use end here, because ms has never been fully initialized.
+    free(ms->arithmetic_results);
+    free(ms->bounds);
+    free(ms->cycle_results);
+    free(ms->json);
+    free(ms->random_data);
+    free(ms->run_order);
+    free(ms);
 
     // OK, as the error is expected
     return 0;

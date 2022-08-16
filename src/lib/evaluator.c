@@ -97,7 +97,7 @@ static int generate_json_from_measurement_results(
                    "\"chunksA\":%d,"
                    "\"chunksB\":%d,"
                    "\"batchSize\":%lu,"
-                   "\"numBatches\":%d,"
+                   "\"numBatches\":%lu,"
                    "\"runtime\":%" PRIu64 ","
                    "\"runOrder\":\"%s\","
                    "\"checkResult\":%s},"

@@ -57,6 +57,10 @@ int main() {
   ms->batch_size = 2;
   ms->num_batches = 2;
 
+  // destroy old instances
+  asm_destroy_instance(ms->al_A);
+  asm_destroy_instance(ms->al_B);
+
   ms->al_A = asm_create_instance(NULL, 0);
   ms->al_B = asm_create_instance(NULL, 0);
 
@@ -70,12 +74,17 @@ int main() {
     asm_assemble_str(ms->al_A, s);
     asm_assemble_str(ms->al_B, s);
   }
+
   asm_assemble_str(ms->al_A, "ret");
   asm_assemble_str(ms->al_B, "ret");
+
   free(s);
 
   // TEST
   int res = 0;
   res |= should_not_segfault(&ms);
+
+  res |= ms_measure_end(ms);
+
   return res;
 }
