@@ -1,3 +1,10 @@
+version 1.2.0 (2022-08-16)
+	- new feature to compile measuresuite with the NO_AL flag, to not use
+	assemblyline. Build with `make NO_AL=1` and use `ms_measure_lib_only` over
+	`ms_measure`
+	- fix a bug in ms_measure_lib_only, where the recursive call would measure
+	asm-code, too
+
 version 1.1.0 (2022-08-02)
 	- new feature to ms_measure_lib_only and return an array of cycle measurements.
 

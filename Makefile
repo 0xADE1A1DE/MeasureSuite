@@ -12,18 +12,23 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 
-CFLAGS     ?= -O2 -Wall -Wextra -Werror
-INCLUDE_AL  = $(shell pkg-config --cflags assemblyline)
-INCLUDES    = -I. -I./src/lib/ -I./src/include $(INCLUDE_AL)
-
+# Files / Directories
 SRCS        = $(wildcard ./src/lib/*.c)
 TEST_SRCS   = $(wildcard ./test/test_*.c)
 TESTS       = $(TEST_SRCS:.c=.test)
-
-LIB_AL      = $(shell pkg-config --libs assemblyline)
-LIB_MS      = -L. -lmeasuresuite 
-
 C_COV_DIR   = coverage-c
+
+CFLAGS     ?= -O2 -Wall -Wextra -Werror
+CPPFLAGS   += -I. -I./src/lib/ -I./src/include
+LDLIBS     += -lm -ldl
+
+# to exclude Assemblyline, use `make NO_AL=1`
+ifdef NO_AL
+CPPFLAGS   += -DNO_AL
+else
+CPPFLAGS   += $(shell pkg-config --cflags assemblyline)
+LDLIBS     += $(shell pkg-config --libs assemblyline)
+endif
 
 
 .PHONY: all check test report clean deepclean install-uiCA
@@ -33,7 +38,8 @@ C_COV_DIR   = coverage-c
 all: libmeasuresuite.so libmeasuresuite.a
 check: test report
 
-test: CFLAGS=-g -Wextra -fprofile-arcs -ftest-coverage
+test: CFLAGS=-g -Wextra --coverage
+test: LDLIBS+= -L. -lmeasuresuite
 test: test/liball_fiat.so test/liball_lib.so $(TESTS) Makefile 
 
 report:
@@ -43,20 +49,20 @@ report:
 	@genhtml -o $(C_COV_DIR) $(C_COV_DIR)/app.info
 
 %.o: %.c Makefile
-	$(CC) $(CFLAGS) $(<) $(INCLUDES) -c -o $(@)  
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $(<) -o $(@)  
 
 libmeasuresuite.a: $(SRCS:c=o)
 	$(AR) rcs $(@) $(^)
 
 libmeasuresuite.so: $(SRCS:c=o)
-	$(CC) $(CFLAGS) $(^) $(LIB_AL) -lm -ldl -shared -fPIC -fpie -o $(@)
+	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -fPIC -fpie -o $(@)
 
 test/liball_%.so: test/all_%.c
 	$(CC) $(CFLAGS) $(<) -shared -fPIC -fpie -o $(@)
 
 
-test/%.test:test/%.c Makefile test/helper.o libmeasuresuite.so
-	@$(CC) $(CFLAGS) $(<) $(INCLUDES) $(LIB_AL) $(LIB_MS) test/helper.o -o $(@)
+test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so
+	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) $(LDLIBS) test/helper.o -o $(@)
 	@./test/wrapper.sh $(@)
 
 clean:

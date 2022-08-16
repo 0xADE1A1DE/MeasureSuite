@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#ifndef NO_AL
 #include <assemblyline.h> // asm_get_code
-#include <errno.h>        // errno
-#include <stdio.h>        // snprintf
-#include <stdlib.h>       // alloc / size_t
-#include <string.h>       // memset / strerror
+#endif
+#include <errno.h>  // errno
+#include <stdio.h>  // snprintf
+#include <stdlib.h> // alloc / size_t
+#include <string.h> // memset / strerror
 
 #include "checker.h" // check
 #include "evaluator.h"
@@ -29,13 +31,16 @@
 static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
                       void (*func)(uint64_t *o, ...));
 
-static int generate_json_from_measurement_results(
-    struct measuresuite *ms, uint64_t start_time, int check_result,
-    size_t count_a, size_t count_c, uint64_t cycl_res_test[],
-    uint64_t cycl_res_chk[]);
-
 static int realloc_or_fail(struct measuresuite *ms, void **dest,
-                           size_t new_len);
+                           size_t new_len) {
+  *dest = realloc(*dest, new_len);
+  if (*dest == NULL) {
+    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+  return 0;
+}
 
 int run_measurement_lib_only(struct measuresuite *ms) {
 
@@ -69,12 +74,65 @@ int run_measurement_lib_only(struct measuresuite *ms) {
         return 1;
       }
       // memset'ing is done as init in recursive step
-      return run_measurement(ms);
+      return run_measurement_lib_only(ms);
     }
 
     // as long we did not finish num_batches
   } while (count_c < (size_t)ms->num_batches);
 
+  return 0;
+}
+
+#ifndef NO_AL
+static int generate_json_from_measurement_results(
+    struct measuresuite *ms, uint64_t start_time, int check_result,
+    size_t count_a, size_t count_c, uint64_t cycl_res_test[],
+    uint64_t cycl_res_chk[]) {
+  char *json = ms->json;
+  char *json_end = ms->json + ms->json_len;
+  json += snprintf(json, ms->json_len,
+                   "{\"stats\":"
+                   "{\"countA\":%lu,"
+                   "\"countB\":%lu,"
+                   "\"chunksA\":%d,"
+                   "\"chunksB\":%d,"
+                   "\"batchSize\":%lu,"
+                   "\"numBatches\":%d,"
+                   "\"runtime\":%" PRIu64 ","
+                   "\"runOrder\":\"%s\","
+                   "\"checkResult\":%s},"
+                   "\"times\":[",
+                   count_a, count_c - count_a, ms->chunks_A, ms->chunks_B,
+                   ms->batch_size, ms->num_batches,
+                   ms_current_timestamp() - start_time, ms->run_order,
+                   check_result ? "false" : "true");
+  const int max_print_len = 48;
+  // each iteration we append "[-1,LU,LU],\0", which has a maxlen of strlen(LU)
+  // -= 20; strlen("[-1,LU,LU],") == 7+2*20==47 + NUL-char
+  for (size_t idx = 0; idx < count_c; idx++) {
+    if (max_print_len + json > json_end) {
+      ms->json_len *= 2;                                 // double-backoff
+      long old_len_actual = (long)json - (long)ms->json; // like:strlen
+
+      if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len))
+        return 1;
+
+      // update local pointers
+      json = ms->json + old_len_actual;
+      json_end = ms->json + ms->json_len;
+      memset(json, '\0', json_end - json); // and zero the rest
+    }
+    char c = ms->run_order[idx];
+    // print out the results in json-format, using -1 as the 'no
+    // measurement'-placeholder
+    const char *tpl = c == 'a' ? "[%" PRIu64 ",-1,%" PRIu64 "],"
+                               : "[-1,%" PRIu64 ",%" PRIu64 "],";
+
+    json += snprintf(json, max_print_len, tpl, cycl_res_test[idx],
+                     cycl_res_chk[idx]);
+  }
+  // finalise json, overwriting the last comma
+  snprintf(json - 1, 3, "]}");
   return 0;
 }
 
@@ -198,68 +256,7 @@ int run_measurement(struct measuresuite *ms) {
   return 0;
 }
 
-static int realloc_or_fail(struct measuresuite *ms, void **dest,
-                           size_t new_len) {
-  *dest = realloc(*dest, new_len);
-  if (*dest == NULL) {
-    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
-    ms->additional_info = strerror(errno);
-    return 1;
-  }
-  return 0;
-}
-
-static int generate_json_from_measurement_results(
-    struct measuresuite *ms, uint64_t start_time, int check_result,
-    size_t count_a, size_t count_c, uint64_t cycl_res_test[],
-    uint64_t cycl_res_chk[]) {
-  char *json = ms->json;
-  char *json_end = ms->json + ms->json_len;
-  json += snprintf(json, ms->json_len,
-                   "{\"stats\":"
-                   "{\"countA\":%lu,"
-                   "\"countB\":%lu,"
-                   "\"chunksA\":%d,"
-                   "\"chunksB\":%d,"
-                   "\"batchSize\":%lu,"
-                   "\"numBatches\":%d,"
-                   "\"runtime\":%" PRIu64 ","
-                   "\"runOrder\":\"%s\","
-                   "\"checkResult\":%s},"
-                   "\"times\":[",
-                   count_a, count_c - count_a, ms->chunks_A, ms->chunks_B,
-                   ms->batch_size, ms->num_batches,
-                   ms_current_timestamp() - start_time, ms->run_order,
-                   check_result ? "false" : "true");
-  const int max_print_len = 48;
-  // each iteration we append "[-1,LU,LU],\0", which has a maxlen of strlen(LU)
-  // -= 20; strlen("[-1,LU,LU],") == 7+2*20==47 + NUL-char
-  for (size_t idx = 0; idx < count_c; idx++) {
-    if (max_print_len + json > json_end) {
-      ms->json_len *= 2;                                 // double-backoff
-      long old_len_actual = (long)json - (long)ms->json; // like:strlen
-
-      if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len))
-        return 1;
-
-      // update local pointers
-      json = ms->json + old_len_actual;
-      json_end = ms->json + ms->json_len;
-      memset(json, '\0', json_end - json); // and zero the rest
-    }
-    char c = ms->run_order[idx];
-    // print out the results in json-format, using -1 as the 'no
-    // measurement'-placeholder
-    const char *tpl = c == 'a' ? "[%" PRIu64 ",-1,%" PRIu64 "],"
-                               : "[-1,%" PRIu64 ",%" PRIu64 "],";
-
-    json += snprintf(json, max_print_len, tpl, cycl_res_test[idx],
-                     cycl_res_chk[idx]);
-  }
-  // finalise json, overwriting the last comma
-  snprintf(json - 1, 3, "]}");
-  return 0;
-}
+#endif
 
 static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
                       void (*func)(uint64_t *o, ...)) {
