@@ -20,4 +20,3 @@ check:
 	ldd            libmeasuresuite.so  | grep --silent --null-data --invert-match assemblyline
 	$(MAKE) check TESTS=./test/test_lib_only.test
 	
-

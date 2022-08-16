@@ -24,7 +24,7 @@ jobs:
         submodules: recursive
 
     - name: C checks (no assemblyline)
-      run: make clean check -f ./Makefile.noal
+      run: make check -f ./Makefile.noal
 
     - name: C checks (including coverage)
       run: make clean check
