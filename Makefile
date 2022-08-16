@@ -38,7 +38,8 @@ endif
 all: libmeasuresuite.so libmeasuresuite.a
 check: test report
 
-test: CFLAGS=-g -Wextra -fprofile-arcs -ftest-coverage
+test: CFLAGS=-g -Wextra --coverage
+test: LDLIBS+= -L. -lmeasuresuite
 test: test/liball_fiat.so test/liball_lib.so $(TESTS) Makefile 
 
 report:
@@ -54,14 +55,14 @@ libmeasuresuite.a: $(SRCS:c=o)
 	$(AR) rcs $(@) $(^)
 
 libmeasuresuite.so: $(SRCS:c=o)
-	$(LD) $(^) $(LDLIBS) -shared -fPIC -fpie -o $(@)
+	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -fPIC -fpie -o $(@)
 
 test/liball_%.so: test/all_%.c
 	$(CC) $(CFLAGS) $(<) -shared -fPIC -fpie -o $(@)
 
 
 test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(<) -L. -lmeasuresuite test/helper.o -o $(@)
+	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) $(LDLIBS) test/helper.o -o $(@)
 	@./test/wrapper.sh $(@)
 
 clean:
