@@ -49,7 +49,7 @@ void increment(long *d, const long *s) {
 - We see two tests, we call the static `measure_uiCA` method on the MeasureSuite class and get the estimation of the throughput for both functions.
 
 ## Dependencies
-- [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
+- [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine) (Can be skipped if builing with `NO_AL=1`, then MeasureSuite will only be able to measure runtime of a symbol in a shared object)
 - `git`, `make`
 - For C-tests coverage `lcov` 
 - For TS: [Node.js](https://nodejs.org/en/)
