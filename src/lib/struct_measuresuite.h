@@ -18,7 +18,9 @@
 #define STRUCT_MEASURESUITE_H
 
 #include "ms_error.h"
+#ifndef NO_AL
 #include <assemblyline.h>
+#endif
 #include <inttypes.h>
 #include <stdlib.h>
 
