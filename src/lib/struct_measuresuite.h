@@ -18,7 +18,9 @@
 #define STRUCT_MEASURESUITE_H
 
 #include "ms_error.h"
+#ifndef NO_AL
 #include <assemblyline.h>
+#endif
 #include <inttypes.h>
 #include <stdlib.h>
 
@@ -65,9 +67,11 @@ struct measuresuite {
   // handle for lib_check_functions_handle
   void *lib_check_functions_handle;
 
+#ifndef NO_AL
   // handle to assemblers
   assemblyline_t al_A;
   assemblyline_t al_B;
+#endif
 
   // amount of chunks
   int chunks_A;
