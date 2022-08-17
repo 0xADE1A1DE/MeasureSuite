@@ -17,6 +17,7 @@
 import { resolve } from "path";
 import { existsSync } from "fs";
 import { execSync } from "child_process";
+import { expect } from "vitest";
 
 export function compileTestlib(outfile: string) {
   const testlib_C = resolve(process.cwd(), "test", "all_lib.c");
@@ -34,4 +35,7 @@ function compile(infile: string, out: string) {
     const cmd = `${cc} ${infile} -O3 -fPIC -fpie -shared -o ${out}`;
     execSync(cmd);
   }
+}
+export function expectNotNull<T>(a: T): asserts a is NonNullable<T> {
+  expect(a).not.toBe(null);
 }

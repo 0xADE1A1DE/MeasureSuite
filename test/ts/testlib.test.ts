@@ -20,7 +20,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Measuresuite } from "../../src/";
 import { width, numArgsIn, numArgsOut, functionA, functionB } from "./functions";
-import { compileTestlib } from "./test-helper";
+import { expectNotNull, compileTestlib } from "./test-helper";
 
 const chunkSize = 16;
 const sharedObject = resolve(process.cwd(), "libcheckfunctions-fiat-libtest-2.so");
@@ -73,6 +73,7 @@ describe("general with test_lib", () => {
     const numBatches = 100;
     const batchSize = 10000;
     const result = ms.measureLibOnly(batchSize, numBatches);
+    expectNotNull(result);
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(numBatches);
     result.every((r) => {
