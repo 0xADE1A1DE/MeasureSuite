@@ -76,7 +76,7 @@ describe("general with test_lib", () => {
     expectNotNull(result);
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(numBatches);
-    result.every((r) => {
+    result!.every((r) => {
       expect(typeof r).toBe("number");
       expect(r).toBeGreaterThanOrEqual(10);
     });
