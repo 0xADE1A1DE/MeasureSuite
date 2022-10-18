@@ -15,7 +15,9 @@
  */
 
 #include "printer.h"
+#include <inttypes.h>
 #include <stdio.h>
+
 void printbin_single_number(uint64_t n) {
 
   const int bitwitdh_uint64 = 64;
@@ -48,7 +50,7 @@ void printbin(uint64_t const *a, uint64_t const *b, int len, int l) {
 void printhex(uint64_t const *a, uint64_t const *b, int len, int l) {
   int color = color_grn - (*a != *b); // col 32 when its equal, grn
   printf("\n\x1b[%dm @ %d/%d: \n"
-         "a:0x%016lx\n"
-         "b:0x%016lx\x1b[0m\n",
+         "a:0x%016" PRIx64 "\n"
+         "b:0x%016" PRIx64 "\x1b[0m\n",
          color, len, l, *a, *b);
 }

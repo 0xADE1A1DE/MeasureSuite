@@ -14,22 +14,33 @@
  * limitations under the License.
  */
 
-#include <stdio.h> // NULL
-#include <sys/time.h>
-
 #include "timer.h"
+
+#include <stdio.h> // NULL
+
+#ifdef __linux__
+#include <linux/perf_event.h> // PERF_*
+#endif
+#include <sys/ioctl.h>   //ioctl
+#include <sys/mman.h>    //mmap
+#include <sys/syscall.h> // __NR_perf_event_open
+#include <sys/time.h>
+#include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
 
 // declaration
 static void measuresuite_time_pmc(uint64_t *t);
 
-// NOLINTNEXTLINE (state)
-static int fdperf = -1;
-// NOLINTNEXTLINE (state)
-static struct perf_event_mmap_page *buf = 0;
-
 // prefer pmc
 // NOLINTNEXTLINE (state)
 static void (*timer_function)(uint64_t *) = measuresuite_time_pmc;
+
+// NOLINTNEXTLINE (state)
+static int fdperf = -1;
+
+#ifdef __linux__
+
+// NOLINTNEXTLINE (state)
+static struct perf_event_mmap_page *buf = 0;
 
 static void init_fdperf() {
   struct perf_event_attr attr;
@@ -46,6 +57,7 @@ static void init_fdperf() {
     fdperf = -1;
   }
 }
+#endif // __linux__
 
 static void measuresuite_time_pmc(uint64_t *t) {
   // eax: low 32

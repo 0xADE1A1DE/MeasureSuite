@@ -164,7 +164,7 @@ int ms_measure_lib_only(measuresuite_t ms, size_t batch_size, int num_batches) {
   return 0;
 }
 
-void ms_get_libcycles(measuresuite_t ms, size_t **dest) {
+void ms_get_libcycles(measuresuite_t ms, uint64_t **dest) {
   *dest = ms->cycle_results;
 
   ms->errorno = E_SUCCESS;
