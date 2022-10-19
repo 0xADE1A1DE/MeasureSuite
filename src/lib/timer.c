@@ -124,7 +124,7 @@ static void measuresuite_time_pmc(uint64_t *t) {
   }
 #endif                // x86 or arm linux
 #elif __APPLE__       // i.e. not __linux__
-  *t = m1_get_cycles()
+  *t = m1_get_cycles();
 #else
   // fallback
   *t = ms_current_timestamp();
@@ -144,6 +144,7 @@ uint64_t ms_current_timestamp() {
   return milliseconds;
 }
 
+#if __linux__
 // NOLINTNEXTLINE (the inlineasm is not analyzed with clang tidy)
 static void measuresuite_time_rdtscp(uint64_t *t) {
   // eax: low 32
@@ -160,6 +161,7 @@ static void measuresuite_time_rdtscp(uint64_t *t) {
   // barrier for cc
   asm volatile("" ::: "memory");
 }
+#endif
 
 /**
  * This function checks if we use PMC or fall back to something different

@@ -131,7 +131,7 @@ static void m1_setup_performance_counters(void) {
   } else {
     pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
   }
-  init_rdtsc();
+  m1_init_rdtsc();
   m1_configure_rdtsc();
 }
 
