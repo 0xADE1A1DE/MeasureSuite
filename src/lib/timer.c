@@ -34,10 +34,10 @@ static void measuresuite_time_pmc(uint64_t *t);
 // NOLINTNEXTLINE (state)
 static void (*timer_function)(uint64_t *) = measuresuite_time_pmc;
 
+#ifdef __linux__
+
 // NOLINTNEXTLINE (state)
 static int fdperf = -1;
-
-#ifdef __linux__
 
 // NOLINTNEXTLINE (state)
 static struct perf_event_mmap_page *buf = 0;
