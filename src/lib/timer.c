@@ -16,13 +16,13 @@
 
 #include "timer.h"
 
-#include <stdio.h> // NULL
-
 #ifdef __linux__
 #include <linux/perf_event.h> // PERF_*
 #endif
-#include <sys/ioctl.h>   //ioctl
-#include <sys/mman.h>    //mmap
+
+#include <stdio.h>       // NULL
+#include <sys/ioctl.h>   // ioctl
+#include <sys/mman.h>    // mmap
 #include <sys/syscall.h> // __NR_perf_event_open
 #include <sys/time.h>
 #include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
@@ -42,7 +42,7 @@ static int fdperf = -1;
 // NOLINTNEXTLINE (state)
 static struct perf_event_mmap_page *buf = 0;
 
-static void init_fdperf() {
+static void init() {
   struct perf_event_attr attr;
   attr.type = PERF_TYPE_HARDWARE;
   attr.config = PERF_COUNT_HW_CPU_CYCLES;
@@ -57,11 +57,17 @@ static void init_fdperf() {
     fdperf = -1;
   }
 }
-#endif // __linux__
+
+#elif __APPLE__
+// arm on darwin
+#include "m1cycles.h"
+
+static void init() { m1_setup_performance_counters(); }
+
+#endif // __linux__/__APPLE__
 
 static void measuresuite_time_pmc(uint64_t *t) {
-  // eax: low 32
-  // edx: high 32
+#if __linux__
 #if defined(__x86_64__) || defined(__amd64__)
   long long result = 0;
   unsigned int seq = 0;
@@ -100,9 +106,8 @@ static void measuresuite_time_pmc(uint64_t *t) {
   // https://github.com/lemire/Code-used-on-Daniel-Lemire-s-blog/blob/master/2021/03/24/benchmark.cpp
   // or here
   // https://github.com/google/benchmark/blob/v1.1.0/src/cycleclock.h#L116
-#elif (__linux__ &&                                                            \
-       __ARM_ARCH >=                                                           \
-           6) // V6 is the earliest arch that has a standard cyclecount
+
+#elif __ARM_ARCH >= 6 // V6 is the earliest arch that has a standard cyclecount
   uint32_t pmccntr;
   uint32_t pmuseren;
   uint32_t pmcntenset;
@@ -117,6 +122,9 @@ static void measuresuite_time_pmc(uint64_t *t) {
       *t = (uint64_t)(pmccntr)*64; // Should optimize to << 6
     }
   }
+#endif                // x86 or arm linux
+#elif __APPLE__       // i.e. not __linux__
+  *t = m1_get_cycles()
 #else
   // fallback
   *t = ms_current_timestamp();
@@ -138,6 +146,8 @@ uint64_t ms_current_timestamp() {
 
 // NOLINTNEXTLINE (the inlineasm is not analyzed with clang tidy)
 static void measuresuite_time_rdtscp(uint64_t *t) {
+  // eax: low 32
+  // edx: high 32
   // barrier for cc
   asm volatile("" ::: "memory");
   __asm__ __volatile__("LFENCE;\n\t"
@@ -156,21 +166,26 @@ static void measuresuite_time_rdtscp(uint64_t *t) {
  */
 void ms_init_timer() {
 
-  // try to initialize
-  init_fdperf();
+  // try to initialize (will internally handle __APPLE__ // __linux__ arch's)
+  init();
 
+  // If we are on linx and x86, we can also fallback to RDTSCP
+#if __linux__ && (defined(__x86_64__) || defined(__amd64__))
   if (fdperf == -1) {
     // if that  failed, we need to resort to RDTSCP
     timer_function = measuresuite_time_rdtscp;
   }
+#endif
 }
 
 // exposed
 void ms_start_timer(uint64_t *start) {
-  // we need to reset the PMC if we are using them.
+#if __linux__
+  // we need to reset the PMC if we are using them on linnux
   if (timer_function == measuresuite_time_pmc) {
     ioctl(fdperf, PERF_EVENT_IOC_RESET, 0);
   }
+#endif
   timer_function(start);
 }
 
