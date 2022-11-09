@@ -105,7 +105,7 @@ int end_measure_scratch(struct measuresuite *ms) {
 
 static int init_cycle_results(struct measuresuite *ms) {
 
-  int max_runs = ms->num_batches * RANDOMNESS_MULTIPLIER;
+  size_t max_runs = ms->num_batches * RANDOMNESS_MULTIPLIER;
 
   // this *4 is because we need 4 times the space. one half for c, one quater of
   // a and b resp.
@@ -145,7 +145,9 @@ static int init_arithmetic_results(struct measuresuite *ms) {
   /** |         out1[0] , out1[1], ... , out1[#arg_width]       | */
   /** +---------------------------------------------------------+ */
 
-  ms->arithmetic_results_size_u64 = ms->arg_width * 2 * ms->num_arg_out;
+  const int amount_results = 2; // one from asm, one from the check function
+  ms->arithmetic_results_size_u64 =
+      ms->arg_width * amount_results * ms->num_arg_out;
   size_t size_arith_res_b = ms->arithmetic_results_size_u64 * sizeof(uint64_t);
 
   ms->arithmetic_results = malloc(size_arith_res_b);
@@ -157,7 +159,7 @@ static int init_arithmetic_results(struct measuresuite *ms) {
   return 0;
 }
 static int init_run_order(struct measuresuite *ms) {
-  int max_runs = ms->num_batches * RANDOMNESS_MULTIPLIER;
+  size_t max_runs = ms->num_batches * RANDOMNESS_MULTIPLIER;
 
   /**
    * max_runs is a over estimation for each run.

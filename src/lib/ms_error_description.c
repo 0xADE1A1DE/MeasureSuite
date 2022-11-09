@@ -28,11 +28,16 @@ static struct error_desc {
      "uint64_t the arg1, arg2, ... points to."},
     {E_INVALID_INPUT__BOUNDS_NULL, "The provided bounds pointer is null."},
     {E_INVALID_INPUT__NUM_ARG_IN,
-     "The number of in-arguments is invalid (<0 or too big.) I.e. There must "
+     "The number of in-arguments is invalid (must be between 1 and 6.) I.e. "
+     "There must "
      "be at least one arg1 in function_check(out1[n], arg1[n])"},
     {E_INVALID_INPUT__NUM_ARG_OUT,
-     "The number of out-arguments is invalid (<0 or too big.) I.e. There must "
+     "The number of out-arguments is invalid (must be between 1 and 6.) I.e. "
+     "There must "
      "be at least one out1 in function_check(out1[n], arg1[n])"},
+    {E_INVALID_INPUT__NUM_ARG_TOO_LARGE,
+     "The function can at max take 6 parameters. I.e. Sum of number of in/out "
+     "arguments must be <=6."},
     {E_INVALID_INPUT__CHUNK_SIZE,
      "The given chunksize is invalid. Use Chunksize 0 to disable NOP'ing to "
      "chunk boundries."},

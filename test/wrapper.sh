@@ -25,7 +25,8 @@ filename=$(basename "${1}")
 #directory of where libmeasuresuite.so resides
 libpath=..
 
-cd test && LD_LIBRARY_PATH=${libpath} "./${filename}" >/dev/null 2>&1
+pushd "test" || exit 2
+LD_LIBRARY_PATH=${libpath} "./${filename}" >/dev/null 2>&1
 case ${?} in
 0)
   printf "\033[32m  OK  \033[0m%s\n" "${filename}"
@@ -36,6 +37,8 @@ case ${?} in
   exit 0
   ;;
 1 | *)
+  LD_LIBRARY_PATH=${libpath} "./${filename}"
+  echo LD_LIBRARY_PATH=${libpath} "./${filename}"
   printf "\033[31m FAIL \033[0m%s\n" "${filename}"
   exit 1
   ;;

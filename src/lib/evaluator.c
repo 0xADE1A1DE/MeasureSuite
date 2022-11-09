@@ -272,21 +272,35 @@ static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
   uint64_t *a1 = ms->random_data;
   uint64_t *a2 = ms->random_data + w;
   uint64_t *a3 = ms->random_data + 2 * w;
-  uint64_t *a4 = NULL;
-  uint64_t *a5 = NULL;
+  uint64_t *a4 = ms->random_data + 3 * w;
+  uint64_t *a5 = ms->random_data + 4 * w;
 
-  if (ms->num_arg_out == 2) {
+  if (ms->num_arg_out == 1) {
+    // do nothing, stay with default
+  } else if (ms->num_arg_out == 2) {
     // shift them all one
+    a5 = a4;
     a4 = a3;
     a3 = a2;
     a2 = a1;
     // and add the new out
     a1 = out + w;
-
   } else if (ms->num_arg_out == 3) {
     a5 = a3;
     a4 = a2;
     a3 = a1;
+    a2 = out + 2 * w;
+    a1 = out + w;
+  } else if (ms->num_arg_out == 4) {
+    a5 = a2;
+    a4 = a1;
+    a3 = out + 3 * w;
+    a2 = out + 2 * w;
+    a1 = out + w;
+  } else {
+    a5 = a1;
+    a4 = out + 4 * w;
+    a3 = out + 3 * w;
     a2 = out + 2 * w;
     a1 = out + w;
   }

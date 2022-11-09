@@ -34,6 +34,7 @@ int ms_measure_init(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
                     int num_arg_out, int chunk_size, const uint64_t *bounds,
                     const char *lib_check_functions_filename,
                     const char *check_function_symbolname) {
+  const int max_number_arguments = 6;
 
   measuresuite_t ms = calloc(1, sizeof(struct measuresuite));
   *dest_ms = ms;
@@ -54,17 +55,22 @@ int ms_measure_init(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
   // could tests access here, but if its not an proper array, then the
   // measure-call will SIGSEGV
 
-  if (num_arg_in < 1 || num_arg_in > 3) {
+  if (num_arg_in < 1 || num_arg_in >= max_number_arguments) {
     ms->errorno = E_INVALID_INPUT__NUM_ARG_IN;
     return 1;
   }
   ms->num_arg_in = num_arg_in;
 
-  if (num_arg_out < 1 || num_arg_out > 3) {
+  if (num_arg_out < 1 || num_arg_out > max_number_arguments) {
     ms->errorno = E_INVALID_INPUT__NUM_ARG_OUT;
     return 1;
   }
   ms->num_arg_out = num_arg_out;
+
+  if (num_arg_out + num_arg_in > max_number_arguments) {
+    ms->errorno = E_INVALID_INPUT__NUM_ARG_TOO_LARGE;
+    return 1;
+  }
 
   if (chunk_size < 0) {
     ms->errorno = E_INVALID_INPUT__CHUNK_SIZE;

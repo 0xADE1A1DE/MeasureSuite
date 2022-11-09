@@ -64,3 +64,15 @@ void array_width_five_add_pair(uint64_t *o, const uint64_t *i0,
   o[3] = i0[3] + i1[3];
   o[4] = i0[4] + i1[4];
 }
+void mul2(uint64_t out1[4], uint64_t out2[4], const uint64_t arg1[4],
+          const uint64_t arg2[4], const uint64_t arg3[4],
+          const uint64_t arg4[4]) {
+  out1[0] = arg1[0] * arg2[0];
+  out1[1] = arg1[1] * arg2[1];
+  out1[2] = arg1[2] * arg2[2];
+  out1[3] = arg1[3] * arg2[3];
+  out2[0] = arg3[0] * arg4[0];
+  out2[1] = arg3[1] * arg4[1];
+  out2[2] = arg3[2] * arg4[2];
+  out2[3] = arg3[3] * arg4[3];
+}
