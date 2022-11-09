@@ -64,6 +64,7 @@ test/liball_%.so: test/all_%.c
 test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so
 	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) $(LDLIBS) test/helper.o -o $(@)
 	@./test/wrapper.sh $(@)
+	@rm $(@)
 
 clean:
 	rm -rf build dist coverage $(C_COV_DIR) test/.deps 
