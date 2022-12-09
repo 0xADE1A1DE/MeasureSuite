@@ -71,6 +71,22 @@ void increment(long *d, const long *s) {
 1. For C-land tests `make check`
 1. Find the html versions of the test report in `coverage{,-c}/index.html`
 
+## Use cases
+
+You can run MS with 
+- two asm-strings and one shared object + symbol (will run acacbcacbc, where a/b is random, and check result against c, needs AssemblyLine)
+  - `ms_initialize`, `ms_enable_checking`, `ms_measure`, `ms_get_json`, `ms_terminate`
+- two asm-strings (will run ababaababaaab, skips the check, needs AssemblyLine)
+  - `ms_initialize`, `ms_measure`, `ms_get_json`, `ms_terminate`
+- one shared object symbol (will run ccccccc) (uses dlopen)
+  - `ms_initialize`, `ms_enable_checking`, `ms_measure_lib_only`, `ms_get_libcycles`, `ms_terminate`
+- object-file+symbol(s) (runs aaaaaaa or ababaaab, if one or two are loaded, used mmap to allocate/ copy the code from object into. )
+  - `ms_initialize`, `ms_load_elf`, `ms_load_elf`, `ms_measure`, `ms_get_json`, `ms_terminate`
+
+measure()
+measure_ab()
+measure_abc(char* a, char*, size_t bs, size_t nob) // a, b, check,
+
 ## Acknowledgements
 #### This project was supported by:  
 * The Air Force Office of Scientific Research (AFOSR) under award number FA9550-20-1-0425

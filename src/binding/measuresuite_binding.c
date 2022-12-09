@@ -37,7 +37,7 @@
 
 // NOLINTNEXTLINE (must declare hint as a valid callback for NODE_API)
 void finalise(napi_env env, void *finalize_data, void *finalize_hint) {
-  if (ms_measure_end((measuresuite_t)finalize_data)) {
+  if (ms_terminate((measuresuite_t)finalize_data)) {
     if (napi_throw_error(env, NULL, "measure_end didnt work.") != napi_ok) {
       fprintf(stderr, "Unable to throw error.\n");
     }
@@ -151,12 +151,18 @@ void measuresuite_init(napi_env env, napi_callback_info info) {
 
   // execute measure_init
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, num_arg_in, num_arg_out, chunksize,
-                      bounds, lib_check_functions_filename,
-                      check_function_symbolname) != 0) {
+  if (ms_initialize(&ms, arg_width, num_arg_in, num_arg_out, chunksize,
+                    bounds) != 0) {
     ms_p_error(ms);
     return throw_error_return_void(env,
                                    "Unable to create measuresuite instance.");
+  }
+
+  if (ms_enable_checking(ms, lib_check_functions_filename,
+                         check_function_symbolname) != 0) {
+    ms_p_error(ms);
+    return throw_error_return_void(env,
+                                   "Unable to create load libcheckfunctions.");
   }
 
   // save the measuresuite_t handle in as the instance data. and set the

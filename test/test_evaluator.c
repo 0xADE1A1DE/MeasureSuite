@@ -15,15 +15,16 @@
  */
 
 // unit-test
+#include "helper.h"
 #include "src/lib/evaluator.h"
 #include <assemblyline.h>
 #include <measuresuite.h>
 #include <stdio.h>
 
-static const int ARG_WIDTH = 3;
+const int arg_width = 3;
 
 static void mock_check(uint64_t *out1, const uint64_t *arg1) {
-  for (int i = 0; i < ARG_WIDTH; i++) {
+  for (int i = 0; i < arg_width; i++) {
     *(out1 + i) = *(arg1 + i);
   }
 }
@@ -38,6 +39,10 @@ static int should_not_segfault(measuresuite_t *ms) {
 int main() {
   measuresuite_t ms = NULL;
 
+  // convenience pointer
+  void (*err)(measuresuite_t, const char *) =
+      error_handling_helper_template_str;
+
   // INIT
 
   int arg_num_in = 1;
@@ -51,8 +56,14 @@ int main() {
    */
   const char symbol[] = {"add_two_numbers"};
   const char lib[] = {"./liball_lib.so"};
-  ms_measure_init(&ms, ARG_WIDTH, arg_num_in, arg_num_out, chunksize, bounds,
-                  lib, symbol);
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
+    return 1;
+  }
   ms->function_check = &mock_check;
   ms->batch_size = 2;
   ms->num_batches = 2;
@@ -67,8 +78,8 @@ int main() {
   const int assumed_width_per_arg = 50;
   const int bitwidth_of_byte = 8;
 
-  char *s = calloc(ARG_WIDTH * assumed_width_per_arg, 1);
-  for (int i = 0; i < ARG_WIDTH; i++) {
+  char *s = calloc(arg_width * assumed_width_per_arg, 1);
+  for (int i = 0; i < arg_width; i++) {
     sprintf(s, "mov rax, [rsi + %d]\n mov [rdi + %d],rax\n",
             i * bitwidth_of_byte, i * bitwidth_of_byte);
     asm_assemble_str(ms->al_A, s);
@@ -84,7 +95,7 @@ int main() {
   int res = 0;
   res |= should_not_segfault(&ms);
 
-  res |= ms_measure_end(ms);
+  res |= ms_terminate(ms);
 
   return res;
 }

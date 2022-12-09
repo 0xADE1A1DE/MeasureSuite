@@ -14,7 +14,7 @@
 
 # Files / Directories
 SRCS        = $(wildcard ./src/lib/*.c)
-TEST_SRCS   = $(wildcard ./test/test_*.c)
+TEST_SRCS   = $(wildcard ./test/utest_*.c)
 TESTS      ?= $(TEST_SRCS:.c=.test)
 C_COV_DIR   = coverage-c
 
@@ -23,10 +23,8 @@ CPPFLAGS   += -I. -I./src/lib/ -I./src/include
 LDLIBS     += -lm -ldl
 
 # to exclude Assemblyline, use `make NO_AL=1`
-ifdef NO_AL
-CPPFLAGS   += -DNO_AL
-else
-CPPFLAGS   += $(shell pkg-config --cflags assemblyline)
+ifndef NO_AL
+CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 LDLIBS     += $(shell pkg-config --libs assemblyline)
 endif
 

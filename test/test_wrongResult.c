@@ -43,9 +43,12 @@ int main() {
   const int chunksize = 0;
   const uint64_t bounds[] = {-1};
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -65,12 +68,12 @@ int main() {
   // calculate "plus1", whereas in the assebly we are passing, we add two.
   if (strstr(output, "false") == NULL && strstr(output, "true") != NULL) {
     fprintf(stderr, "should have been an INCORRECT result\n");
-    ms_measure_end(ms);
+    ms_terminate(ms);
     return 1;
   }
 
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }

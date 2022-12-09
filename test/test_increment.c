@@ -70,10 +70,13 @@ int main() {
   /**
    * Initialize Measuresuite
    */
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    error_handling_helper_template_str(ms,
-                                       "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    error_handling_helper_template_str(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    error_handling_helper_template_str(
+        ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -105,7 +108,7 @@ int main() {
   /**
    * release all handles
    */
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     error_handling_helper_template_str(ms,
                                        "Failed to measure_end. Reason: %s.");
     return 1;

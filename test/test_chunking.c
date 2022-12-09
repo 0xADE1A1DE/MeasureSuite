@@ -28,8 +28,6 @@ int chunk_8();
 int chunk_16();
 
 int main() { return chunk_8() || chunk_16(); }
-// convenience pointer
-void (*err)(measuresuite_t, const char *) = error_handling_helper_template_str;
 
 const int arg_width = 1;
 const int arg_num_in = 1;
@@ -51,13 +49,19 @@ int chunk_8() {
                                        // chunk ends here. (@8)
                     "mov [rdi], rax\n" // 3 bytes,
                     "ret\n"};          // 1 bytes
+                                       // convenience pointer
+  void (*err)(measuresuite_t, const char *) =
+      error_handling_helper_template_str;
 
   // INIT
   const int chunksize = 8;
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -81,7 +85,7 @@ int chunk_8() {
   }
 
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }
@@ -110,12 +114,18 @@ int chunk_16() {
                     "mulx r9, r10, [rsi]\n" // 5 bytes(44)
                     "mulx r9, r8, [rsi]\n"  // 5 bytes(49) third break (@48)
                     "ret\n"};               // 1bytes
+                                            // convenience pointer
+  void (*err)(measuresuite_t, const char *) =
+      error_handling_helper_template_str;
   // INIT
   const int chunksize = 16;
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -139,7 +149,7 @@ int chunk_16() {
   }
 
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }

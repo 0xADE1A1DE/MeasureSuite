@@ -21,6 +21,7 @@
 #include <string.h>
 
 const char symbol[] = {"fiat_p434_mul"};
+const char lib[] = {"./liball_fiat.so"};
 const int arg_width = 7;
 const int arg_num_in = 2;
 
@@ -3991,9 +3992,12 @@ int main() {
                              0xffffffffffffffff, 0xffffffffffffffff,
                              0xffffffffffffffff, 0xffffffffffffffff,
                              0xffffffffffffffff};
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, "./liball_fiat.so", symbol)) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -4010,11 +4014,11 @@ int main() {
   // Require to have true in the string but not false
   if (strstr(output, "true") == NULL && strstr(output, "false") != NULL) {
     fprintf(stderr, "should have been a correct result\n");
-    ms_measure_end(ms);
+    ms_terminate(ms);
     return 1;
   }
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }

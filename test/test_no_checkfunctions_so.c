@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "helper.h"
 #include "struct_measuresuite.h"
 #include <measuresuite.h>
 #include <stdint.h>
@@ -27,6 +28,9 @@ const int arg_num_in = 2;
 
 int main() {
 
+  // convenience pointer
+  void (*err)(measuresuite_t, const char *) =
+      error_handling_helper_template_str;
   // INIT
   int arg_num_out = 1;
   int chunksize = 0;
@@ -35,8 +39,11 @@ int main() {
       0xc00000000000000 - 1, 0xc00000000000000 - 1, 0xc00000000000000 - 1,
       0xc00000000000000 - 1, 0xc00000000000000 - 1, 0xc00000000000000 - 1,
       0xc00000000000000 - 1, 0xc00000000000000 - 1, 0x600000000000000 - 1};
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, "./does_not_exist.so", symbol)) {
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, "./does_not_exist.so", symbol)) {
 
     const int len = 1000;
     char *s = calloc(1, len * sizeof(char));

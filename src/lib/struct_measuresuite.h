@@ -17,18 +17,48 @@
 #ifndef STRUCT_MEASURESUITE_H
 #define STRUCT_MEASURESUITE_H
 
-#include "ms_error.h"
-#ifndef NO_AL
+#include "measuresuite.h" // load_type
+#include "ms_error.h"     // ERROR_NUMBER
+
+#ifdef USE_ASSEMBLYLINE
 #include <assemblyline.h>
 #endif
-#include <inttypes.h>
-#include <stdlib.h>
+
+#include <inttypes.h> // uint64_t's
+#include <stdlib.h>   // size_t
+
+struct function_tuple {
+
+  enum load_type type;
+
+  // actual code
+  void *code; // function pointer
+  union {
+    size_t code_size_bytes; // for when we allcate ourselves (ASM/BIN)
+    void *lib_handle;       // dlopen'ed handle
+  };
+
+  // pointer to memory to store the arithmetic_results for this function
+  uint64_t *arithmetic_results;
+  size_t arithmetic_results_size_u64;
+
+#ifdef USE_ASSEMBLYLINE
+  // how many chunk breaks have been observed while assembling with AL
+  int chunks;
+  // assembler
+  assemblyline_t al;
+#endif
+};
 
 struct measuresuite {
-  // input vars (provided "on_init")
-  int arg_width, num_arg_in, num_arg_out, chunk_size;
-  uint64_t *
-      bounds; // array of length arg_width and prodives bitmasks. Defaults to -1
+  // details of argument to call the fucntions with
+  int arg_width, num_arg_in, num_arg_out;
+
+  // array of length arg_width and prodives bitmasks. Defaults to -1
+  uint64_t *bounds;
+
+  // to count chunks (if used with AL)
+  size_t chunk_size;
 
   // how many measurements are done at least for function_A / B
   size_t num_batches;
@@ -47,13 +77,8 @@ struct measuresuite {
   // alloc'd on init
   uint64_t *random_data;
   size_t random_data_size_bytes; // how many bytes are allocated at *random_data
-  int random_data_fd; // filedescriptor from which new random data is being
+  int random_data_fd; // file descriptor from which new random data is being
                       // read.
-
-  // pointer to allocated memory to store the arithmetic_results for
-  // function_A/B and check.
-  uint64_t *arithmetic_results;
-  size_t arithmetic_results_size_u64;
 
   // the cycles are measures in 64-bit uints
   // alloc'd on init, realloced on demand in measurement
@@ -62,20 +87,12 @@ struct measuresuite {
   char *run_order;
   size_t run_order_size_bytes;
 
-  // function_check (functionptr)
-  void *function_check;
-  // handle for lib_check_functions_handle
-  void *lib_check_functions_handle;
+  char enable_check : 1;
 
-#ifndef NO_AL
-  // handle to assemblers
-  assemblyline_t al_A;
-  assemblyline_t al_B;
-#endif
-
-  // amount of chunks
-  int chunks_A;
-  int chunks_B;
+  // points to the code in memory to execute
+  struct function_tuple *functions;
+  size_t size_functions; // available function pointers
+  size_t num_functions;  // used function pointers
 
   // holds the last error number
   ERROR_NUMBER errorno;

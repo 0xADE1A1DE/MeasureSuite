@@ -29,6 +29,9 @@ int main() {
                "mov [rdi], rax\n"
                "ret\n"};
 
+  // convenience pointer
+  void (*err)(measuresuite_t, const char *) =
+      error_handling_helper_template_str;
   const int num_batches = 2;
   const int batch_size = 2;
 
@@ -39,10 +42,13 @@ int main() {
   const int chunksize = 0;
   const uint64_t bounds[] = {-1};
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    error_handling_helper_template_str(ms,
-                                       "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
+                    bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -57,7 +63,7 @@ int main() {
   printf("%s\n", output);
 
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     error_handling_helper_template_str(ms,
                                        "Failed to measure_end. Reason: %s.");
     return 1;

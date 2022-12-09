@@ -24,7 +24,7 @@ export interface MeasureResult {
     numBatches: number;
     runtime: number;
     runOrder: string;
-    checkResult: boolean;
+    checkResult: boolean | null;
   };
   times: [number, number, number][];
 }
@@ -40,7 +40,7 @@ export interface MeasureResult {
     "numBatches": 4,   //this is the minimum that each function needs to be ran. Either countA or countB is equal to this number.
     "runtime": 0, // in milliseconds, is too short in this example. It is the time which is used for the experiments, excluding the set up and cleanup
     "runOrder": "abbaabaab", // order in which the functions were executed. Executions of checkFunctions are omitted.
-    "checkResult": true // whether the results is correct (whatever was run last compared to what function_check calculated)
+    "checkResult": true // whether the results is correct (whatever was run last compared to what function_check calculated), can be null if checkfunction was not initialized
   },
   // number in tuples are runtime from A and B and check_method respectively. Using -1 if there is no number for the other run.
   // the array is at least stats.numBatches in size; aka. each function has at least stats.numBatches entries.

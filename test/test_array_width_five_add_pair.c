@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 
+const char lib[] = {"./liball_lib.so"};
+const char symbol[] = {"array_width_five_add_pair"};
 int main() {
   // convenience pointer
   void (*err)(measuresuite_t, const char *) =
@@ -38,21 +40,31 @@ int main() {
                "add rax, [rdx + 0x10 ]; *i0 + 2 + *i1+2\n"
                "mov [rdi + 0x10 ], rax; *o0 + 2 <-\n"
 
+               "mov rax, [rsi + 0x18 ]; *i0 + 3\n"
+               "add rax, [rdx + 0x18 ]; *i0 + 3 + *i1+3\n"
+               "mov [rdi + 0x18 ], rax; *o0 + 3 <-\n"
+
+               "mov rax, [rsi + 0x20 ]; *i0 + 4\n"
+               "add rax, [rdx + 0x20 ]; *i0 + 4 + *i1+4\n"
+               "mov [rdi + 0x20 ], rax; *o0 + 4 <-\n"
+
                "ret\n"};
   const int num_batches = 10;
   const int batch_size = 20;
 
   // INIT
-  int arg_width = 3;
-  int arg_num_in = 2;
-  int arg_num_out = 1;
-  int chunksize = 0;
-  uint64_t bounds[] = {-1, -1, -1};
+  const int arg_width = 5;
+  const int arg_num_in = 2;
+  const int arg_num_out = 1;
+  const uint64_t bounds[] = {-1, -1, -1, -1, -1};
+  const int chunksize = 0;
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, "./liball_lib.so",
-                      "array_width_three_add_pair")) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -69,11 +81,11 @@ int main() {
   // Require to have true in the string but not false
   if (strstr(output, "true") == NULL && strstr(output, "false") != NULL) {
     fprintf(stderr, "should have been a correct result\n");
-    ms_measure_end(ms);
+    ms_terminate(ms);
     return 1;
   }
   // END
-  if (ms_measure_end(ms)) {
+  if (ms_terminate(ms)) {
     err(ms, "Failed to measure_end. Reason: %s.");
     return 1;
   }

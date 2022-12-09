@@ -44,9 +44,12 @@ int main() {
   uint64_t bounds[] = {-1};
 
   measuresuite_t ms = NULL;
-  if (ms_measure_init(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                      bounds, lib, symbol)) {
-    err(ms, "Failed to measure_init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize, bounds)) {
+    err(ms, "Failed to init. Reason: %s.");
+    return 1;
+  }
+  if (ms_enable_checking(ms, lib, symbol)) {
+    err(ms, "Failed to enable_checking. Reason: %s.");
     return 1;
   }
 
@@ -55,7 +58,7 @@ int main() {
     /** this is expected this time. */
 
     // END
-    if (ms_measure_end(ms)) {
+    if (ms_terminate(ms)) {
       err(ms, "Failed to measure_end. Reason: %s.");
       return 1;
     }

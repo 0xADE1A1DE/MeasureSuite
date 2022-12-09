@@ -39,12 +39,12 @@ static struct error_desc {
      "The function can at max take 6 parameters. I.e. Sum of number of in/out "
      "arguments must be <=6."},
     {E_INVALID_INPUT__CHUNK_SIZE,
-     "The given chunksize is invalid. Use Chunksize 0 to disable NOP'ing to "
-     "chunk boundries."},
-    {E_INVALID_INPUT__ASM_FUNCTION_A,
-     "The given function function A could not be assembled."},
-    {E_INVALID_INPUT__ASM_FUNCTION_B,
-     "The given function function B could not be assembled."},
+     "The given chunk size is invalid. Note that this value is only for "
+     "counting chunks. Must be >0"},
+    {E_INVALID_INPUT__NUM_BATCHES,
+     "The given number of batches is invalid. Must be >0."},
+    {E_INVALID_INPUT__BATCH_SIZE,
+     "The given batch size is invalid. Must be >0."},
     {E_INVALID_INPUT__LIB_CHECK_FILE_NOT_ACCESSIBLE,
      "The given lib check file is not readable and executable."},
     {E_INTERNAL_RANDOMNESS__AI__MALLOC,
@@ -58,12 +58,26 @@ static struct error_desc {
      "Randomness was not initialized. Call init_random first."},
     {E_INTERNAL_MEASURE__FREE_A, "Could not free the handle from Function_A"},
     {E_INTERNAL_MEASURE__FREE_B, "Could not free the handle from Function_B"},
-    {E_INTERNAL_MEASURE__AI__DLCLOSE, "Failed to dlclose lib_check_function."},
+    {E_INTERNAL_MEASURE__AI__DLCLOSE, "Failed to dlclose."},
 
     {E_INTERNAL_MEASURE__AI__DLSYM, "Failed to dlsym."},
-    {E_INTERNAL_MEASURE__AI__DLOPEN, "Failed to dlopen lib_check_function."},
+    {E_INTERNAL_MEASURE__AI__DLOPEN, "Failed to dlopen."},
 
     {E_INTERNAL_MEASURE__AI__ALLOC, "Failed to allocate memory."},
+    {E_INTERNAL_FUNCTIONS__NOTHING_TO_UNLOAD,
+     "Failed to unload function, because none have been loaded. "},
+    {E_INTERNAL_INITIALIZE__ALLOC,
+     "Failed to allocate memory internally. Out Of Memory?"},
+    {E_LOAD__ASM_FILE, "Cannot load ASM_FILE."},
+    {E_LOAD__ASM_DATA, "Cannot load ASM_DATA."},
+    {E_LOAD__AL_FREE,
+     "Cannot unload Assemblyline. Maybe is has been unloaded alraedy."},
+    {E_LOAD__ELF_FILE_IO,
+     "An File I/O error occurred while loading the ELF file."},
+    {E_LOAD__ELF_FILE_INVALID_ELF,
+     "The ELF file does not have the expected format."},
+    {E_LOAD__ELF_FILE_MALLOC,
+     "An allocation error occurred while loading the ELF file."}
 
 };
 

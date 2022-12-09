@@ -22,7 +22,8 @@
 #include <stdlib.h> // alloc / size_t
 #include <string.h> // memset / strerror
 
-#include "checker.h" // check
+#include "alloc_helper.h" //realloc_or_fail
+#include "checker.h"      // check
 #include "evaluator.h"
 #include "randomizer.h" // randomize / get_random_byte
 #include "struct_measuresuite.h"
@@ -30,17 +31,6 @@
 
 static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
                       void (*func)(uint64_t *o, ...));
-
-static int realloc_or_fail(struct measuresuite *ms, void **dest,
-                           size_t new_len) {
-  *dest = realloc(*dest, new_len);
-  if (*dest == NULL) {
-    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
-    ms->additional_info = strerror(errno);
-    return 1;
-  }
-  return 0;
-}
 
 int run_measurement_lib_only(struct measuresuite *ms) {
 
@@ -69,8 +59,8 @@ int run_measurement_lib_only(struct measuresuite *ms) {
       // new size, *2 backoff
       ms->cycle_results_size_u64 *= 2;
 
-      if (realloc_or_fail(ms, (void **)&(ms->cycle_results),
-                          ms->cycle_results_size_u64 * sizeof(uint64_t))) {
+      if (realloc(ms, (void **)&(ms->cycle_results),
+                  ms->cycle_results_size_u64 * sizeof(uint64_t))) {
         return 1;
       }
       // memset'ing is done as init in recursive step
@@ -114,7 +104,7 @@ static int generate_json_from_measurement_results(
       ms->json_len *= 2;                                 // double-backoff
       long old_len_actual = (long)json - (long)ms->json; // like:strlen
 
-      if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len))
+      if (realloc(ms, (void **)&(ms->json), ms->json_len))
         return 1;
 
       // update local pointers
@@ -192,7 +182,7 @@ int run_measurement(struct measuresuite *ms) {
     const char char_b = 'b';
     ms->run_order[count_c] = (char)((uint8_t)char_b - (uint8_t)run_a);
     // because count_c is incremented everytime, we can use it as an index for
-    // runorder as well. and since run_order was \0ed, it is always a perfect
+    // runorder as well. and since run_order was zeroed, it is always a perfect
     // valid string.
 
     void(*f) = run_a ? function_A : function_B;
@@ -218,8 +208,8 @@ int run_measurement(struct measuresuite *ms) {
       // new size, *2 backoff
       ms->cycle_results_size_u64 *= 2;
 
-      if (realloc_or_fail(ms, (void **)&(ms->cycle_results),
-                          ms->cycle_results_size_u64 * sizeof(uint64_t))) {
+      if (realloc(ms, (void **)&(ms->cycle_results),
+                  ms->cycle_results_size_u64 * sizeof(uint64_t))) {
         return 1;
       }
       repeat_measurement = 1;
@@ -230,8 +220,8 @@ int run_measurement(struct measuresuite *ms) {
       // new size, *2 backoff
       ms->run_order_size_bytes *= 2;
 
-      if (realloc_or_fail(ms, (void **)&(ms->run_order),
-                          (ms->run_order_size_bytes + 1) * sizeof(char)))
+      if (realloc(ms, (void **)&(ms->run_order),
+                  (ms->run_order_size_bytes + 1) * sizeof(char)))
         return 1;
       repeat_measurement = 1;
     }
@@ -245,11 +235,11 @@ int run_measurement(struct measuresuite *ms) {
   } while (count_a < (size_t)ms->num_batches ||
            count_c - count_a < (size_t)ms->num_batches);
 
-  int json_generation_failed = generate_json_from_measurement_results(
+  int json_generation_result_code = generate_json_from_measurement_results(
       ms, start_time, check_result, count_a, count_c, cycl_res_tst,
       cycl_res_chk);
 
-  if (json_generation_failed) {
+  if (json_generation_result_code) {
     return 1;
   }
 
@@ -316,4 +306,17 @@ static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
   }
 
   *count = ms_stop_timer(start_time);
+}
+
+int ms_measure_lib_only(measuresuite_t ms, size_t batch_size, int num_batches) {
+  ms->num_batches = num_batches;
+  ms->batch_size = batch_size;
+
+  // running measurement
+  if (run_measurement_lib_only(ms) != 0) {
+    return 1;
+  }
+
+  ms->errorno = E_SUCCESS;
+  return 0;
 }
