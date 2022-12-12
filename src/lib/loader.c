@@ -40,6 +40,9 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
     }
   }
 
+  // Because we don't have any batch_size yet.
+  new->cycle_results = NULL;
+
 #ifdef USE_ASSEMBLYLINE
   // create asm instance
   new->al = asm_create_instance(new->code, (int)new->code_size_bytes);
@@ -61,7 +64,10 @@ int unload(measuresuite_t ms, size_t id) {
   struct function_tuple *t = &ms->functions[id];
 
   free(t->arithmetic_results);
-  t->arithmetic_results_size_u64 = 0;
+  t->arithmetic_results = NULL;
+
+  free(t->cycle_results);
+  t->cycle_results = NULL;
 
   int ret = 0;
   switch (t->type) {
@@ -75,6 +81,7 @@ int unload(measuresuite_t ms, size_t id) {
       ret = 1;
     }
     t->al = NULL;
+    __attribute__((fallthrough));
 #endif
   case BIN:
   case ELF:
@@ -194,13 +201,12 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
   }
 
   case ELF:
-    return elf_load_symbol(ms, t->code, size, data, symbol);
+    return elf_load_symbol_from_memory(ms, t->code, t->code_size_bytes, data,
+                                       symbol);
 
   default:
     return 1;
   }
-
-  return 0;
 
   ms->errorno = E_SUCCESS;
   return 0;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include "alloc_helper.h"
 #include "evaluator.h"
 #include "loader.h"
-#include "measure_helper.h"
 #include "ms_error_description.h"
 #include "randomizer.h"
 #include "struct_helpers.h"
@@ -40,7 +40,7 @@ int ms_initialize(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
       || set_argout(ms, num_arg_out) // set arg out
       || validate_num_args(ms)       // validate arg counts
       || init_random(ms)             // initialize randomness structures
-      || init_measure_scratch(ms)    // initialize measure structs
+      || init_json(ms)               // initialize measure structs
   ) {
     return 1;
   }
@@ -116,8 +116,13 @@ void ms_get_json(measuresuite_t ms, const char **json, size_t *json_len) {
   *json_len = strlen(*json);
 }
 
-void ms_get_cycles(measuresuite_t ms, size_t **dest) {
-  *dest = ms->cycle_results;
+int ms_get_cycles(measuresuite_t ms, size_t **dest, size_t idx) {
+  if (idx >= ms->num_functions) {
+    ms->errorno = E_INVALID_INPUT__NUM_IDX_OOB;
+    return 1;
+  }
+  *dest = ms->functions[idx].cycle_results;
+  return 0;
 }
 
 /**
@@ -125,13 +130,14 @@ void ms_get_cycles(measuresuite_t ms, size_t **dest) {
  * frees memory and mmaps
  */
 int ms_terminate(measuresuite_t ms) {
-  if (ms_unload_all(ms)          // unload all the loaded functions
-      || end_random(ms)          // free random data spot
-      || end_measure_scratch(ms) // free scratches from arith_result...
+  if (ms_unload_all(ms) // unload all the loaded functions
+      || end_random(ms) // free random data spot
+
   ) {
     return 1;
   }
 
+  free(ms->json);
   free(ms->functions);
   free(ms->bounds);
   free(ms);

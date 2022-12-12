@@ -176,17 +176,11 @@ int ms_measure(measuresuite_t ms, int batch_size, int num_batches);
 void ms_get_json(measuresuite_t ms, const char **json, size_t *json_len);
 
 /**
- * will set @param dest to the array of measurements
- * The array will have length of number_of_b* with which ms_measure_lib_only was
- * called
+ * will set @param dest to the array of cycle measurements for function @param
+ * idx The array will have length of number_of_batches
  *
- * the array is of the following structure:
- * overall length is number_of_batches * number_of_loaded_functions
- * it the first number_of_batches elements are from the first loaded function,
- *     " second  "                  "        "   "   "   second  "      "
- *     ...
  */
-void ms_get_cycles(measuresuite_t ms, uint64_t **dest);
+int ms_get_cycles(measuresuite_t ms, uint64_t **dest, size_t idx);
 
 /**
  * Will release all resources allocated with @param ms

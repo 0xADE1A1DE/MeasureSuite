@@ -14,230 +14,145 @@
  * limitations under the License.
  */
 
-#ifndef NO_AL
+#ifdef USE_ASSEMBLYLINE
 #include <assemblyline.h> // asm_get_code
 #endif
-#include <errno.h>  // errno
-#include <stdio.h>  // snprintf
-#include <stdlib.h> // alloc / size_t
-#include <string.h> // memset / strerror
+#include "alloc_helper.h"        // realloc_or_fail
+#include "checker.h"             // check
+#include "evaluator.h"           // own
+#include "randomizer.h"          // randomize
+#include "struct_measuresuite.h" // struct ms; struct function_tuple
+#include "timer.h"               // ms_{start,stop}_timer / ms_current_timestamp
+#include <stdio.h>               // snprintf
+#include <stdlib.h>              // alloc / size_t
+#include <string.h>              // memset / strerror
 
-#include "alloc_helper.h" //realloc_or_fail
-#include "checker.h"      // check
-#include "evaluator.h"
-#include "randomizer.h" // randomize / get_random_byte
-#include "struct_measuresuite.h"
-#include "timer.h" // ms_start/ms_stop_timer / ms_current_timestamp
+static void run_batch(struct measuresuite *ms, struct function_tuple *t,
+                      uint64_t *count);
 
-static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
-                      void (*func)(uint64_t *o, ...));
+#ifndef NO_AL
+static int generate_json_from_measurement_results(struct measuresuite *ms,
+                                                  uint64_t start_time,
+                                                  size_t check_result) {
+  unsigned long delta_in_seconds = ms_current_timestamp() - start_time;
+  char *json = ms->json;
+  char *json_end = ms->json + ms->json_len;
 
-int run_measurement_lib_only(struct measuresuite *ms) {
+  json += snprintf(json, ms->json_len,
+                   "{\"stats\":"
+                   "{"
+                   "\"numFunctions\":%" PRIu64 ","
+                   "\"runtime\":%" PRIu64 "," // in seconds
+                   "\"incorrect\":%" PRIu64
+                   "}," // if 0, ok, otherwise the index of which function is
+                        // incorrect to the previous one.
+                   "\"functions\":[",
+                   ms->num_functions, delta_in_seconds, check_result);
 
-  // init arith_result mem;
-  // setting for each measurement to 0
-  memset(ms->arithmetic_results, 0,
-         ms->arithmetic_results_size_u64 * sizeof(uint64_t));
+  // print function meta data
+  for (size_t i = 0; i < ms->num_functions; i++) {
+    struct function_tuple *t = &ms->functions[i];
+    switch (t->type) {
+    case ASM:
+      json +=
+          snprintf(json, json - json_end,
+                   "{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", t->chunks);
+      break;
+    case BIN:
+      json += snprintf(json, json - json_end, "{\"type\":\"BIN\"},");
+      break;
+    case ELF:
+      json += snprintf(json, json - json_end, "{\"type\":\"ELF\"},");
+      break;
+    case SHARED_OBJECT:
+      json += snprintf(json, json - json_end, "{\"type\":\"SHARED_OBJECT\"},");
+      break;
+    }
+  }
+  // overwrite comma
+  json--;
+  json += snprintf(json, json - json_end, "],\"cycles\":[");
 
-  // init cyclecount mem
-  memset(ms->cycle_results, 0, ms->cycle_results_size_u64 * sizeof(uint64_t));
-  size_t count_c = 0;
+  // print cycles
+  for (size_t i = 0; i < ms->num_functions; i++) {
+    struct function_tuple *t = &ms->functions[i];
+    json += snprintf(json, json - json_end, "[");
+    for (size_t run_i = 0; run_i < ms->num_batches; run_i++) {
+      json += snprintf(json, json - json_end, "%" PRIu64 ",",
+                       t->cycle_results[run_i]);
+    }
+    // overwrite comma
+    json--;
+    json += snprintf(json, json - json_end, "],[");
+  }
+  // overwrite comma and last [
+  json -= 2;
+  json += snprintf(json, json - json_end, "]}");
 
-  // START MEASUREMENT
-  do {
-    if (randomize(ms) != 0) {
+  if (json - json_end <= 0) {
+    // we did not have enough space.
+
+    // enlarge
+    ms->json_len *= 2;
+    if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len)) {
       return 1;
     }
 
-    run_batch(ms, ms->cycle_results + count_c, ms->arithmetic_results,
-              ms->function_check);
-
-    count_c++;
-
-    // if we fall out of space
-    if (count_c >= ms->cycle_results_size_u64) {
-      // new size, *2 backoff
-      ms->cycle_results_size_u64 *= 2;
-
-      if (realloc(ms, (void **)&(ms->cycle_results),
-                  ms->cycle_results_size_u64 * sizeof(uint64_t))) {
-        return 1;
-      }
-      // memset'ing is done as init in recursive step
-      return run_measurement_lib_only(ms);
-    }
-
-    // as long we did not finish num_batches
-  } while (count_c < (size_t)ms->num_batches);
-
-  return 0;
-}
-
-#ifndef NO_AL
-static int generate_json_from_measurement_results(
-    struct measuresuite *ms, uint64_t start_time, int check_result,
-    size_t count_a, size_t count_c, uint64_t cycl_res_test[],
-    uint64_t cycl_res_chk[]) {
-  char *json = ms->json;
-  char *json_end = ms->json + ms->json_len;
-  json += snprintf(json, ms->json_len,
-                   "{\"stats\":"
-                   "{\"countA\":%lu,"
-                   "\"countB\":%lu,"
-                   "\"chunksA\":%d,"
-                   "\"chunksB\":%d,"
-                   "\"batchSize\":%lu,"
-                   "\"numBatches\":%lu,"
-                   "\"runtime\":%" PRIu64 ","
-                   "\"runOrder\":\"%s\","
-                   "\"checkResult\":%s},"
-                   "\"times\":[",
-                   count_a, count_c - count_a, ms->chunks_A, ms->chunks_B,
-                   ms->batch_size, ms->num_batches,
-                   ms_current_timestamp() - start_time, ms->run_order,
-                   check_result ? "false" : "true");
-  const int max_print_len = 48;
-  // each iteration we append "[-1,LU,LU],\0", which has a maxlen of strlen(LU)
-  // -= 20; strlen("[-1,LU,LU],") == 7+2*20==47 + NUL-char
-  for (size_t idx = 0; idx < count_c; idx++) {
-    if (max_print_len + json > json_end) {
-      ms->json_len *= 2;                                 // double-backoff
-      long old_len_actual = (long)json - (long)ms->json; // like:strlen
-
-      if (realloc(ms, (void **)&(ms->json), ms->json_len))
-        return 1;
-
-      // update local pointers
-      json = ms->json + old_len_actual;
-      json_end = ms->json + ms->json_len;
-      memset(json, '\0', json_end - json); // and zero the rest
-    }
-    char c = ms->run_order[idx];
-    // print out the results in json-format, using -1 as the 'no
-    // measurement'-placeholder
-    const char *tpl = c == 'a' ? "[%" PRIu64 ",-1,%" PRIu64 "],"
-                               : "[-1,%" PRIu64 ",%" PRIu64 "],";
-
-    json += snprintf(json, max_print_len, tpl, cycl_res_test[idx],
-                     cycl_res_chk[idx]);
+    // and try again recursively
+    return generate_json_from_measurement_results(ms, start_time, check_result);
   }
-  // finalise json, overwriting the last comma
-  snprintf(json - 1, 3, "]}");
+
   return 0;
 }
 
 int run_measurement(struct measuresuite *ms) {
 
-  // getting pointers
-  void *function_A = asm_get_code(ms->al_A);
-  void *function_B = asm_get_code(ms->al_B);
-
-  // init arith_result mem; setting for each measurement to 0
-  // size:|arg_width*so(u64)*num_arg_out     arg_width*so(u64*num_arg_out)
-  //      +--------------------------------+------------------------------+
-  // ref: |    arith_res_test              |        arith_res_chk         |
-  //      +--------------------------------+------------------------------+
-  memset(ms->arithmetic_results, 0,
-         ms->arithmetic_results_size_u64 * sizeof(uint64_t));
-  uint64_t *arith_res_tst = ms->arithmetic_results;
-  uint64_t *arith_res_chk =
-      ms->arithmetic_results + ms->arg_width * ms->num_arg_out;
-
-  // init cyclecount mem
-  memset(ms->cycle_results, 0, ms->cycle_results_size_u64 * sizeof(uint64_t));
-  size_t count_a = 0;
-  size_t count_c = 0;
-  // allocate results arrays for a and b - runs, each maxruns long
-  // assume, runs == 2;  max_runs == 4; will allocate 16 elements.
-  // 4 for A, 4 for B, 8 for checking each of those
-  // [ABBABABB    | CCCCC  ]
-  // a start the start
-  uint64_t *cycl_res_tst = ms->cycle_results;
-  // second half for c
-  uint64_t *cycl_res_chk = ms->cycle_results + ms->cycle_results_size_u64 / 2;
-
-  // init run_order mem (see in measure_helper, basically since we dont save 'c'
-  // we only need half as much + NUL)
-  memset(ms->run_order, 0, (ms->cycle_results_size_u64 / 2 + 1) * sizeof(char));
-
   // init result indicator
-  int check_result = 0;
+  size_t check_result = 0;
+  if (init_cycle_results(ms)) {
+    return 1;
+  };
 
   // START MEASUREMENT
   uint64_t start_time = ms_current_timestamp();
 
-  do {
+  for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
+    // will shuffle the perm-array
     if (randomize(ms) != 0) {
       return 1;
     }
 
-    uint8_t rand_byte = 0x00;
+    // for as many functions as we need to measure
+    for (size_t func_i = 0; func_i < ms->num_functions; func_i++) {
 
-    if (get_random_byte(ms, &rand_byte)) {
-      return 1;
+      // get the function to measure
+      size_t function_index = ms->permutation[func_i];
+      struct function_tuple *t = &ms->functions[function_index];
+
+      // measure
+      run_batch(ms, t, &t->cycle_results[batch_i]);
     }
 
-    unsigned char run_a = rand_byte & 0x01;
+    if (ms->enable_check) {
 
-    const char char_b = 'b';
-    ms->run_order[count_c] = (char)((uint8_t)char_b - (uint8_t)run_a);
-    // because count_c is incremented everytime, we can use it as an index for
-    // runorder as well. and since run_order was zeroed, it is always a perfect
-    // valid string.
+      for (size_t func_i = 1; func_i < ms->num_functions; func_i++) {
 
-    void(*f) = run_a ? function_A : function_B;
+        // get the tuple and the previous
+        struct function_tuple *t = &ms->functions[func_i];
+        struct function_tuple *prev = &ms->functions[func_i - 1];
 
-    run_batch(ms, cycl_res_tst + count_c, arith_res_tst, f);
-    count_a += run_a;
-
-    run_batch(ms, cycl_res_chk + count_c, arith_res_chk, ms->function_check);
-    count_c++;
-
-    // check
-    check_result =
-        check(ms->arg_width * ms->num_arg_out, arith_res_chk, arith_res_tst);
-
-    // if it failed
-    if (check_result) {
-      break;
-    }
-
-    int repeat_measurement = 0;
-    // if we fall out of space
-    if (count_c >= ms->cycle_results_size_u64 / 2) {
-      // new size, *2 backoff
-      ms->cycle_results_size_u64 *= 2;
-
-      if (realloc(ms, (void **)&(ms->cycle_results),
-                  ms->cycle_results_size_u64 * sizeof(uint64_t))) {
-        return 1;
+        // check
+        if (check(ms->arg_width * ms->num_arg_out, t->arithmetic_results,
+                  prev->arithmetic_results)) {
+          check_result = func_i;
+          break;
+        };
       }
-      repeat_measurement = 1;
     }
+  }
 
-    if (count_c >= ms->run_order_size_bytes / 2) {
-
-      // new size, *2 backoff
-      ms->run_order_size_bytes *= 2;
-
-      if (realloc(ms, (void **)&(ms->run_order),
-                  (ms->run_order_size_bytes + 1) * sizeof(char)))
-        return 1;
-      repeat_measurement = 1;
-    }
-
-    if (repeat_measurement) {
-      // memset'ing is done as init in recursive step
-      return run_measurement(ms);
-    }
-
-    // as long as not both functions has been run for arg-runs amounts
-  } while (count_a < (size_t)ms->num_batches ||
-           count_c - count_a < (size_t)ms->num_batches);
-
-  int json_generation_result_code = generate_json_from_measurement_results(
-      ms, start_time, check_result, count_a, count_c, cycl_res_tst,
-      cycl_res_chk);
+  int json_generation_result_code =
+      generate_json_from_measurement_results(ms, start_time, check_result);
 
   if (json_generation_result_code) {
     return 1;
@@ -248,9 +163,10 @@ int run_measurement(struct measuresuite *ms) {
 
 #endif
 
-static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
-                      void (*func)(uint64_t *o, ...)) {
+static void run_batch(struct measuresuite *ms, struct function_tuple *t,
+                      uint64_t *count) {
 
+  uint64_t *out = t->arithmetic_results;
   // we always call the function with three in-arguments. It itself will then
   // take which ever it needs. However, the positon of the in-args is dependent
   // on the num out args, thus the switch
@@ -297,26 +213,11 @@ static void run_batch(struct measuresuite *ms, uint64_t *count, uint64_t *out,
 
   uint64_t start_time = 0;
   ms_start_timer(&start_time);
-  /** while (bs--) */
-  /**   func(a0, a1, a2, a3, a4, a5); */
-
+  void (*func)(uint64_t * o, ...) = t->code;
   for (; bs > 0;) {
     func(a0, a1, a2, a3, a4, a5);
     bs--;
   }
 
   *count = ms_stop_timer(start_time);
-}
-
-int ms_measure_lib_only(measuresuite_t ms, size_t batch_size, int num_batches) {
-  ms->num_batches = num_batches;
-  ms->batch_size = batch_size;
-
-  // running measurement
-  if (run_measurement_lib_only(ms) != 0) {
-    return 1;
-  }
-
-  ms->errorno = E_SUCCESS;
-  return 0;
 }

@@ -47,16 +47,16 @@ report:
 	@genhtml -o $(C_COV_DIR) $(C_COV_DIR)/app.info
 
 %.o: %.c Makefile
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $(<) -o $(@)  
+	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -c $(<) -o $(@)  
 
 libmeasuresuite.a: $(SRCS:c=o)
 	$(AR) rcs $(@) $(^)
 
 libmeasuresuite.so: $(SRCS:c=o)
-	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -fPIC -fpie -o $(@)
+	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -o $(@)
 
 test/liball_%.so: test/all_%.c
-	$(CC) $(CFLAGS) $(<) -shared -fPIC -fpie -o $(@)
+	$(CC) $(CFLAGS) $(<) -shared -fPIC  -o $(@)
 
 
 test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so

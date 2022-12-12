@@ -99,10 +99,6 @@ measuresuite_t create_default_ms() {
 }
 
 int set_chunk_size(measuresuite_t ms, size_t chunk_size) {
-  if (chunk_size < 0) {
-    ms->errorno = E_INVALID_INPUT__CHUNK_SIZE;
-    return 1;
-  }
   ms->chunk_size = chunk_size;
   return 0;
 }

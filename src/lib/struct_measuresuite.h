@@ -19,6 +19,8 @@
 
 #include "measuresuite.h" // load_type
 #include "ms_error.h"     // ERROR_NUMBER
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef USE_ASSEMBLYLINE
 #include <assemblyline.h>
@@ -38,9 +40,8 @@ struct function_tuple {
     void *lib_handle;       // dlopen'ed handle
   };
 
-  // pointer to memory to store the arithmetic_results for this function
   uint64_t *arithmetic_results;
-  size_t arithmetic_results_size_u64;
+  uint64_t *cycle_results;
 
 #ifdef USE_ASSEMBLYLINE
   // how many chunk breaks have been observed while assembling with AL
@@ -77,15 +78,17 @@ struct measuresuite {
   // alloc'd on init
   uint64_t *random_data;
   size_t random_data_size_bytes; // how many bytes are allocated at *random_data
-  int random_data_fd; // file descriptor from which new random data is being
-                      // read.
+  int random_data_fd;  // file descriptor from which new random data is being
+                       // read.
+  size_t *permutation; // pointing to an array of #num_functions size,
+                       // cointaining indexes into the *functions-array
 
-  // the cycles are measures in 64-bit uints
-  // alloc'd on init, realloced on demand in measurement
-  uint64_t *cycle_results;
-  size_t cycle_results_size_u64; // size in elements of size uint64_t
-  char *run_order;
-  size_t run_order_size_bytes;
+  // // the cycles are measures in 64-bit uints
+  // // alloc'd on init, realloced on demand in measurement
+  // uint64_t *cycle_results;
+  // size_t cycle_results_size_u64; // size in elements of size uint64_t
+  // char *run_order;
+  // size_t run_order_size_bytes;
 
   char enable_check : 1;
 

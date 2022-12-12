@@ -38,15 +38,13 @@ static struct error_desc {
     {E_INVALID_INPUT__NUM_ARG_TOO_LARGE,
      "The function can at max take 6 parameters. I.e. Sum of number of in/out "
      "arguments must be <=6."},
-    {E_INVALID_INPUT__CHUNK_SIZE,
-     "The given chunk size is invalid. Note that this value is only for "
-     "counting chunks. Must be >0"},
     {E_INVALID_INPUT__NUM_BATCHES,
      "The given number of batches is invalid. Must be >0."},
     {E_INVALID_INPUT__BATCH_SIZE,
      "The given batch size is invalid. Must be >0."},
-    {E_INVALID_INPUT__LIB_CHECK_FILE_NOT_ACCESSIBLE,
-     "The given lib check file is not readable and executable."},
+    {E_INVALID_INPUT__NUM_IDX_OOB, "The provided index is too large. There is "
+                                   "not that many functions loaded."},
+    {E_INVALID_INPUT__FILE, "The given file is cannot be stat'ed."},
     {E_INTERNAL_RANDOMNESS__AI__MALLOC,
      "Cannot malloc memory for random data."},
     {E_INTERNAL_RANDOMNESS__AI__OPEN_FILE, "Cannot open randomness file."},
@@ -76,6 +74,8 @@ static struct error_desc {
      "An File I/O error occurred while loading the ELF file."},
     {E_LOAD__ELF_FILE_INVALID_ELF,
      "The ELF file does not have the expected format."},
+    {E_LOAD__ELF_MEM_INVALID_ELF,
+     "The ELF file (memory) does not have the expected format."},
     {E_LOAD__ELF_FILE_MALLOC,
      "An allocation error occurred while loading the ELF file."}
 
