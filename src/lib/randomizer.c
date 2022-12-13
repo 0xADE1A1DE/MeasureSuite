@@ -79,37 +79,31 @@ int randomize(struct measuresuite *ms) {
     return 1;
   }
 
-  // only set the bound for the data required. otherwise, It will overwrite data
-  // somewhere...
-  for (int i_na = 0; i_na < ms->num_arg_in; i_na++) {
-    for (int i_w = 0; i_w < ms->arg_width; i_w++) {
-      uint64_t *d = ms->random_data + (i_na * ms->arg_width) + i_w;
-      /** printf("%p: dst[%i][%i] 0x%016lx & 0x%016lx", d, i_na, i_w, *d,
-       * ms->bounds[i_w]); */
-      *d &= ms->bounds[i_w];
-      /** printf("= 0x%016lx\n", *d); */
+  if (ms->bounds != NULL) {
+    // only set the bound for the data required. otherwise, It will overwrite
+    // data somewhere...
+    for (int i_na = 0; i_na < ms->num_arg_in; i_na++) {
+      for (int i_w = 0; i_w < ms->arg_width; i_w++) {
+        uint64_t *d = ms->random_data + (i_na * ms->arg_width) + i_w;
+        *d &= ms->bounds[i_w];
+      }
     }
-    /** printf("\n"); */
   }
   return 0;
 }
 
 int end_random(struct measuresuite *ms) {
   // free field
-  if (ms->random_data != NULL) {
-    free(ms->random_data);
-    ms->random_data = NULL;
-  }
+  free(ms->random_data);
+  ms->random_data = NULL;
 
   // sanity check
-  if (ms->random_data_fd == -1) {
-    ms->errorno = E_INTERNAL_RANDOMNESS__UNINITIALIZED;
-    return 1;
-  }
-  if (close(ms->random_data_fd)) {
-    ms->errorno = E_INTERNAL_RANDOMNESS__AI__CLOSE_FILE;
-    ms->additional_info = strerror(errno);
-    return 1;
+  if (ms->random_data_fd != -1) {
+    if (close(ms->random_data_fd)) {
+      ms->errorno = E_INTERNAL_RANDOMNESS__AI__CLOSE_FILE;
+      ms->additional_info = strerror(errno);
+      return 1;
+    }
   }
   ms->random_data_fd = -1;
   ms->random_data_size_bytes = 0;

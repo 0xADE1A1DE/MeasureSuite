@@ -1,4 +1,5 @@
 #include "elf_file.h"
+#include <elf.h>
 #include <stdio.h>  // printf
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
@@ -11,25 +12,21 @@
 int read_section_header_table64_mem(const uint8_t *src, Elf64_Ehdr eh,
                                     Elf64_Shdr *sh_table) {
 
-  // read all headers
-  for (int i = 0; i < eh.e_shnum; i++) {
-    memcpy(&sh_table[i], src, eh.e_shentsize);
-    src += eh.e_shentsize;
-  }
+  memcpy(sh_table, src + eh.e_shoff, eh.e_shentsize * eh.e_shnum);
 
   return 0;
 }
 
 // will malloc *dest; must be freed outside
-static int read_section_mem(const uint8_t *src, Elf64_Shdr sh, void **dest) {
+static int read_section_mem(const uint8_t *src, Elf64_Shdr *sh, void **dest) {
 
-  *dest = malloc(sh.sh_size);
+  *dest = malloc(sh->sh_size);
   if (!dest) {
-    printf("%s:Failed to allocate %ldbytes\n", __func__, sh.sh_size);
+    printf("%s:Failed to allocate %ldbytes\n", __func__, sh->sh_size);
     return 1;
   }
 
-  memcpy(*dest, src + sh.sh_offset, sh.sh_size);
+  memcpy(*dest, src + (off_t)sh->sh_offset, sh->sh_size);
   return 0;
 }
 
@@ -40,11 +37,11 @@ void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr eh,
   size_t len_needle = strlen(needle);
 
   /* Read section-header string-table */
-  char *sh_str = {0};
-  read_section_mem(src, sh_table[eh.e_shstrndx], (void *)&sh_str);
+  void *sh_str = NULL;
+  read_section_mem(src, &sh_table[eh.e_shstrndx], &sh_str);
 
   for (int i = 0; i < eh.e_shnum; i++) {
-    char *name = (sh_str + sh_table[i].sh_name);
+    char *name = sh_str + sh_table[i].sh_name;
 
     if (strncmp(name, needle, len_needle) == 0) {
       *dest = sh_table[i].sh_offset;
@@ -54,37 +51,44 @@ void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr eh,
   free(sh_str);
 }
 
-void find_symbol_offset_mem(const uint8_t *src, Elf64_Ehdr eh,
-                            Elf64_Shdr sh_table[], const char *symbol,
-                            Elf64_Sym *dest) {
+void find_symbol_in_table_mem(Elf64_Sym *dest, const uint8_t *src,
+                              Elf64_Shdr sh_table[], Elf64_Half sh_table_len,
+                              const char *symbol) {
 
-  size_t symbol_len = strlen(symbol);
+  size_t symbol_len = symbol != NULL ? strlen(symbol) : 0;
+  Elf64_Shdr *last = NULL;
+  Elf64_Shdr *entry = NULL;
 
-  for (int i = 0; i < eh.e_shnum; i++) {
-    if ((sh_table[i].sh_type != SHT_SYMTAB) &&
-        (sh_table[i].sh_type != SHT_DYNSYM)) {
+  for (last = sh_table + sh_table_len * sizeof(Elf64_Shdr), // find end
+       entry = sh_table;                                    // set first end
+       entry != last;                                       // check not last
+       entry++                                              // next
+  ) {
+
+    if ((entry->sh_type != SHT_SYMTAB) && (entry->sh_type != SHT_DYNSYM)) {
       continue;
     }
 
     Elf64_Sym *sym_tbl = {0};
 
-    read_section_mem(src, sh_table[i], (void *)&sym_tbl);
+    read_section_mem(src, entry, (void *)&sym_tbl);
 
     /* Read linked string-table
      * Section containing the string table having names of
      * symbols of this section
      */
-    Elf64_Word str_tbl_ndx = sh_table[i].sh_link;
+    Elf64_Word str_tbl_ndx = entry->sh_link;
     char *str_tbl = NULL;
-    read_section_mem(src, sh_table[str_tbl_ndx], (void *)&str_tbl);
+    read_section_mem(src, &sh_table[str_tbl_ndx], (void *)&str_tbl);
 
-    unsigned long symbol_count = sh_table[i].sh_size / sizeof(Elf64_Sym);
+    unsigned long symbol_count = entry->sh_size / sizeof(Elf64_Sym);
 
     for (unsigned long j = 0; j < symbol_count; j++) {
 
       const char *name = str_tbl + sym_tbl[j].st_name;
-      // if we don't have a symbol, or the current symbol is the required one
-      if (symbol == NULL || strncmp(name, symbol, symbol_len) == 0) {
+      // if we don't have a symbol(i.e. symbol len == 0),
+      // or the current symbol is the required one
+      if (symbol_len == 0 || strncmp(name, symbol, symbol_len) == 0) {
         memcpy(dest, &sym_tbl[j], sizeof(Elf64_Sym));
         break;
       }

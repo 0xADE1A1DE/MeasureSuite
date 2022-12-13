@@ -10,7 +10,7 @@
 #include <assemblyline.h>
 #endif
 
-const int DEFAULT_CODE_SIZE = 60000;
+const size_t DEFAULT_CODE_SIZE = 60000;
 static int create_new_function(measuresuite_t ms, enum load_type type,
                                size_t code_size_bytes) {
 
@@ -35,7 +35,7 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
 
     new->code_size_bytes =
         code_size_bytes == 0 ? DEFAULT_CODE_SIZE : code_size_bytes;
-    if (alloc_rwx_or_fail(ms, (void **)&new->code, new->code_size_bytes)) {
+    if (map_rwx(ms, (void **)&new->code, new->code_size_bytes)) {
       return 1;
     }
   }
@@ -85,8 +85,8 @@ int unload(measuresuite_t ms, size_t id) {
 #endif
   case BIN:
   case ELF:
+    unmap(ms, t->code, t->code_size_bytes);
     t->code_size_bytes = 0;
-    free(t->code);
   }
   return ret;
 }
@@ -165,7 +165,7 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
 int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
               size_t data_len, const char *symbol, int *id) {
   if (type == SHARED_OBJECT) {
-    fprintf(stderr, "can't load so from memory as not supported by dlopen.");
+    fprintf(stderr, "can't load so from memory as not supported by dlopen.\n");
     return 1;
   }
 
@@ -201,8 +201,7 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
   }
 
   case ELF:
-    return elf_load_symbol_from_memory(ms, t->code, t->code_size_bytes, data,
-                                       symbol);
+    return elf_load_symbol_mem(ms, t->code, t->code_size_bytes, data, symbol);
 
   default:
     return 1;

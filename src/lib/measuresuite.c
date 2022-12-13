@@ -102,7 +102,7 @@ int ms_measure(measuresuite_t ms, int batch_size, int num_batches) {
 
   if (set_num_batches(ms, num_batches)  // set number of batches
       || set_batch_size(ms, batch_size) // set batch size
-      || run_measurement(ms)            //  measure
+      || run_measurement(ms)            // measure
   ) {
     return 1;
   }
@@ -132,7 +132,6 @@ int ms_get_cycles(measuresuite_t ms, size_t **dest, size_t idx) {
 int ms_terminate(measuresuite_t ms) {
   if (ms_unload_all(ms) // unload all the loaded functions
       || end_random(ms) // free random data spot
-
   ) {
     return 1;
   }

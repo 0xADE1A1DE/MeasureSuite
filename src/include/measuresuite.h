@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MEASURE_H
-#define MEASURE_H
+#ifndef MEASURESUITE_H
+#define MEASURESUITE_H
 
 #include <stddef.h> // size_t
 #include <stdint.h> // uint64_t's

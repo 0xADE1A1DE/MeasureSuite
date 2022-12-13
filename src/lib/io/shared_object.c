@@ -9,7 +9,7 @@ int so_load_file(struct measuresuite *ms, struct function_tuple *t,
                  const char *filename) {
 
   if (access(filename, F_OK | X_OK | R_OK) != 0) {
-    ms->errorno = E_INVALID_INPUT__LIB_CHECK_FILE_NOT_ACCESSIBLE;
+    ms->errorno = E_LOAD__SO_FILE;
     ms->additional_info = strerror(errno);
     return 1;
   }

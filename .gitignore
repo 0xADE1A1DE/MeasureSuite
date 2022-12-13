@@ -46,6 +46,9 @@ compile_commands.json
 
 test/.deps
 test/*.test
+test/test_data/*.bin
+test/test_data/*.so
+test/test_data/*.o
 
 
 

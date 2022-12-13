@@ -15,6 +15,7 @@
  */
 
 #include "helper.h"
+#include "measuresuite.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,7 +27,7 @@ void error_handling_helper_template_str(measuresuite_t ms,
                                         const char *tpl_str) {
   const int len = 1000;
   char *s = calloc(1, len * sizeof(char));
-  ms_str_full_error(ms, s, len);
+  ms_sprintf_error(ms, s, len);
   fprintf(stderr, tpl_str, s);
   free(s);
 }

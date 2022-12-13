@@ -17,7 +17,7 @@ int realloc_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
   return 0;
 }
 
-int alloc_rwx_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
+int map_rwx(struct measuresuite *ms, void **dest, size_t new_len) {
   *dest = mmap(NULL, new_len, PROT_READ | PROT_WRITE | PROT_EXEC,
                MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
   if (*dest == NULL) {
@@ -38,7 +38,7 @@ int realloc_rwx_or_fail(struct measuresuite *ms, void **dest, size_t old_len,
     return 1;
   }
 
-  return alloc_rwx_or_fail(ms, *dest, new_len);
+  return map_rwx(ms, *dest, new_len);
 }
 
 int unmap(struct measuresuite *ms, void **dest, size_t old_len) {

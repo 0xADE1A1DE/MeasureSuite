@@ -17,11 +17,10 @@ int read_section_header_table64(int32_t fd, Elf64_Ehdr eh,
     return 1;
   };
 
-  // read all headers
-  for (int i = 0; i < eh.e_shnum; i++) {
-    if (read(fd, &sh_table[i], eh.e_shentsize) != eh.e_shentsize) {
-      return 1;
-    }
+  // read all headers at once
+  const ssize_t combined_size = eh.e_shnum * eh.e_shentsize;
+  if (read(fd, sh_table, combined_size) != combined_size) {
+    return 1;
   }
 
   return 0;
@@ -52,11 +51,11 @@ void find_section_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
   size_t len_needle = strlen(needle);
 
   /* Read section-header string-table */
-  char *sh_str = {0};
-  read_section(fd, sh_table[eh.e_shstrndx], (void *)&sh_str);
+  void *sh_str = NULL;
+  read_section(fd, sh_table[eh.e_shstrndx], &sh_str);
 
   for (int i = 0; i < eh.e_shnum; i++) {
-    char *name = (sh_str + sh_table[i].sh_name);
+    char *name = sh_str + sh_table[i].sh_name;
 
     if (strncmp(name, needle, len_needle) == 0) {
       *dest = sh_table[i].sh_offset;
@@ -66,10 +65,10 @@ void find_section_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
   free(sh_str);
 }
 
-void find_symbol_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
-                        const char *symbol, Elf64_Sym *dest) {
+void find_symbol_in_table(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
+                          const char *symbol, Elf64_Sym *dest) {
 
-  size_t symbol_len = strlen(symbol);
+  size_t symbol_len = symbol != NULL ? strlen(symbol) : 0;
 
   for (int i = 0; i < eh.e_shnum; i++) {
     if ((sh_table[i].sh_type != SHT_SYMTAB) &&
@@ -94,8 +93,9 @@ void find_symbol_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
     for (unsigned long j = 0; j < symbol_count; j++) {
 
       const char *name = str_tbl + sym_tbl[j].st_name;
-      // if we don't have a symbol, or the current symbol is the required one
-      if (symbol == NULL || strncmp(name, symbol, symbol_len) == 0) {
+      // if we don't have a symbol(i.e. symbol len == 0),
+      // or the current symbol is the required one
+      if (symbol_len == 0 || strncmp(name, symbol, symbol_len) == 0) {
         memcpy(dest, &sym_tbl[j], sizeof(Elf64_Sym));
         break;
       }

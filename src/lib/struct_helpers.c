@@ -79,10 +79,10 @@ measuresuite_t create_default_ms() {
   ms->batch_size = default_batch_size;
 
   // initialize the functions-structure
-  const int default_num_functions = 2; // a / b testing
-  ms->num_functions = default_num_functions;
-  ms->size_functions = 0; // currently, we have none loaded
-  ms->functions = calloc(ms->num_functions, sizeof(struct function_tuple));
+  const int default_size_functions = 2; // a / b testing
+  ms->size_functions = default_size_functions;
+  ms->num_functions = 0; // currently, we have none loaded
+  ms->functions = calloc(ms->size_functions, sizeof(struct function_tuple));
 
   if (ms->functions == NULL) {
     ms->errorno = E_INTERNAL_INITIALIZE__ALLOC;
@@ -94,6 +94,7 @@ measuresuite_t create_default_ms() {
   ms->bounds = NULL;
   ms->chunk_size = 0;
   ms->errorno = E_SUCCESS;
+  ms->random_data_fd = -1;
 
   return ms;
 }

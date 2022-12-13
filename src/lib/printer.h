@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef PRINTER_H
+#define PRINTER_H
 #include <stdint.h>
 /**
  * prints the given number in binary to stdout
@@ -29,3 +31,4 @@ void printbin(uint64_t const *a, uint64_t const *b, int len, int l);
  * same but in hex
  */
 void printhex(uint64_t const *a, uint64_t const *b, int len, int l);
+#endif

@@ -42,7 +42,7 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
   find_section_offset(fd, eh64, sh_tbl, ".text", &offset);
 
   Elf64_Sym s = {0};
-  find_symbol_offset(fd, eh64, sh_tbl, symbol, &s);
+  find_symbol_in_table(fd, eh64, sh_tbl, symbol, &s);
   free(sh_tbl);
 
   // then add the offset of the symbol within the section
@@ -50,7 +50,7 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
 
   // check if destination buffer is big enough
   Elf64_Xword size = s.st_size;
-  assert(s.st_size > dest_size);
+  assert(s.st_size <= dest_size);
 
   // read code into *dest
   lseek(fd, (long)offset, SEEK_SET);
@@ -58,8 +58,16 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
 
   return 0;
 }
-int elf_load_symbol_from_memory(measuresuite_t ms, void *dest, size_t dest_size,
-                                const uint8_t *src, const char *symbol) {
+
+int elf_load_symbol_mem(measuresuite_t ms, void *dest, size_t dest_size,
+                        const uint8_t *src, const char *symbol) {
+  // read elf header
+  // read section header table
+  // find .text - section
+  // find symbol
+  // 	-- read all sections from table
+  // 	-- skip sections which are not SHT_SYMTAB / SHT_DYNSYM
+  // 	-- read SHT_SYMTAB / SHT_DYNSYM
 
   Elf64_Ehdr eh64; /* elf-header is fixed size */
   /* ELF header : at start of file */
@@ -79,7 +87,7 @@ int elf_load_symbol_from_memory(measuresuite_t ms, void *dest, size_t dest_size,
   find_section_offset_mem(src, eh64, sh_tbl, ".text", &offset);
 
   Elf64_Sym s = {0};
-  find_symbol_offset_mem(src, eh64, sh_tbl, symbol, &s);
+  find_symbol_in_table_mem(&s, src, sh_tbl, eh64.e_shnum, symbol);
   free(sh_tbl);
 
   // then add the offset of the symbol within the section
@@ -87,12 +95,10 @@ int elf_load_symbol_from_memory(measuresuite_t ms, void *dest, size_t dest_size,
 
   // check if destination buffer is big enough
   Elf64_Xword size = s.st_size;
-  assert(s.st_size > dest_size);
+  assert(s.st_size <= dest_size);
 
   // read code into *dest
   memcpy(dest, src + offset, size);
 
   return 0;
-
-  return 1;
 };

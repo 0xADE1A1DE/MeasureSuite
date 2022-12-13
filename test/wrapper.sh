@@ -24,22 +24,28 @@ filename=$(basename "${1}")
 
 #directory of where libmeasuresuite.so resides
 libpath=..
+trap fail SIGABRT
 
-pushd "test" || exit 2
-LD_LIBRARY_PATH=${libpath} "./${filename}" >/dev/null 2>&1
+fail() {
+  printf "\r\033[31m FAIL \033[0m\n"
+  exit 1
+}
+
+pushd "test" >/dev/null || exit 2
+
+printf "\033[33m RUN  \033[0m%s" "${filename}"
+LD_LIBRARY_PATH=${libpath} "./${filename}"
+
 case ${?} in
 0)
-  printf "\033[32m  OK  \033[0m%s\n" "${filename}"
+  printf "\r\033[32m  OK  \033[0m\n"
   exit 0
   ;;
 77)
-  printf "\033[33m SKIP \033[0m%s\n" "${filename}"
+  printf "\r\033[33m SKIP \033[0m\n"
   exit 0
   ;;
 1 | *)
-  LD_LIBRARY_PATH=${libpath} "./${filename}"
-  echo LD_LIBRARY_PATH=${libpath} "./${filename}"
-  printf "\033[31m FAIL \033[0m%s\n" "${filename}"
-  exit 1
+  fail
   ;;
 esac

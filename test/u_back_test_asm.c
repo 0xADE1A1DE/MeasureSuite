@@ -45,30 +45,12 @@ int main() {
   const uint64_t bounds[] = {-1};
   measuresuite_t ms = NULL;
 
-  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out, chunksize,
-                    bounds)) {
-    err(ms, "Failed to init. Reason: %s.");
+  if (ms_initialize(&ms, arg_width, arg_num_in, arg_num_out)) {
+    err(ms, "Failed to initialize. Reason: %s.");
     return 1;
   }
-  if (ms_enable_checking(ms, lib, symbol)) {
-    err(ms, "Failed to enable_checking. Reason: %s.");
-    return 1;
-  }
-
-  // measure
-  if (ms_measure(ms, fa, fa, batch_size, num_batches)) {
-    error_handling_helper_template_str(ms, "Failed to measure. Reason: %s.");
-    return 1;
-  }
-  const char *output = NULL;
-  size_t jsonlen = 0;
-  ms_get_json(ms, &output, &jsonlen);
-  printf("%s\n", output);
-
-  // END
   if (ms_terminate(ms)) {
-    error_handling_helper_template_str(ms,
-                                       "Failed to measure_end. Reason: %s.");
+    err(ms, "Failed to terminate. Reason: %s.");
     return 1;
   }
 

@@ -13,14 +13,15 @@
 ## limitations under the License.
 
 # Files / Directories
-SRCS        = $(wildcard ./src/lib/*.c)
+SRCS        = $(shell find ./src/lib -type f -name '*.c')
 TEST_SRCS   = $(wildcard ./test/utest_*.c)
 TESTS      ?= $(TEST_SRCS:.c=.test)
+TEST_DATA   = $(addprefix test/test_data/add_two_numbers., so bin o)
 C_COV_DIR   = coverage-c
 
 CFLAGS     ?= -O2 -Wall -Wextra -Werror
 CPPFLAGS   += -I. -I./src/lib/ -I./src/include
-LDLIBS     += -lm -ldl
+LDLIBS     += -ldl
 
 # to exclude Assemblyline, use `make NO_AL=1`
 ifndef NO_AL
@@ -36,9 +37,17 @@ endif
 all: libmeasuresuite.so libmeasuresuite.a
 check: test report
 
+test: cleantest
 test: CFLAGS = -g -Wall -Wextra -Werror --coverage
 test: LDLIBS+= -L. -lmeasuresuite
-test: test/liball_fiat.so test/liball_lib.so $(TESTS) Makefile 
+test: test/liball_fiat.so test/liball_lib.so $(TEST_DATA) $(TESTS) Makefile 
+test/test_data/add_two_numbers.o: test/test_data/add_two_numbers.asm
+	nasm -felf64 $(<) -o $(@)
+test/test_data/add_two_numbers.bin: test/test_data/add_two_numbers.asm
+	asmline $(<) -P $(@)
+test/test_data/add_two_numbers.so: test/test_data/add_two_numbers.o
+	$(CC) -shared -fPIC -fpie $(<) -o $(@)
+
 
 report:
 	@mkdir -p $(C_COV_DIR)
@@ -53,21 +62,24 @@ libmeasuresuite.a: $(SRCS:c=o)
 	$(AR) rcs $(@) $(^)
 
 libmeasuresuite.so: $(SRCS:c=o)
-	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -o $(@)
+	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -fpie -o $(@)
 
 test/liball_%.so: test/all_%.c
 	$(CC) $(CFLAGS) $(<) -shared -fPIC  -o $(@)
 
 
 test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so
-	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) $(LDLIBS) test/helper.o -o $(@)
+	$(CC) $(CFLAGS) $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -o $(@)
 	@./test/wrapper.sh $(@)
 	@rm $(@)
 
-clean:
+clean: cleantest
 	rm -rf build dist coverage $(C_COV_DIR) test/.deps 
 	find . -type f -not -path "./uiCA/*" \( -name "*.gcda" -o -name "*.gcno" -o -name "*.a" -o -name "*.o" -o -name "*.so" -o -name "*.html" \) -delete
+
+cleantest:
 	rm -f $(TESTS)
+
 
 deepclean: clean
 	rm -rf package-lock.json node_modules libmeasuresuite.a libmeasuresuite.so
