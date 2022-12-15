@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 
-void ms_start_timer(uint64_t *start);
-void ms_init_timer();
-uint64_t ms_stop_timer(uint64_t start);
-uint64_t ms_current_timestamp();
+void start_timer(uint64_t *start);
+void init_timer();
+uint64_t stop_timer(uint64_t start);
+uint64_t current_timestamp();
 
 #endif

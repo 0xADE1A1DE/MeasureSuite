@@ -24,7 +24,7 @@
 #include "fisher_yates.h"        // shuffle_permutations
 #include "randomizer.h"          // randomize
 #include "struct_measuresuite.h" // struct ms; struct function_tuple
-#include "timer.h"               // ms_{start,stop}_timer / ms_current_timestamp
+#include "timer.h"               // {start,stop}_timer / current_timestamp
 #include <stdio.h>               // snprintf
 #include <stdlib.h>              // alloc / size_t
 #include <string.h>              // memset / strerror
@@ -35,7 +35,7 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
 static int generate_json_from_measurement_results(struct measuresuite *ms,
                                                   uint64_t start_time,
                                                   size_t check_result) {
-  unsigned long delta_in_seconds = ms_current_timestamp() - start_time;
+  unsigned long delta_in_seconds = current_timestamp() - start_time;
   char *json = ms->json;
   char *json_end = ms->json + ms->json_len;
 
@@ -115,7 +115,7 @@ int run_measurement(struct measuresuite *ms) {
   };
 
   // START MEASUREMENT
-  uint64_t start_time = ms_current_timestamp();
+  uint64_t start_time = current_timestamp();
 
   for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
 
@@ -212,12 +212,12 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   }
 
   uint64_t start_time = 0;
-  ms_start_timer(&start_time);
+  start_timer(&start_time);
   void (*func)(uint64_t * out, ...) = fct->code;
   for (; batch_size > 0;) {
     func(arg0, arg1, arg2, arg3, arg4, arg5);
     batch_size--;
   }
 
-  *count = ms_stop_timer(start_time);
+  *count = stop_timer(start_time);
 }

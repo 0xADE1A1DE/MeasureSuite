@@ -45,7 +45,7 @@ int ms_initialize(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
     return 1;
   }
 
-  ms_init_timer();
+  init_timer();
 
   ms->errorno = E_SUCCESS;
   return 0;

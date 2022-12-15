@@ -116,7 +116,7 @@ static void measuresuite_time_pmc(uint64_t *t) {
 #endif
 }
 
-uint64_t ms_current_timestamp() {
+uint64_t current_timestamp() {
   struct timeval time;
   gettimeofday(&time, NULL); // get current time
 
@@ -147,7 +147,7 @@ static void measuresuite_time_rdtscp(uint64_t *t) {
 /**
  * This function checks if we use PMC or fall back to something different
  */
-void ms_init_timer() {
+void init_timer() {
 
   // try to initialize
   init_fdperf();
@@ -159,7 +159,7 @@ void ms_init_timer() {
 }
 
 // exposed
-void ms_start_timer(uint64_t *start) {
+void start_timer(uint64_t *start) {
   // we need to reset the PMC if we are using them.
   if (timer_function == measuresuite_time_pmc) {
     ioctl(fdperf, PERF_EVENT_IOC_RESET, 0);
@@ -167,7 +167,7 @@ void ms_start_timer(uint64_t *start) {
   timer_function(start);
 }
 
-uint64_t ms_stop_timer(uint64_t start) {
+uint64_t stop_timer(uint64_t start) {
 
   uint64_t now = 0;
   timer_function(&now);
