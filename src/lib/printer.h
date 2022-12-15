@@ -26,9 +26,11 @@ void printbin_single_number(uint64_t);
  * prints two numbers if they are the same in green and red if they are
  * diffeerent
  */
-void printbin(uint64_t const *a, uint64_t const *b, int len, int l);
+void printbin(uint64_t const *data_a, uint64_t const *data_b, int idx,
+              int total);
 /**
  * same but in hex
  */
-void printhex(uint64_t const *a, uint64_t const *b, int len, int l);
+void printhex(uint64_t const *data_a, uint64_t const *data_b, int idx,
+              int total);
 #endif
