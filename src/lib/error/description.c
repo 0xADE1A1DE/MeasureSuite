@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "ms_error_description.h"
-#include "ms_error.h"
+#include "description.h"
+#include "error.h"
 #include "stdio.h" // NULL
 
 static struct error_desc {

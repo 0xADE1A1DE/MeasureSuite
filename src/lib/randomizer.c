@@ -15,7 +15,7 @@
  */
 
 #include "randomizer.h"
-#include "ms_error.h"
+#include "error/error.h"
 #include <errno.h> //errno
 #include <fcntl.h> // open/close
 #include <linux/perf_event.h>

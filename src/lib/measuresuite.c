@@ -15,9 +15,9 @@
  */
 
 #include "alloc_helper.h"
+#include "error/description.h"
 #include "evaluator.h"
 #include "loader.h"
-#include "ms_error_description.h"
 #include "randomizer.h"
 #include "struct_helpers.h"
 #include "struct_measuresuite.h"

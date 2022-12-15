@@ -1,5 +1,5 @@
 #include "elf_parser.h"
-#include "ms_error.h"
+#include "../error/error.h"
 
 #include "elf_file.h"
 #include "elf_memory.h"

@@ -1,5 +1,5 @@
 #include "alloc_helper.h"
-#include "ms_error.h"
+#include "error/error.h"
 #include <errno.h> // errno
 #include <stdint.h>
 #include <stdlib.h>   // realloc

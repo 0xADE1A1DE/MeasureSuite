@@ -16,7 +16,7 @@
  */
 
 #include "struct_helpers.h"
-#include "ms_error_description.h"
+#include "error/description.h"
 #include "struct_measuresuite.h"
 #include <errno.h>
 #include <measuresuite.h>

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MS_ERROR_H
-#define MS_ERROR_H
+#ifndef ERROR_H
+#define ERROR_H
 typedef enum {
   E_SUCCESS = 0,
   E_INVALID_INPUT__ARG_WIDTH,

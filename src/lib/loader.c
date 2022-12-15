@@ -1,5 +1,6 @@
 #include "loader.h"
 #include "alloc_helper.h"
+#include "error/error.h"
 #include "io/elf_parser.h"
 #include "io/file.h"
 #include "io/shared_object.h"

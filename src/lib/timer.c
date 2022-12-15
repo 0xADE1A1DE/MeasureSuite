@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#include <stdio.h> // NULL
-#include <sys/time.h>
-
 #include "timer.h"
 #include <linux/perf_event.h> // PERF_*
+#include <stdio.h>            // NULL
 #include <sys/ioctl.h>        // ioctl
 #include <sys/mman.h>         // mmap
 #include <sys/syscall.h>      // __NR_perf_event_open
-#include <unistd.h>           // syscall, sysconf, _SC_PAGESIZE
+#include <sys/time.h>
+#include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
 
 // declaration
 static void measuresuite_time_pmc(uint64_t *t);

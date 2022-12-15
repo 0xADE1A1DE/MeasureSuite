@@ -1,5 +1,5 @@
 #include "shared_object.h"
-#include "ms_error.h"
+#include "../error/error.h"
 #include <dlfcn.h>  // dlopen
 #include <errno.h>  // errno
 #include <string.h> // strerror

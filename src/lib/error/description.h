@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef MS_ERROR_DESCRIPTION_H
-#define MS_ERROR_DESCRIPTION_H
+#ifndef DESCRIPTION_H
+#define DESCRIPTION_H
 
-#include "ms_error.h"
+#include "error.h"
 
 const char *get_error_string(ERROR_NUMBER err);
 #endif

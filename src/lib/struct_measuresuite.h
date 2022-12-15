@@ -17,8 +17,8 @@
 #ifndef STRUCT_MEASURESUITE_H
 #define STRUCT_MEASURESUITE_H
 
+#include "error/error.h"  // ERROR_NUMBER
 #include "measuresuite.h" // load_type
-#include "ms_error.h"     // ERROR_NUMBER
 #include <stddef.h>
 #include <stdint.h>
 
