@@ -69,7 +69,7 @@ test/liball_%.so: test/all_%.c
 
 
 test/%.test: test/%.c Makefile test/helper.o libmeasuresuite.so
-	$(CC) $(CFLAGS) $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -o $(@)
+	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -o $(@)
 	@./test/wrapper.sh $(@)
 	@rm $(@)
 

@@ -34,7 +34,7 @@ static struct error_desc {
     {E_INVALID_INPUT__NUM_IDX_OOB, "The provided index is too large. There is not that many functions loaded."},
     {E_INVALID_INPUT__FILE, "The given file is cannot be stat'ed."},
     {E_INVALID_INPUT__IN_TOO_LARGE, "The product of num_arg_in and arg_width is too large."},
-
+    {E_INVALID_INPUT__SO_FROM_MEMORY,"Shared objects cannot be loaded from memory. Use `load_file` for this."},
     {E_INTERNAL_RANDOMNESS__AI__MALLOC, "Cannot malloc memory for random data."},
     {E_INTERNAL_RANDOMNESS__AI__OPEN_FILE, "Cannot open randomness file."},
     {E_INTERNAL_RANDOMNESS__AI__READ, "Cannot read randomness file."},

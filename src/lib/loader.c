@@ -165,7 +165,7 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
 int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
               size_t data_len, const char *symbol, int *id) {
   if (type == SHARED_OBJECT) {
-    fprintf(stderr, "can't load so from memory as not supported by dlopen.\n");
+    ms->errorno = E_INVALID_INPUT__SO_FROM_MEMORY;
     return 1;
   }
 
