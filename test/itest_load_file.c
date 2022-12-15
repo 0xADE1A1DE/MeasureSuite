@@ -20,17 +20,17 @@
 #include <stdio.h>
 #include <string.h>
 
-const char symbol[] = {"add_two_numbers"};
-const char file_asm[] = {"./test_data/add_two_numbers.asm"};
-const char file_bin[] = {"./test_data/add_two_numbers.bin"};
-const char file_elf[] = {"./test_data/add_two_numbers.o"};
-const char file_shared_object[] = {"./test_data/add_two_numbers.so"};
+static const char symbol[] = {"add_two_numbers"};
+static const char file_asm[] = {"./test_data/add_two_numbers.asm"};
+static const char file_bin[] = {"./test_data/add_two_numbers.bin"};
+static const char file_elf[] = {"./test_data/add_two_numbers.o"};
+static const char file_shared_object[] = {"./test_data/add_two_numbers.so"};
+static const int arg_width = 1;
+static const int arg_num_in = 2;
+static const int arg_num_out = 1;
 
 static int test_load_asm_ok() {
 
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
@@ -51,9 +51,6 @@ static int test_load_asm_ok() {
 
 static int test_load_asm2_ok() {
 
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
@@ -78,9 +75,6 @@ static int test_load_asm2_ok() {
 
 static int test_load_bin_ok() {
 
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
@@ -99,9 +93,7 @@ static int test_load_bin_ok() {
 }
 
 static int test_load_elf_ok() {
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
+
   measuresuite_t ms = NULL;
 
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
@@ -120,9 +112,7 @@ static int test_load_elf_ok() {
 }
 
 static int test_load_shared_object_ok() {
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
+
   measuresuite_t ms = NULL;
 
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);

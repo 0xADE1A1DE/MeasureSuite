@@ -89,10 +89,10 @@ int init_cycle_results(struct measuresuite *ms) {
 
   for (size_t function_i = 0; function_i < ms->num_functions; function_i++) {
     // will shuffle the perm-array
-    uint64_t *current_cycle_res = ms->functions[function_i].cycle_results;
-    current_cycle_res = malloc(max_runs);
+    uint64_t **current_cycle_res = &ms->functions[function_i].cycle_results;
+    *current_cycle_res = malloc(max_runs);
 
-    if (current_cycle_res == 0) {
+    if (*current_cycle_res == 0) {
       ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
       ms->additional_info = strerror(errno);
       return 1;

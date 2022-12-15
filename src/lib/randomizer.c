@@ -15,7 +15,6 @@
  */
 
 #include "randomizer.h"
-#include "fisher_yates.h"
 #include "ms_error.h"
 #include <errno.h> //errno
 #include <fcntl.h> // open/close
@@ -60,17 +59,8 @@ int init_random(struct measuresuite *ms) {
     return 1;
   }
 
-  // allocate permutation
-  ms->permutation = malloc(ms->num_functions * sizeof(size_t));
-  if (ms->permutation == NULL) {
-    ms->errorno = E_INTERNAL_RANDOMNESS__AI__MALLOC;
-    ms->additional_info = strerror(errno);
-    return 1;
-  }
-
   // fill
   if (randomize(ms)) {
-    // ms->errno will be set inside randomize
     return 1;
   }
   return 0;
@@ -82,16 +72,14 @@ int randomize(struct measuresuite *ms) {
     return 1;
   }
 
-  size_t bytes_read = read(ms->random_data_fd, ms->random_data,
-                           ms->random_data_len * sizeof(uint64_t));
-  if (ms->random_data_len != bytes_read) {
+  size_t len = ms->random_data_len * sizeof(uint64_t);
+  size_t bytes_read = read(ms->random_data_fd, ms->random_data, len);
+  if (len != bytes_read) {
     // don't care if its EOF (bytes_read == 0) or fail (bytes_read == -1)
     ms->errorno = E_INTERNAL_RANDOMNESS__AI__READ;
     ms->additional_info = strerror(errno);
     return 1;
   }
-
-  shuffle_permutations(ms);
 
   if (ms->bounds != NULL) {
     // only set the bound for the data required. otherwise, It will overwrite
@@ -138,11 +126,23 @@ int get_random_qword(struct measuresuite *ms, uint64_t *dest) {
 }
 // radnom number 0 .. max
 int get_random_number(struct measuresuite *ms, size_t max, size_t *dest) {
+
+  // calc mask
+  size_t mask = 1;
+  do {
+    mask = ~(~mask << 1); // shift left 1, will w/1's
+  } while (mask < max);
+
   do {
     if (get_random_qword(ms, dest)) {
       return 1;
     }
-  } while (*dest > max);
+    *dest &= mask;
+    if (*dest <= max) {
+      break;
+    }
+    randomize(ms);
+  } while (1);
 
   return 0;
 };

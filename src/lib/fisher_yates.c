@@ -19,6 +19,13 @@
 #include <stddef.h>
 
 int shuffle_permutations(measuresuite_t ms) {
+
+  // nothing to shuffle if we didn't load any functions yet / there is only one
+  // function
+  if (ms->num_functions <= 1) {
+    return 0;
+  }
+
   for (size_t i = ms->num_functions - 1; // start with last item
        i >= 1; // until second item (no need to shuffle first item with itself)
        i--     // every item

@@ -21,6 +21,7 @@
 #include "alloc_helper.h"        // realloc_or_fail
 #include "checker.h"             // check
 #include "evaluator.h"           // own
+#include "fisher_yates.h"        // shuffle_permutations
 #include "randomizer.h"          // randomize
 #include "struct_measuresuite.h" // struct ms; struct function_tuple
 #include "timer.h"               // ms_{start,stop}_timer / ms_current_timestamp
@@ -31,7 +32,6 @@
 static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
                       uint64_t *count);
 
-#ifndef NO_AL
 static int generate_json_from_measurement_results(struct measuresuite *ms,
                                                   uint64_t start_time,
                                                   size_t check_result) {
@@ -119,8 +119,7 @@ int run_measurement(struct measuresuite *ms) {
 
   for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
 
-    // will shuffle the permutation-array
-    if (randomize(ms) != 0) {
+    if (randomize(ms) != 0 || shuffle_permutations(ms) != 0) {
       return 1;
     }
 
@@ -163,8 +162,6 @@ int run_measurement(struct measuresuite *ms) {
   return 0;
 }
 
-#endif
-
 static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
                       uint64_t *count) {
 
@@ -174,7 +171,7 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   // on the num out args, thus the switch
   //
   size_t batch_size = ms->batch_size; // working copy
-  int width = ms->arg_width;
+  size_t width = ms->arg_width;
 
   // this is the initial config for the case that we have one out-variable
   uint64_t *arg0 = out;

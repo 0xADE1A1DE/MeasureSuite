@@ -23,9 +23,9 @@
 #include <stddef.h>
 #include <string.h>
 
-const int max_number_arguments = 6;
+const size_t max_number_arguments = 6;
 
-int set_argwidth(measuresuite_t ms, int arg_width) {
+int set_argwidth(measuresuite_t ms, unsigned int arg_width) {
   if (arg_width < 1) {
     ms->errorno = E_INVALID_INPUT__ARG_WIDTH;
     return 1;
@@ -35,7 +35,7 @@ int set_argwidth(measuresuite_t ms, int arg_width) {
   return 0;
 }
 
-int set_argin(measuresuite_t ms, int arg_in) {
+int set_argin(measuresuite_t ms, unsigned int arg_in) {
   if (arg_in < 1 || arg_in >= max_number_arguments) {
     ms->errorno = E_INVALID_INPUT__NUM_ARG_IN;
     return 1;
@@ -44,7 +44,7 @@ int set_argin(measuresuite_t ms, int arg_in) {
   return 0;
 }
 
-int set_argout(measuresuite_t ms, int arg_out) {
+int set_argout(measuresuite_t ms, unsigned int arg_out) {
   if (arg_out < 1 || arg_out > max_number_arguments) {
     ms->errorno = E_INVALID_INPUT__NUM_ARG_OUT;
     return 1;
@@ -126,7 +126,7 @@ int set_bounds(measuresuite_t ms, const uint64_t *bounds) {
   return 0;
 }
 
-int set_num_batches(measuresuite_t ms, int num_batches) {
+int set_num_batches(measuresuite_t ms, unsigned int num_batches) {
   if (num_batches <= 0) {
     ms->errorno = E_INVALID_INPUT__NUM_BATCHES;
     return 1;
@@ -135,7 +135,7 @@ int set_num_batches(measuresuite_t ms, int num_batches) {
   return 0;
 }
 
-int set_batch_size(measuresuite_t ms, int batch_size) {
+int set_batch_size(measuresuite_t ms, unsigned int batch_size) {
   if (batch_size <= 0) {
     ms->errorno = E_INVALID_INPUT__BATCH_SIZE;
     return 1;

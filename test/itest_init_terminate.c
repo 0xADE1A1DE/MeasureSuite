@@ -17,11 +17,11 @@
 #include "helper.h"
 #include <measuresuite.h>
 
+static const int arg_width = 1;
+static const int arg_num_in = 2;
+static const int arg_num_out = 1;
 static int test_init_terminate_ok() {
 
-  const int arg_width = 1;
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
   ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
@@ -30,8 +30,7 @@ static int test_init_terminate_ok() {
   return 0;
 }
 static int test_init_terminate_arg_width() {
-  const int arg_num_in = 2;
-  const int arg_num_out = 1;
+
   measuresuite_t ms = NULL;
 
   ms_assert(ms_initialize(&ms, -10, arg_num_in, arg_num_out) == 1);
@@ -40,8 +39,7 @@ static int test_init_terminate_arg_width() {
   return 0;
 }
 static int test_init_terminate_arg_num_in() {
-  const int arg_width = 1;
-  const int arg_num_out = 1;
+
   measuresuite_t ms = NULL;
 
   ms_assert(ms_initialize(&ms, arg_width, 200, arg_num_out) == 1);
@@ -56,8 +54,7 @@ static int test_init_terminate_arg_num_in() {
   return 0;
 }
 static int test_init_terminate_arg_num_out() {
-  const int arg_width = 1;
-  const int arg_num_in = 2;
+
   measuresuite_t ms = NULL;
 
   ms_assert(ms_initialize(&ms, arg_width, arg_num_in, -1) == 1);

@@ -3,13 +3,35 @@
 #include "io/elf_parser.h"
 #include "io/file.h"
 #include "io/shared_object.h"
+#include "measuresuite.h"
 #include "struct_measuresuite.h"
+#include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #ifdef USE_ASSEMBLYLINE
 #include <assemblyline.h>
 #endif
 
+// this essentially re-allocs the  permutation array with the new number of
+// active functions and fills it with numbers 0..num_functions
+static int reset_permutaions(measuresuite_t ms) {
+
+  // allocate permutation
+  ms->permutation =
+      realloc(ms->permutation, ms->num_functions * sizeof(size_t));
+
+  if (ms->permutation == NULL) {
+    ms->errorno = E_INTERNAL_RANDOMNESS__AI__MALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+
+  for (size_t i = 0; i < ms->num_functions; i++) {
+    ms->permutation[i] = i;
+  }
+  return 0;
+};
 const size_t DEFAULT_CODE_SIZE = 60000;
 static int create_new_function(measuresuite_t ms, enum load_type type,
                                size_t code_size_bytes) {
@@ -44,18 +66,24 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
   new->cycle_results = NULL;
 
 #ifdef USE_ASSEMBLYLINE
-  // create asm instance
-  new->al = asm_create_instance(new->code, (int)new->code_size_bytes);
-#else
+  new->chunks = 0;
+
   if (type == ASM) {
-    fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
-                    "compiled with AssemblyLine.");
-    return 1;
+    // create asm instance
+    new->al = asm_create_instance(new->code, (int)new->code_size_bytes);
+  } else {
+    new->al = NULL;
   }
+#else
+  fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
+                  "compiled with AssemblyLine.");
+  return 1;
+
 #endif
 
   // specify that we have a new one now
   ms->num_functions += 1;
+  reset_permutaions(ms);
   return 0;
 }
 
@@ -90,6 +118,7 @@ int unload(measuresuite_t ms, size_t id) {
   }
 
   ms->num_functions--;
+  reset_permutaions(ms);
   return ret;
 }
 
@@ -123,7 +152,8 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
   if (*id == -1) {
     /*
    size should suffice for
-   - ASM, as a string instructions are typically longer than the encoded version
+   - ASM, as a string instructions are typically longer than the encoded
+   version
    - BIN (its equal anyway)
    - ELF, as we'd need less because we skip the header stuff
    */
@@ -143,12 +173,18 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
 
   switch (type) {
   case ASM: {
+#ifdef USE_ASSEMBLYLINE
     if (asm_assemble_file_counting_chunks(fct->al, (char *)filename,
                                           (int)ms->chunk_size, &fct->chunks)) {
       ms->errorno = E_LOAD__ASM_FILE;
       return 1;
     }
     return 0;
+#else
+    fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
+                    "compiled with AssemblyLine.");
+    return 1;
+#endif
   }
 
   case BIN:
@@ -189,12 +225,18 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
 
   switch (type) {
   case ASM: {
+#ifdef USE_ASSEMBLYLINE
     if (asm_assemble_string_counting_chunks(
             fct->al, (char *)data, (int)ms->chunk_size, &fct->chunks)) {
       ms->errorno = E_LOAD__ASM_DATA;
       return 1;
     }
     return 0;
+#else
+    fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
+                    "compiled with AssemblyLine.");
+    return 1;
+#endif
   }
 
   case BIN: {

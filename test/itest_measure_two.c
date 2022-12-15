@@ -25,20 +25,21 @@ static const char file_asm[] = {"./test_data/add_two_numbers.asm"};
 static const char file_bin[] = {"./test_data/add_two_numbers.bin"};
 static const char file_elf[] = {"./test_data/add_two_numbers.o"};
 static const char file_shared_object[] = {"./test_data/add_two_numbers.so"};
-
 static const int arg_width = 1;
 static const int arg_num_in = 2;
 static const int arg_num_out = 1;
 static const int batch_size = 2;
 static const int number_of_batches = 10;
 
-static int test_measure_asm_ok() {
+static int test_measure_asm_so_ok() {
 
   measuresuite_t ms = NULL;
-
-  int id = -1;
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
-  ms_load_file(ms, ASM, file_asm, symbol, &id);
+
+  int id_asm = -1;
+  int id_so = -1;
+  ms_load_file(ms, ASM, file_asm, symbol, &id_asm);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, &id_so);
 
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
 
@@ -47,44 +48,16 @@ static int test_measure_asm_ok() {
   return 0;
 }
 
-static int test_measure_bin_ok() {
+static int test_measure_bin_elf_ok() {
 
   measuresuite_t ms = NULL;
 
-  int id = -1;
+  int id_bin = -1;
+  int id_elf = -1;
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
-
-  ms_assert_ok(ms_terminate(ms));
-
-  return 0;
-}
-
-static int test_measure_elf_ok() {
-
-  measuresuite_t ms = NULL;
-
-  int id = -1;
-  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
-
-  ms_load_file(ms, ELF, file_elf, symbol, &id);
-  ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
-
-  ms_assert_ok(ms_terminate(ms));
-
-  return 0;
-}
-
-static int test_measure_shared_object_ok() {
-
-  measuresuite_t ms = NULL;
-
-  int id = -1;
-  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
-
-  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, &id);
+  ms_load_file(ms, BIN, file_bin, symbol, &id_bin);
+  ms_load_file(ms, ELF, file_elf, symbol, &id_elf);
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
 
   ms_assert_ok(ms_terminate(ms));
@@ -94,9 +67,7 @@ static int test_measure_shared_object_ok() {
 
 int main() {
   int res = 0;
-  res |= test_measure_asm_ok();
-  res |= test_measure_bin_ok();
-  res |= test_measure_elf_ok();
-  res |= test_measure_shared_object_ok();
+  res |= test_measure_asm_so_ok();
+  res |= test_measure_bin_elf_ok();
   return res;
 }
