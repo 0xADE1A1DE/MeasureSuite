@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <stddef.h>
 #ifdef USE_ASSEMBLYLINE
 #include <assemblyline.h> // asm_get_code
 #endif
@@ -27,7 +28,7 @@
 #include <stdlib.h>              // alloc / size_t
 #include <string.h>              // memset / strerror
 
-static void run_batch(struct measuresuite *ms, struct function_tuple *t,
+static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
                       uint64_t *count);
 
 #ifndef NO_AL
@@ -51,12 +52,12 @@ static int generate_json_from_measurement_results(struct measuresuite *ms,
 
   // print function meta data
   for (size_t i = 0; i < ms->num_functions; i++) {
-    struct function_tuple *t = &ms->functions[i];
-    switch (t->type) {
+    struct function_tuple *fct = &ms->functions[i];
+    switch (fct->type) {
     case ASM:
       json +=
           snprintf(json, json - json_end,
-                   "{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", t->chunks);
+                   "{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", fct->chunks);
       break;
     case BIN:
       json += snprintf(json, json - json_end, "{\"type\":\"BIN\"},");
@@ -75,11 +76,11 @@ static int generate_json_from_measurement_results(struct measuresuite *ms,
 
   // print cycles
   for (size_t i = 0; i < ms->num_functions; i++) {
-    struct function_tuple *t = &ms->functions[i];
+    struct function_tuple *fct = &ms->functions[i];
     json += snprintf(json, json - json_end, "[");
     for (size_t run_i = 0; run_i < ms->num_batches; run_i++) {
       json += snprintf(json, json - json_end, "%" PRIu64 ",",
-                       t->cycle_results[run_i]);
+                       fct->cycle_results[run_i]);
     }
     // overwrite comma
     json--;
@@ -117,7 +118,8 @@ int run_measurement(struct measuresuite *ms) {
   uint64_t start_time = ms_current_timestamp();
 
   for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
-    // will shuffle the perm-array
+
+    // will shuffle the permutation-array
     if (randomize(ms) != 0) {
       return 1;
     }
@@ -127,10 +129,10 @@ int run_measurement(struct measuresuite *ms) {
 
       // get the function to measure
       size_t function_index = ms->permutation[func_i];
-      struct function_tuple *t = &ms->functions[function_index];
+      struct function_tuple *fct = &ms->functions[function_index];
 
       // measure
-      run_batch(ms, t, &t->cycle_results[batch_i]);
+      run_batch(ms, fct, &fct->cycle_results[batch_i]);
     }
 
     if (ms->enable_check) {
@@ -138,11 +140,11 @@ int run_measurement(struct measuresuite *ms) {
       for (size_t func_i = 1; func_i < ms->num_functions; func_i++) {
 
         // get the tuple and the previous
-        struct function_tuple *t = &ms->functions[func_i];
+        struct function_tuple *fct = &ms->functions[func_i];
         struct function_tuple *prev = &ms->functions[func_i - 1];
 
         // check
-        if (check(ms->arg_width * ms->num_arg_out, t->arithmetic_results,
+        if (check(ms->arg_width * ms->num_arg_out, fct->arithmetic_results,
                   prev->arithmetic_results)) {
           check_result = func_i;
           break;
@@ -163,60 +165,61 @@ int run_measurement(struct measuresuite *ms) {
 
 #endif
 
-static void run_batch(struct measuresuite *ms, struct function_tuple *t,
+static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
                       uint64_t *count) {
 
-  uint64_t *out = t->arithmetic_results;
+  uint64_t *out = fct->arithmetic_results;
   // we always call the function with three in-arguments. It itself will then
   // take which ever it needs. However, the positon of the in-args is dependent
   // on the num out args, thus the switch
-  size_t bs = ms->batch_size;
-  int w = ms->arg_width;
+  //
+  size_t batch_size = ms->batch_size; // working copy
+  int width = ms->arg_width;
 
   // this is the initial config for the case that we have one out-variable
-  uint64_t *a0 = out;
-  uint64_t *a1 = ms->random_data;
-  uint64_t *a2 = ms->random_data + w;
-  uint64_t *a3 = ms->random_data + 2 * w;
-  uint64_t *a4 = ms->random_data + 3 * w;
-  uint64_t *a5 = ms->random_data + 4 * w;
+  uint64_t *arg0 = out;
+  uint64_t *arg1 = ms->random_data;
+  uint64_t *arg2 = ms->random_data + width;
+  uint64_t *arg3 = ms->random_data + (size_t)2 * width;
+  uint64_t *arg4 = ms->random_data + (size_t)3 * width;
+  uint64_t *arg5 = ms->random_data + (size_t)4 * width;
 
   if (ms->num_arg_out == 1) {
     // do nothing, stay with default
   } else if (ms->num_arg_out == 2) {
     // shift them all one
-    a5 = a4;
-    a4 = a3;
-    a3 = a2;
-    a2 = a1;
+    arg5 = arg4;
+    arg4 = arg3;
+    arg3 = arg2;
+    arg2 = arg1;
     // and add the new out
-    a1 = out + w;
+    arg1 = out + width;
   } else if (ms->num_arg_out == 3) {
-    a5 = a3;
-    a4 = a2;
-    a3 = a1;
-    a2 = out + 2 * w;
-    a1 = out + w;
+    arg5 = arg3;
+    arg4 = arg2;
+    arg3 = arg1;
+    arg2 = out + (size_t)2 * width;
+    arg1 = out + width;
   } else if (ms->num_arg_out == 4) {
-    a5 = a2;
-    a4 = a1;
-    a3 = out + 3 * w;
-    a2 = out + 2 * w;
-    a1 = out + w;
+    arg5 = arg2;
+    arg4 = arg1;
+    arg3 = out + (size_t)3 * width;
+    arg2 = out + (size_t)2 * width;
+    arg1 = out + width;
   } else {
-    a5 = a1;
-    a4 = out + 4 * w;
-    a3 = out + 3 * w;
-    a2 = out + 2 * w;
-    a1 = out + w;
+    arg5 = arg1;
+    arg4 = out + (size_t)4 * width;
+    arg3 = out + (size_t)3 * width;
+    arg2 = out + (size_t)2 * width;
+    arg1 = out + width;
   }
 
   uint64_t start_time = 0;
   ms_start_timer(&start_time);
-  void (*func)(uint64_t * o, ...) = t->code;
-  for (; bs > 0;) {
-    func(a0, a1, a2, a3, a4, a5);
-    bs--;
+  void (*func)(uint64_t * out, ...) = fct->code;
+  for (; batch_size > 0;) {
+    func(arg0, arg1, arg2, arg3, arg4, arg5);
+    batch_size--;
   }
 
   *count = ms_stop_timer(start_time);

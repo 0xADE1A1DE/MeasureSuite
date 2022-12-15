@@ -15,7 +15,6 @@
  */
 
 #include "helper.h"
-#include <assert.h>
 #include <measuresuite.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -38,14 +37,41 @@ static int test_load_asm_ok() {
 
   int id = -1;
 
-  assert((ms_load_file(ms, ASM, file_asm, symbol, &id)) == 0);
-  assert(id == 0);
+  ms_assert_ok(ms_load_file(ms, ASM, file_asm, symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert((ms_load_file(ms, ASM, file_asm, NULL, &id)) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok((ms_load_file(ms, ASM, file_asm, NULL, &id)));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
+
+  return 0;
+}
+
+static int test_load_asm2_ok() {
+
+  const int arg_width = 1;
+  const int arg_num_in = 2;
+  const int arg_num_out = 1;
+  measuresuite_t ms = NULL;
+
+  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
+
+  int id = -1;
+
+  ms_assert_ok(ms_load_file(ms, ASM, file_asm, symbol, &id));
+  ms_assert(id == 0);
+
+  // should not error out if the symbol is NULL
+  ms_assert_ok((ms_load_file(ms, ASM, file_asm, NULL, &id)));
+  ms_assert(id == 0); // should not have changed
+
+  int id1 = -1;
+  ms_assert_ok((ms_load_file(ms, ASM, file_asm, symbol, &id1)));
+  ms_assert(id1 == 1);
+
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -60,14 +86,14 @@ static int test_load_bin_ok() {
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
   int id = -1;
-  assert(ms_load_file(ms, BIN, file_bin, symbol, &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(ms_load_file(ms, BIN, file_bin, symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert(ms_load_file(ms, BIN, file_bin, NULL, &id) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok(ms_load_file(ms, BIN, file_bin, NULL, &id));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -81,14 +107,14 @@ static int test_load_elf_ok() {
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
   int id = -1;
-  assert(ms_load_file(ms, ELF, file_elf, symbol, &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(ms_load_file(ms, ELF, file_elf, symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert(ms_load_file(ms, ELF, file_elf, NULL, &id) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok(ms_load_file(ms, ELF, file_elf, NULL, &id));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -103,10 +129,11 @@ static int test_load_shared_object_ok() {
 
   int id = -1;
 
-  assert(ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(
+      ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, &id));
+  ms_assert(id == 0);
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -114,6 +141,7 @@ static int test_load_shared_object_ok() {
 int main() {
   int res = 0;
   res |= test_load_asm_ok();
+  res |= test_load_asm2_ok();
   res |= test_load_bin_ok();
   res |= test_load_elf_ok();
   res |= test_load_shared_object_ok();

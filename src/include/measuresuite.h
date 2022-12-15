@@ -19,6 +19,7 @@
 
 #include <stddef.h> // size_t
 #include <stdint.h> // uint64_t's
+#include <stdio.h>  // FILE
 
 typedef struct measuresuite *measuresuite_t;
 typedef struct ERROR_NUMBER error_t;
@@ -191,6 +192,11 @@ int ms_terminate(measuresuite_t ms);
  * Prints the last error of @param ms to stdout
  */
 void ms_printf_error(measuresuite_t ms);
+
+/**
+ * Prints the last error of @param ms to stdout
+ */
+void ms_fprintf_error(measuresuite_t ms, FILE *file);
 
 /**
  * Prints at most @param len chars from the error code to *dest.

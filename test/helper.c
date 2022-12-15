@@ -26,10 +26,10 @@ void error_handling_helper(measuresuite_t ms) {
 void error_handling_helper_template_str(measuresuite_t ms,
                                         const char *tpl_str) {
   const int len = 1000;
-  char *s = calloc(1, len * sizeof(char));
-  ms_sprintf_error(ms, s, len);
-  fprintf(stderr, tpl_str, s);
-  free(s);
+  char *str = calloc(1, len * sizeof(char));
+  ms_sprintf_error(ms, str, len);
+  fprintf(stderr, tpl_str, str);
+  free(str);
 }
 
 void exit_skip() { exit(SKIP); }
@@ -38,7 +38,7 @@ void exit_skip() { exit(SKIP); }
  */
 int check_ise_bit(int bit_no) {
   // EAX value for getting the ISE's from cpu id is 07h
-  int r = 0;
+  int ret = 0;
   int checkBit = 1 << bit_no;
 
   asm volatile("mov $7, %%eax \n\t"
@@ -46,8 +46,19 @@ int check_ise_bit(int bit_no) {
                "cpuid\n\t"
                "and %%ebx, %[bit]\n\t"
                "mov %%ebx, %[ret]\n\t"
-               : [ret] "=&m"(r)
+               : [ret] "=&m"(ret)
                : [bit] "m"(checkBit)
                : "rax", "rbx", "rcx", "rdx");
-  return r;
+  return ret;
 };
+
+// do not use. use the macro ms_assert like you would use <assert.h>
+void assert_print_ms_error(measuresuite_t ms, char *file, int lineno,
+                           const char *func, const char *s_exp, int exp) {
+  if (exp) {
+    return;
+  }
+  fprintf(stderr, "%s:%d: %s: Assertion %s failed.\n (ms-error: %s)\n", file,
+          lineno, func, s_exp, ms_get_error_string(ms));
+  abort();
+}

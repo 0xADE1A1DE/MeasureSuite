@@ -15,29 +15,28 @@
  */
 
 #include "printer.h"
+#include <inttypes.h>
 #include <stdio.h>
-void printbin_single_number(uint64_t n) {
 
-  const int bitwitdh_uint64 = 64;
+void printbin_single_number(uint64_t num) {
 
-  int width = bitwitdh_uint64; // bits
-  uint64_t mask = (uint64_t)1 << (bitwitdh_uint64 - 1);
+  const int bitwidth_uint64 = 64;
+
+  int width = bitwidth_uint64; // bits
+  uint64_t mask = (uint64_t)1 << (bitwidth_uint64 - 1);
   while (width--) {
-    if (n & mask)
-      printf("1");
-    else
-      printf("0");
-
+    printf("%" PRIu64, num & mask);
     mask >>= 1;
   }
   printf("\n");
 }
+
 static const int color_grn = 32;
 
-void printbin(uint64_t const *data_a, uint64_t const *data_b, int idx,
-              int total) {
+void printbin(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
+              size_t total) {
   int color = color_grn - (*data_a != *data_b); // col 32 when its equal, grn
-  printf("\n\x1b[%dm @ %d/%d: \n"
+  printf("\n\x1b[%dm @ %lu/%lu: \n"
          "a:0b",
          color, idx, total);
   printbin_single_number(*data_a);
@@ -46,10 +45,10 @@ void printbin(uint64_t const *data_a, uint64_t const *data_b, int idx,
   printf("\x1b[0m");
 }
 
-void printhex(uint64_t const *data_a, uint64_t const *data_b, int idx,
-              int total) {
+void printhex(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
+              size_t total) {
   int color = color_grn - (*data_a != *data_b); // col 32 when its equal, grn
-  printf("\n\x1b[%dm @ %d/%d: \n"
+  printf("\n\x1b[%dm @ %" PRIu64 "/%" PRIu64 ": \n"
          "a:0x%016lx\n"
          "b:0x%016lx\x1b[0m\n",
          color, idx, total, *data_a, *data_b);

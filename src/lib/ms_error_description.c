@@ -59,9 +59,9 @@ static struct error_desc {
     // clang-format on
 };
 
-const char *get_error_string(ERROR_NUMBER e) {
+const char *get_error_string(ERROR_NUMBER err) {
   for (size_t i = 0; i < sizeof(error_desc) / sizeof(error_desc[0]); i++) {
-    if (error_desc[i].errno == e) {
+    if (error_desc[i].errno == err) {
       return error_desc[i].message;
     }
   }

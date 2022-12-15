@@ -61,33 +61,35 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
 
 int unload(measuresuite_t ms, size_t id) {
 
-  struct function_tuple *t = &ms->functions[id];
+  struct function_tuple *fct = &ms->functions[id];
 
-  free(t->arithmetic_results);
-  t->arithmetic_results = NULL;
+  free(fct->arithmetic_results);
+  fct->arithmetic_results = NULL;
 
-  free(t->cycle_results);
-  t->cycle_results = NULL;
+  free(fct->cycle_results);
+  fct->cycle_results = NULL;
 
   int ret = 0;
-  switch (t->type) {
+  switch (fct->type) {
   case SHARED_OBJECT:
-    ret = so_unload_file(ms, t);
+    ret = so_unload_file(ms, fct);
     break;
   case ASM:
 #if USE_ASSEMBLYLINE
-    if (t->al == NULL || asm_destroy_instance(t->al)) {
+    if (fct->al == NULL || asm_destroy_instance(fct->al)) {
       ms->errorno = E_LOAD__AL_FREE;
       ret = 1;
     }
-    t->al = NULL;
+    fct->al = NULL;
     __attribute__((fallthrough));
 #endif
   case BIN:
   case ELF:
-    unmap(ms, t->code, t->code_size_bytes);
-    t->code_size_bytes = 0;
+    unmap(ms, fct->code, fct->code_size_bytes);
+    fct->code_size_bytes = 0;
   }
+
+  ms->num_functions--;
   return ret;
 }
 
@@ -130,19 +132,19 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
     }
     *id = (int)ms->num_functions - 1;
   }
-  struct function_tuple *t = &ms->functions[*id];
+  struct function_tuple *fct = &ms->functions[*id];
   /** make sure we got enough space in case we are re-using */
-  if (t->code_size_bytes < size) {
-    if (realloc_rwx_or_fail(ms, t->code, t->code_size_bytes, size)) {
+  if (fct->code_size_bytes < size) {
+    if (realloc_rwx_or_fail(ms, fct->code, fct->code_size_bytes, size)) {
       return 1;
     }
-    t->code_size_bytes = size;
+    fct->code_size_bytes = size;
   }
 
   switch (type) {
   case ASM: {
-    if (asm_assemble_file_counting_chunks(t->al, (char *)filename,
-                                          (int)ms->chunk_size, &t->chunks)) {
+    if (asm_assemble_file_counting_chunks(fct->al, (char *)filename,
+                                          (int)ms->chunk_size, &fct->chunks)) {
       ms->errorno = E_LOAD__ASM_FILE;
       return 1;
     }
@@ -150,10 +152,10 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
   }
 
   case BIN:
-    return filecopy(ms, t->code, size, filename);
+    return filecopy(ms, fct->code, size, filename);
 
   case ELF:
-    return elf_load_symbol(ms, t->code, size, filename, symbol);
+    return elf_load_symbol(ms, fct->code, size, filename, symbol);
 
   default:
     return 1;
@@ -176,19 +178,19 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
     *id = (int)ms->num_functions - 1;
   }
 
-  struct function_tuple *t = &ms->functions[*id];
+  struct function_tuple *fct = &ms->functions[*id];
   /** make sure we got enough space in case we are re-using */
-  if (t->code_size_bytes < data_len) {
-    if (realloc_rwx_or_fail(ms, t->code, t->code_size_bytes, data_len)) {
+  if (fct->code_size_bytes < data_len) {
+    if (realloc_rwx_or_fail(ms, fct->code, fct->code_size_bytes, data_len)) {
       return 1;
     }
-    t->code_size_bytes = data_len;
+    fct->code_size_bytes = data_len;
   }
 
   switch (type) {
   case ASM: {
-    if (asm_assemble_string_counting_chunks(t->al, (char *)data,
-                                            (int)ms->chunk_size, &t->chunks)) {
+    if (asm_assemble_string_counting_chunks(
+            fct->al, (char *)data, (int)ms->chunk_size, &fct->chunks)) {
       ms->errorno = E_LOAD__ASM_DATA;
       return 1;
     }
@@ -196,12 +198,13 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
   }
 
   case BIN: {
-    memcpy(t->code, data, data_len);
+    memcpy(fct->code, data, data_len);
     return 0;
   }
 
   case ELF:
-    return elf_load_symbol_mem(ms, t->code, t->code_size_bytes, data, symbol);
+    return elf_load_symbol_mem(ms, fct->code, fct->code_size_bytes, data,
+                               symbol);
 
   default:
     return 1;

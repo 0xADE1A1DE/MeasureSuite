@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef RANDOMIZER_H
-#define RANDOMIZER_H
-
+#include "fisher_yates.h"
+#include "randomizer.h"
 #include "struct_measuresuite.h"
 #include <stddef.h>
-#include <stdint.h>
 
-int init_random(struct measuresuite *);
-int end_random(struct measuresuite *);
-int randomize(struct measuresuite *);
-
-/**
- * inlcuding 0 and @param max, @param *dest will set to a random number
- */
-int get_random_number(struct measuresuite *, size_t max, size_t *dest);
-int get_random_qword(struct measuresuite *, uint64_t *dest);
-#endif
+int shuffle_permutations(measuresuite_t ms) {
+  for (size_t i = ms->num_functions - 1; // start with last item
+       i >= 1; // until second item (no need to shuffle first item with itself)
+       i--     // every item
+  ) {
+    size_t num = 0;
+    if (get_random_number(ms, i, &num)) {
+      return 1;
+    }
+    // swap random with current
+    size_t tmp = ms->permutation[i];
+    ms->permutation[i] = ms->permutation[num];
+    ms->permutation[num] = tmp;
+  }
+  return 0;
+}

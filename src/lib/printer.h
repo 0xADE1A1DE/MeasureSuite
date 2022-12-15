@@ -16,21 +16,22 @@
 
 #ifndef PRINTER_H
 #define PRINTER_H
+#include <stddef.h>
 #include <stdint.h>
 /**
  * prints the given number in binary to stdout
  */
-void printbin_single_number(uint64_t);
+void printbin_single_number(uint64_t num);
 
 /**
  * prints two numbers if they are the same in green and red if they are
  * diffeerent
  */
-void printbin(uint64_t const *data_a, uint64_t const *data_b, int idx,
-              int total);
+void printbin(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
+              size_t total);
 /**
  * same but in hex
  */
-void printhex(uint64_t const *data_a, uint64_t const *data_b, int idx,
-              int total);
+void printhex(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
+              size_t total);
 #endif

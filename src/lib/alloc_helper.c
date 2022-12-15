@@ -1,6 +1,7 @@
 #include "alloc_helper.h"
 #include "ms_error.h"
-#include <errno.h>    // errno
+#include <errno.h> // errno
+#include <stdint.h>
 #include <stdlib.h>   // realloc
 #include <string.h>   // strerror
 #include <sys/mman.h> // mmap...
@@ -51,7 +52,7 @@ int unmap(struct measuresuite *ms, void **dest, size_t old_len) {
   return 0;
 }
 
-int init_arithmetic_results(measuresuite_t ms, struct function_tuple *t) {
+int init_arithmetic_results(measuresuite_t ms, struct function_tuple *fct) {
   /** Arithmetic Results: */
   /** +---------------------------------------------------------+ */
   /** | Arithmetic Res (for first) | Arithmetic Res (for seond) | */
@@ -71,9 +72,9 @@ int init_arithmetic_results(measuresuite_t ms, struct function_tuple *t) {
 
   size_t size = ms->arg_width * ms->num_arg_out * sizeof(uint64_t);
 
-  t->arithmetic_results = malloc(size);
+  fct->arithmetic_results = malloc(size);
 
-  if (t->arithmetic_results == NULL) {
+  if (fct->arithmetic_results == NULL) {
     ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
     ms->additional_info = strerror(errno);
     return 1;
@@ -88,7 +89,10 @@ int init_cycle_results(struct measuresuite *ms) {
 
   for (size_t function_i = 0; function_i < ms->num_functions; function_i++) {
     // will shuffle the perm-array
-    if ((ms->functions[function_i].cycle_results = malloc(max_runs)) == 0) {
+    uint64_t *current_cycle_res = ms->functions[function_i].cycle_results;
+    current_cycle_res = malloc(max_runs);
+
+    if (current_cycle_res == 0) {
       ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
       ms->additional_info = strerror(errno);
       return 1;

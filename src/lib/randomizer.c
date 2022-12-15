@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
+#include "randomizer.h"
+#include "fisher_yates.h"
+#include "ms_error.h"
 #include <errno.h> //errno
 #include <fcntl.h> // open/close
+#include <linux/perf_event.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h> // malloc
 #include <string.h> //strerror
+#include <sys/types.h>
 #include <unistd.h> // read/write
-
-#include "ms_error.h"
-#include "randomizer.h"
 
 static const char randomfile_name[] = {"/dev/urandom"};
 
 int init_random(struct measuresuite *ms) {
 
-  int count_uint64s = ms->arg_width * ms->num_arg_in;
-  // for the measurement / get_one_random_byte
-  ms->random_data_size_bytes = count_uint64s * sizeof(uint64_t) + 1;
+  size_t count_uint64s = ms->arg_width * ms->num_arg_in;
+  // for the measurement / get_one_random_qword
+  ms->random_data_len = count_uint64s + 1;
 
   // sanity check size
   const size_t size_of_random_bin = 102400;
-  if (ms->random_data_size_bytes > size_of_random_bin) {
+  if (ms->random_data_len > size_of_random_bin) {
     ms->errorno = E_INVALID_INPUT__IN_TOO_LARGE;
     return 1;
   }
@@ -48,9 +52,17 @@ int init_random(struct measuresuite *ms) {
     return 1;
   }
 
-  // allocate
-  ms->random_data = malloc(ms->random_data_size_bytes);
+  // allocate data
+  ms->random_data = malloc(ms->random_data_len * sizeof(uint64_t));
   if (ms->random_data == NULL) {
+    ms->errorno = E_INTERNAL_RANDOMNESS__AI__MALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+
+  // allocate permutation
+  ms->permutation = malloc(ms->num_functions * sizeof(size_t));
+  if (ms->permutation == NULL) {
     ms->errorno = E_INTERNAL_RANDOMNESS__AI__MALLOC;
     ms->additional_info = strerror(errno);
     return 1;
@@ -65,27 +77,29 @@ int init_random(struct measuresuite *ms) {
 }
 
 int randomize(struct measuresuite *ms) {
-  if (ms->random_data_fd == -1) {
+  if (ms->random_data_fd == -1 || ms->permutation == NULL) {
     ms->errorno = E_INTERNAL_RANDOMNESS__UNINITIALIZED;
     return 1;
   }
 
-  size_t bytes_read =
-      read(ms->random_data_fd, ms->random_data, ms->random_data_size_bytes);
-  if (ms->random_data_size_bytes != bytes_read) {
+  size_t bytes_read = read(ms->random_data_fd, ms->random_data,
+                           ms->random_data_len * sizeof(uint64_t));
+  if (ms->random_data_len != bytes_read) {
     // don't care if its EOF (bytes_read == 0) or fail (bytes_read == -1)
     ms->errorno = E_INTERNAL_RANDOMNESS__AI__READ;
     ms->additional_info = strerror(errno);
     return 1;
   }
 
+  shuffle_permutations(ms);
+
   if (ms->bounds != NULL) {
     // only set the bound for the data required. otherwise, It will overwrite
     // data somewhere...
-    for (int i_na = 0; i_na < ms->num_arg_in; i_na++) {
-      for (int i_w = 0; i_w < ms->arg_width; i_w++) {
-        uint64_t *d = ms->random_data + (i_na * ms->arg_width) + i_w;
-        *d &= ms->bounds[i_w];
+    for (size_t i_na = 0; i_na < ms->num_arg_in; i_na++) {
+      for (size_t i_w = 0; i_w < ms->arg_width; i_w++) {
+        uint64_t *data = ms->random_data + (i_na * ms->arg_width) + i_w;
+        *data &= ms->bounds[i_w];
       }
     }
   }
@@ -106,23 +120,29 @@ int end_random(struct measuresuite *ms) {
     }
   }
   ms->random_data_fd = -1;
-  ms->random_data_size_bytes = 0;
+  ms->random_data_len = 0;
   return 0;
 }
 
-int get_random_byte(struct measuresuite *ms, uint8_t *dest) {
-  if (ms->random_data == NULL) {
+int get_random_qword(struct measuresuite *ms, uint64_t *dest) {
+  if (ms->random_data == NULL ||
+      ms->random_data_len < 1 // because it would be more than 0 if it would
+                              // have been initialized correctly
+  ) {
     ms->errorno = E_INTERNAL_RANDOMNESS__UNINITIALIZED;
     return 1;
   }
-  if (ms->random_data_size_bytes < 1) {
-    // because it would be more than 0 if it would have been initialized
-    // correctly
-    ms->errorno = E_INTERNAL_RANDOMNESS__UNINITIALIZED;
-    return 1;
-  }
-  uint8_t *byteview = (uint8_t *)ms->random_data;
-  uint8_t *lastbyte = byteview + ms->random_data_size_bytes - 1;
-  *dest = *lastbyte;
+
+  *dest = ms->random_data[ms->random_data_len - 1];
   return 0;
 }
+// radnom number 0 .. max
+int get_random_number(struct measuresuite *ms, size_t max, size_t *dest) {
+  do {
+    if (get_random_qword(ms, dest)) {
+      return 1;
+    }
+  } while (*dest > max);
+
+  return 0;
+};

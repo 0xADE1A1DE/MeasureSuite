@@ -14,7 +14,7 @@
 
 # Files / Directories
 SRCS        = $(shell find ./src/lib -type f -name '*.c')
-TEST_SRCS   = $(wildcard ./test/utest_*.c)
+TEST_SRCS   = $(wildcard ./test/itest_*.c)
 TESTS      ?= $(TEST_SRCS:.c=.test)
 TEST_DATA   = $(addprefix test/test_data/add_two_numbers., so bin o)
 C_COV_DIR   = coverage-c

@@ -19,5 +19,5 @@
 
 #include "ms_error.h"
 
-const char *get_error_string(ERROR_NUMBER);
+const char *get_error_string(ERROR_NUMBER err);
 #endif

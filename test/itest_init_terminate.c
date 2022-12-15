@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <assert.h>
+#include "helper.h"
 #include <measuresuite.h>
 
 static int test_init_terminate_ok() {
@@ -24,8 +24,8 @@ static int test_init_terminate_ok() {
   const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
-  assert(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out) == 0);
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -34,8 +34,8 @@ static int test_init_terminate_arg_width() {
   const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
-  assert(ms_initialize(&ms, -10, arg_num_in, arg_num_out) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, -10, arg_num_in, arg_num_out) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -44,14 +44,14 @@ static int test_init_terminate_arg_num_in() {
   const int arg_num_out = 1;
   measuresuite_t ms = NULL;
 
-  assert(ms_initialize(&ms, arg_width, 200, arg_num_out) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, 200, arg_num_out) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
-  assert(ms_initialize(&ms, arg_width, -1, arg_num_out) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, -1, arg_num_out) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
-  assert(ms_initialize(&ms, arg_width, 6, arg_num_out) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, 6, arg_num_out) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -60,14 +60,14 @@ static int test_init_terminate_arg_num_out() {
   const int arg_num_in = 2;
   measuresuite_t ms = NULL;
 
-  assert(ms_initialize(&ms, arg_width, arg_num_in, -1) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, -1) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
-  assert(ms_initialize(&ms, arg_width, arg_num_in, 7) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, 7) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
-  assert(ms_initialize(&ms, arg_width, arg_num_in, 1000) == 1);
-  assert(ms_terminate(ms) == 0);
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, 1000) == 1);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }

@@ -53,7 +53,7 @@ struct function_tuple {
 
 struct measuresuite {
   // details of argument to call the fucntions with
-  int arg_width, num_arg_in, num_arg_out;
+  size_t arg_width, num_arg_in, num_arg_out;
 
   // array of length arg_width and prodives bitmasks. Defaults to -1
   uint64_t *bounds;
@@ -77,11 +77,12 @@ struct measuresuite {
   // they are pointers to input. For the functions_{A,B,Check}
   // alloc'd on init
   uint64_t *random_data;
-  size_t random_data_size_bytes; // how many bytes are allocated at *random_data
-  int random_data_fd;  // file descriptor from which new random data is being
-                       // read.
-  size_t *permutation; // pointing to an array of #num_functions size,
-                       // cointaining indexes into the *functions-array
+  size_t random_data_len; // how many uint64_t's are allocated at
+                          // *random_data
+  int random_data_fd;     // file descriptor from which new random data is being
+                          // read.
+  size_t *permutation;    // pointing to an array of #num_functions size,
+                          // cointaining indexes into the *functions-array
 
   // // the cycles are measures in 64-bit uints
   // // alloc'd on init, realloced on demand in measurement

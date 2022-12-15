@@ -42,5 +42,11 @@ CheckOptions:
     value:           'false'
   - key:             google-readability-function-size.StatementThreshold
     value:           '800'
+  - key:             readability-function-cognitive-complexity.DescribeBasicIncrements
+    value:           'true'
+  - key:             readability-identifier-length.IgnoredParameterNames
+    value:           '^ms|id$'
+  - key:             readability-identifier-length.IgnoredVariableNames
+    value:           '^ms|id$'
 ...
 

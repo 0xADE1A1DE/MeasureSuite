@@ -75,7 +75,7 @@ int ms_load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
 }
 
 int ms_unload_all(measuresuite_t ms) {
-  for (size_t p = ms->num_functions; p > 0; p--) {
+  for (size_t i = ms->num_functions; i > 0; i--) {
     if (ms_unload_last(ms)) {
       return 1;
     }
@@ -147,6 +147,13 @@ void ms_printf_error(measuresuite_t ms) {
   printf("%s\n", ms_get_error_string(ms));
   if (ms->additional_info) {
     printf("%s\n", ms->additional_info);
+  }
+}
+
+void ms_fprintf_error(measuresuite_t ms, FILE *file) {
+  fprintf(file, "%s\n", ms_get_error_string(ms));
+  if (ms->additional_info) {
+    fprintf(file, "%s\n", ms->additional_info);
   }
 }
 

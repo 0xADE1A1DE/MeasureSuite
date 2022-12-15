@@ -16,6 +16,7 @@
 
 #include "checker.h"
 #include "printer.h"
+#include <stddef.h>
 #include <stdio.h>
 
 /*
@@ -23,26 +24,26 @@
  * returns 0 if *(b+n) == *(a+n) for all n in [0, len]
  */
 enum CORRECTNESS { OK = 0, WRONG = 1 };
-int check(int len, const uint64_t *a, const uint64_t *b) {
-  int l = len;
+int check(size_t len, const uint64_t *data, const uint64_t *check_data) {
+  size_t total = len;
   int res = OK;
-  a += len;
-  b += len;
+  data += len;
+  check_data += len;
   // check first.
   while (len--) {
-    res |= (*(--a) != *(--b));
+    res |= (*(--data) != *(--check_data));
   }
 
   // if where is a mistake, print all
   if (res == WRONG) {
-    while (++len < l) {
+    while (++len < total) {
 #if PRINT_BIN
-      printbin(a, b, len, l);
+      printbin(a, b, len, total);
 #else
-      printhex(a, b, len, l);
+      printhex(data, check_data, len, total);
 #endif
-      a++;
-      b++;
+      data++;
+      check_data++;
     }
   }
   // and return the result anyway

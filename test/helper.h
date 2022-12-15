@@ -41,6 +41,7 @@ void error_handling_helper_template_str(measuresuite_t ms, const char *tpl_str);
 int check_ise_bit(int bit_no);
 // the cpuid trick does not work (reliably) on the GH-CI. So we will need to use
 // the SIGILL handler. Which needs a pointer to a function.
+#include <assert.h> // __ASSERT_FUNCTION
 #include <signal.h> //  sigaction
 #include <stdlib.h>
 
@@ -55,4 +56,19 @@ void exit_skip();
     sigaction(SIGILL, &sa, NULL);                                              \
   } while (0)
 
+// do not use. use the macro ms_assert like you would use <assert.h>
+void assert_print_ms_error(measuresuite_t ms, char *file, int lineno,
+                           const char *func, const char *s_exp, int exp);
+
+#define ms_assert_ok(exp)                                                      \
+  if ((exp) != 0) {                                                            \
+    assert_print_ms_error(ms, __FILE__, __LINE__, __ASSERT_FUNCTION, #exp,     \
+                          exp);                                                \
+  }
+
+#define ms_assert(exp)                                                         \
+  if (!(exp)) {                                                                \
+    assert_print_ms_error(ms, __FILE__, __LINE__, __ASSERT_FUNCTION, #exp,     \
+                          exp);                                                \
+  }
 #endif

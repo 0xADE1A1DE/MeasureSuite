@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <assert.h>
+#include "helper.h"
 #include <measuresuite.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -24,10 +24,10 @@ const char symbol[] = {"add_two_numbers"};
 
 static int test_load_asm_ok() {
 
-  char fa[] = {"mov rax, [rsi]\n"
-               "add rax, [rdx]\n"
-               "mov [rdi], rax\n"
-               "ret\n"};
+  char add_two_asm[] = {"mov rax, [rsi]\n"
+                        "add rax, [rdx]\n"
+                        "mov [rdi], rax\n"
+                        "ret\n"};
 
   const int arg_width = 1;
   const int arg_num_in = 2;
@@ -37,14 +37,16 @@ static int test_load_asm_ok() {
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
   int id = -1;
-  assert(ms_load_data(ms, ASM, (uint8_t *)fa, strlen(fa), symbol, &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(ms_load_data(ms, ASM, (uint8_t *)add_two_asm,
+                            strlen(add_two_asm), symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert(ms_load_data(ms, ASM, (uint8_t *)fa, strlen(fa), NULL, &id) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok(ms_load_data(ms, ASM, (uint8_t *)add_two_asm,
+                            strlen(add_two_asm), NULL, &id));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -65,14 +67,14 @@ static int test_load_bin_ok() {
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
   int id = -1;
-  assert(ms_load_data(ms, BIN, code, sizeof(code), symbol, &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(ms_load_data(ms, BIN, code, sizeof(code), symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert(ms_load_data(ms, BIN, code, sizeof(code), NULL, &id) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok(ms_load_data(ms, BIN, code, sizeof(code), NULL, &id));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -129,16 +131,16 @@ static int test_load_elf_ok() {
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
   int id = -1;
-  assert(ms_load_data(ms, ELF, elf_file_data, sizeof(elf_file_data), symbol,
-                      &id) == 0);
-  assert(id == 0);
+  ms_assert_ok(
+      ms_load_data(ms, ELF, elf_file_data, sizeof(elf_file_data), symbol, &id));
+  ms_assert(id == 0);
 
   // should not error out if the symbol is NULL
-  assert(ms_load_data(ms, ELF, elf_file_data, sizeof(elf_file_data), NULL,
-                      &id) == 0);
-  assert(id == 0); // should not have changed
+  ms_assert_ok(
+      ms_load_data(ms, ELF, elf_file_data, sizeof(elf_file_data), NULL, &id));
+  ms_assert(id == 0); // should not have changed
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
@@ -153,10 +155,11 @@ static int test_load_shared_object_fail() {
 
   int id = -1;
   // should fail.
-  assert(ms_load_data(ms, SHARED_OBJECT, (uint8_t *)NULL, 0, symbol, &id) == 1);
-  assert(id == -1);
+  ms_assert(ms_load_data(ms, SHARED_OBJECT, (uint8_t *)NULL, 0, symbol, &id) ==
+            1);
+  ms_assert(id == -1);
 
-  assert(ms_terminate(ms) == 0);
+  ms_assert_ok(ms_terminate(ms));
 
   return 0;
 }
