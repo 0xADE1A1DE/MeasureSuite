@@ -9,28 +9,29 @@
 /**
  * reads all section headers defined in @param eh from @param fd to sh_table
  */
-int read_section_header_table64_mem(const uint8_t *src, Elf64_Ehdr eh,
+int read_section_header_table64_mem(const uint8_t *src, Elf64_Ehdr hdr,
                                     Elf64_Shdr *sh_table) {
 
-  memcpy(sh_table, src + eh.e_shoff, eh.e_shentsize * eh.e_shnum);
+  memcpy(sh_table, src + hdr.e_shoff, hdr.e_shentsize * hdr.e_shnum);
 
   return 0;
 }
 
 // will malloc *dest; must be freed outside
-static int read_section_mem(const uint8_t *src, Elf64_Shdr *sh, void **dest) {
+static int read_section_mem(const uint8_t *src, Elf64_Shdr *sect_hdr,
+                            void **dest) {
 
-  *dest = malloc(sh->sh_size);
+  *dest = malloc(sect_hdr->sh_size);
   if (!dest) {
-    printf("%s:Failed to allocate %ldbytes\n", __func__, sh->sh_size);
+    printf("%s:Failed to allocate %ldbytes\n", __func__, sect_hdr->sh_size);
     return 1;
   }
 
-  memcpy(*dest, src + (off_t)sh->sh_offset, sh->sh_size);
+  memcpy(*dest, src + (off_t)sect_hdr->sh_offset, sect_hdr->sh_size);
   return 0;
 }
 
-void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr eh,
+void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr hdr,
                              Elf64_Shdr sh_table[], const char *needle,
                              unsigned long *dest) {
 
@@ -38,9 +39,9 @@ void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr eh,
 
   /* Read section-header string-table */
   void *sh_str = NULL;
-  read_section_mem(src, &sh_table[eh.e_shstrndx], &sh_str);
+  read_section_mem(src, &sh_table[hdr.e_shstrndx], &sh_str);
 
-  for (int i = 0; i < eh.e_shnum; i++) {
+  for (int i = 0; i < hdr.e_shnum; i++) {
     char *name = sh_str + sh_table[i].sh_name;
 
     if (strncmp(name, needle, len_needle) == 0) {

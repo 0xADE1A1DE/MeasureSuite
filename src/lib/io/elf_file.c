@@ -7,19 +7,19 @@
 // CREDIT https://github.com/TheCodeArtist/elf-parser/blob/master/elf-parser.c
 
 /**
- * reads all section headers defined in @param eh from @param fd to sh_table
+ * reads all section headers defined in @param hdr from @param file to sh_table
  */
-int read_section_header_table64(int32_t fd, Elf64_Ehdr eh,
+int read_section_header_table64(int32_t file, Elf64_Ehdr hdr,
                                 Elf64_Shdr *sh_table) {
 
   // seek to header
-  if (lseek(fd, (off_t)eh.e_shoff, SEEK_SET) != (off_t)eh.e_shoff) {
+  if (lseek(file, (off_t)hdr.e_shoff, SEEK_SET) != (off_t)hdr.e_shoff) {
     return 1;
   };
 
   // read all headers at once
-  const ssize_t combined_size = eh.e_shnum * eh.e_shentsize;
-  if (read(fd, sh_table, combined_size) != combined_size) {
+  const ssize_t combined_size = hdr.e_shnum * hdr.e_shentsize;
+  if (read(file, sh_table, combined_size) != combined_size) {
     return 1;
   }
 
@@ -27,34 +27,36 @@ int read_section_header_table64(int32_t fd, Elf64_Ehdr eh,
 }
 
 // will malloc *dest; must be freed outside
-static int read_section(int32_t fd, Elf64_Shdr sh, void **dest) {
+static int read_section(int32_t file, Elf64_Shdr sect_hdr, void **dest) {
 
-  *dest = malloc(sh.sh_size);
+  *dest = malloc(sect_hdr.sh_size);
   if (!dest) {
-    printf("%s:Failed to allocate %ldbytes\n", __func__, sh.sh_size);
+    printf("%s:Failed to allocate %ldbytes\n", __func__, sect_hdr.sh_size);
     return 1;
   }
 
-  if (lseek(fd, (off_t)sh.sh_offset, SEEK_SET) != (off_t)sh.sh_offset) {
+  if (lseek(file, (off_t)sect_hdr.sh_offset, SEEK_SET) !=
+      (off_t)sect_hdr.sh_offset) {
     return 1;
   };
-  ssize_t r = read(fd, *dest, sh.sh_size);
-  if (r == -1 || r == 0 || r == EOF || (size_t)r != sh.sh_size) {
+  ssize_t bytes_read = read(file, *dest, sect_hdr.sh_size);
+  if (bytes_read == -1 || bytes_read == 0 || bytes_read == EOF ||
+      (size_t)bytes_read != sect_hdr.sh_size) {
     return 1;
   }
   return 0;
 }
 
-void find_section_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
+void find_section_offset(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
                          const char *needle, unsigned long *dest) {
 
   size_t len_needle = strlen(needle);
 
   /* Read section-header string-table */
   void *sh_str = NULL;
-  read_section(fd, sh_table[eh.e_shstrndx], &sh_str);
+  read_section(file, sh_table[hdr.e_shstrndx], &sh_str);
 
-  for (int i = 0; i < eh.e_shnum; i++) {
+  for (int i = 0; i < hdr.e_shnum; i++) {
     char *name = sh_str + sh_table[i].sh_name;
 
     if (strncmp(name, needle, len_needle) == 0) {
@@ -65,12 +67,12 @@ void find_section_offset(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
   free(sh_str);
 }
 
-void find_symbol_in_table(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
+void find_symbol_in_table(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
                           const char *symbol, Elf64_Sym *dest) {
 
   size_t symbol_len = symbol != NULL ? strlen(symbol) : 0;
 
-  for (int i = 0; i < eh.e_shnum; i++) {
+  for (int i = 0; i < hdr.e_shnum; i++) {
     if ((sh_table[i].sh_type != SHT_SYMTAB) &&
         (sh_table[i].sh_type != SHT_DYNSYM)) {
       continue;
@@ -78,7 +80,7 @@ void find_symbol_in_table(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
 
     Elf64_Sym *sym_tbl = {0};
 
-    read_section(fd, sh_table[i], (void *)&sym_tbl);
+    read_section(file, sh_table[i], (void *)&sym_tbl);
 
     /* Read linked string-table
      * Section containing the string table having names of
@@ -86,7 +88,7 @@ void find_symbol_in_table(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
      */
     Elf64_Word str_tbl_ndx = sh_table[i].sh_link;
     char *str_tbl = NULL;
-    read_section(fd, sh_table[str_tbl_ndx], (void *)&str_tbl);
+    read_section(file, sh_table[str_tbl_ndx], (void *)&str_tbl);
 
     unsigned long symbol_count = sh_table[i].sh_size / sizeof(Elf64_Sym);
 
@@ -105,12 +107,12 @@ void find_symbol_in_table(int32_t fd, Elf64_Ehdr eh, Elf64_Shdr sh_table[],
   }
 }
 
-int read_elf_header(int32_t fd, Elf64_Ehdr *elf_header) {
+int read_elf_header(int32_t file, Elf64_Ehdr *elf_header) {
   size_t size = sizeof(Elf64_Ehdr);
   char magic[] = {"\177ELF"};
   if (elf_header == NULL                                     // sanity
-      || lseek(fd, (off_t)0, SEEK_SET) != (off_t)0           // seek to start
-      || (size_t)read(fd, elf_header, size) != size          // read header
+      || lseek(file, (off_t)0, SEEK_SET) != (off_t)0         // seek to start
+      || (size_t)read(file, elf_header, size) != size        // read header
       || strncmp((char *)elf_header->e_ident, magic, 4) != 0 // check magic
       || elf_header->e_ident[EI_CLASS] != ELFCLASS64         // is elf64
   ) {

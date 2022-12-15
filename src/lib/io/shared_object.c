@@ -5,7 +5,7 @@
 #include <string.h> // strerror
 #include <unistd.h> // access|F_OK...
 
-int so_load_file(struct measuresuite *ms, struct function_tuple *t,
+int so_load_file(struct measuresuite *ms, struct function_tuple *fct,
                  const char *filename) {
 
   if (access(filename, F_OK | X_OK | R_OK) != 0) {
@@ -14,9 +14,14 @@ int so_load_file(struct measuresuite *ms, struct function_tuple *t,
     return 1;
   }
 
-  dlerror(); // clear error
+  // clear error
+  dlerror();
 
-  if ((t->lib_handle = dlopen(filename, RTLD_NOW | RTLD_LOCAL)) == NULL) {
+  // open
+  fct->lib_handle = dlopen(filename, RTLD_NOW | RTLD_LOCAL);
+
+  // check
+  if (fct->lib_handle == NULL) {
     ms->errorno = E_INTERNAL_MEASURE__AI__DLOPEN;
     ms->additional_info = dlerror();
     return 1;
@@ -25,16 +30,22 @@ int so_load_file(struct measuresuite *ms, struct function_tuple *t,
   return 0;
 }
 
-int so_load_symbol(struct measuresuite *ms, struct function_tuple *t,
+int so_load_symbol(struct measuresuite *ms, struct function_tuple *fct,
                    const char *symbol) {
 
   // sanity check  the handle
-  if (t->lib_handle == NULL) {
+  if (fct->lib_handle == NULL) {
     return 1;
   }
 
-  dlerror(); // clear error
-  if ((t->code = dlsym(t->lib_handle, symbol)) == NULL) {
+  // clear error
+  dlerror();
+
+  // load
+  fct->code = dlsym(fct->lib_handle, symbol);
+
+  /// check
+  if (fct->code == NULL) {
     ms->errorno = E_INTERNAL_MEASURE__AI__DLSYM;
     ms->additional_info = dlerror();
     return 1;
@@ -43,10 +54,12 @@ int so_load_symbol(struct measuresuite *ms, struct function_tuple *t,
   return 0;
 }
 
-int so_unload_file(struct measuresuite *ms, struct function_tuple *t) {
+int so_unload_file(struct measuresuite *ms, struct function_tuple *fct) {
+  // clear error
+  dlerror();
 
-  dlerror(); // clear error
-  if (dlclose(t->lib_handle) != 0) {
+  // close and check
+  if (dlclose(fct->lib_handle) != 0) {
     ms->errorno = E_INTERNAL_MEASURE__AI__DLCLOSE;
     ms->additional_info = dlerror();
     return 1;
