@@ -15,46 +15,65 @@
  */
 
 export interface MeasureResult {
+  // example JSON
+  //{
+  //  "stats": {
+  //    "numFunctions": 2,
+  //    "runtime": 0,
+  //    "incorrect": 0
+  //  },
+  //  "functions": [
+  //    {
+  //      "type": "ASM",
+  //      "chunks": 0
+  //    },
+  //    {
+  //      "type": "SHARED_OBJECT"
+  //    }
+  //  ],
+  //  "cycles": [
+  //    [ 2406, 1749, 1702, 1733, 1887, 2716, 2738, 2729, 2746, 2735 ],
+  //    [ 1874, 1730, 1698, 1720, 1803, 1791, 2721, 2732, 2724, 2729 ]
+  //  ]
+  //}
+
   stats: {
-    countA: number;
-    countB: number;
-    chunksA: number;
-    chunksB: number;
-    batchSize: number;
-    numBatches: number;
+    numFunctions: number;
     runtime: number;
-    runOrder: string;
-    checkResult: boolean | null;
+    incorrect: number;
   };
-  times: [number, number, number][];
+  functions: FunctionSummary[];
+
+  cycles: [
+    [2406, 1749, 1702, 1733, 1887, 2716, 2738, 2729, 2746, 2735],
+    [1874, 1730, 1698, 1720, 1803, 1791, 2721, 2732, 2724, 2729],
+  ];
 }
+export type FunctionSummary =
+  | BaseSummary<"ELF">
+  | BaseSummary<"BIN">
+  | BaseSummary<"SHARED_OBJECT">
+  | (BaseSummary<"ASM"> & { chunks: number });
+
+export type FunctionType = "ASM" | "BIN" | "ELF" | "SHARED_OBJECT";
+
+interface BaseSummary<T extends FunctionType> {
+  type: T;
+}
+
 /**
  * example:
 {
   "stats": {
-    "countA": 6, //function_A was run 6 times
-    "countB": 4  //function_B was run 4 times
-    "countA": 6, //function_A breaks the given chunk boundary 6 times.
-    "countB": 4  //function_B breaks the given chunk boundary 4 times.
-    "batchSize": 10, // a batch has a size. This is the number of iterations of the same function which is measured (for(batchSize=10;batchSize; batchSize--)function_A/function_B). This is the length of the times-array
-    "numBatches": 4,   //this is the minimum that each function needs to be ran. Either countA or countB is equal to this number.
-    "runtime": 0, // in milliseconds, is too short in this example. It is the time which is used for the experiments, excluding the set up and cleanup
-    "runOrder": "abbaabaab", // order in which the functions were executed. Executions of checkFunctions are omitted.
-    "checkResult": true // whether the results is correct (whatever was run last compared to what function_check calculated), can be null if checkfunction was not initialized
+    "numFunctions": 2  // 2 functions have been loaded. Details in functions-property
+    "runtime": 0,      // in milliseconds, is too short in this example. It is the time which is used for the experiments, excluding the set up and cleanup
+    "incorrect": 0,    // if checking was enabled, this will index to the first function which produces a different result than the previous one.
+                       // i.e. 0 means all correct (as there is no previous)
+                       // i.e. 1 means function 1 calculated a different result thant function 0
+                       // i.e. x means function x calculated a different result thant function x-1,  and functions 0..x-1 all calculated the same.
   },
-  // number in tuples are runtime from A and B and check_method respectively. Using -1 if there is no number for the other run.
-  // the array is at least stats.numBatches in size; aka. each function has at least stats.numBatches entries.
-  "times": [
-    [176, -1, 174], // a was run, 10 evauluations of A took 176 cycles, then c was executed where 10 executions (batchSize) took 174 cycles.
-    [-1, 300, 178], // b was run here: 10 executions (batch Size) took 300 cycles, c needed 178 for 10 executions (batchSize).
-    [-1, 344, 181],
-    [185, -1, 170],
-    [274, -1, 181],
-    [-1, 401, 181],
-    [257, -1, 177],
-    [355, -1, 266],
-    [-1, 477, 375]
-  ]
+  "cycles":           // has the same length as functions and as specified in numFunctions
+                      // each element contains num_batches numbers of the cyclecounts for the respective loaded function
 }
   */
 

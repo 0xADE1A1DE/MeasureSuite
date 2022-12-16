@@ -16,20 +16,17 @@
 
 // c interface
 declare module "measureaddon" {
-  function measuresuite_init(
-    argWidth: number,
-    numArgIn: number,
-    numArgOut: number,
-    chunkSize: number,
-    bounds: BigUint64Array,
-    libCheckFunctionsFilename: string,
-    checkFunctionSymbolname: string,
-  ): void;
-  function measuresuite_measure(
-    functionA: string,
-    functionB: string,
-    batchSize: number,
-    numBatches: number,
-  ): string;
-  function measuresuite_measure_lib_only(batchSize: number, numBatches: number): number[];
+  function init(argWidth: number, numArgIn: number, numArgOut: number): void;
+
+  function loadAsmString(assembly: string): string;
+  function loadAsmFile(path: string): string;
+  function loadBinFile(path: string): string;
+  function loadElfFile(path: string, symbol?: string): string;
+  function loadSharedObjectFile(path: string, symbol: string): string;
+
+  function enableChecking(): void;
+  function enableChunkCounting(chunkSize: number): void;
+  function setBounds(bounds: BigUint64Array): void;
+
+  function measure(batchSize: number, numBatches: number): string;
 }

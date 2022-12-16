@@ -22,13 +22,25 @@ import { execSync, spawnSync } from "child_process";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const ms = require("measureaddon");
+// import * as ms from "measureaddon"; // for development and get the types and type completion
 
 import type { uiCAResult, MeasureResult } from "./measure.interface";
 
 // use with caution
 export const native_ms = {
-  init: ms.measuresuite_init,
-  measure: ms.measuresuite_measure,
+  init: ms.init,
+
+  loadAsmString: ms.loadAsmString,
+  loadAsmFile: ms.loadAsmFile,
+  loadBinFile: ms.loadBinFile,
+  loadElfFile: ms.loadElfFile,
+  loadSharedObjectFile: ms.loadSharedObjectFile,
+
+  enableChecking: ms.enableChecking,
+  enableChunkCounting: ms.enableChunkCounting,
+  setBounds: ms.setBounds,
+
+  measure: ms.measure,
 };
 
 export class Measuresuite {
@@ -70,41 +82,37 @@ export class Measuresuite {
     const bounds_u64 = new BigUint64Array(bigInts);
 
     try {
-      ms.measuresuite_init(
-        argwidth,
-        argNumIn,
-        argNumOut,
-        chunkSize,
-        bounds_u64,
-        libcheckfunctionsFilename,
-        functionSymbol,
-      );
+      ms.init(argwidth, argNumIn, argNumOut);
+      ms.enableChecking();
+      ms.loadSharedObjectFile(libcheckfunctionsFilename, functionSymbol);
+      ms.enableChunkCounting(chunkSize);
+      ms.setBounds(bounds_u64);
     } catch (e) {
       console.error(e);
       throw new Error("Could not initialize Measuresuite.");
     }
   }
 
-  public measureLibOnly(batchSize: number, numBatches: number): number[] | null {
-    let result: ArrayBuffer | undefined;
-    try {
-      result = ms.measuresuite_measure_lib_only(batchSize, numBatches);
-    } catch (e) {
-      console.error("Measuresuite: in measuresuite_measure_lib_only, an error occurred", e);
-      throw new Error(`Could not measure.${e}`);
-    }
-
-    if (result) {
-      // I am not really sure how to create an number[] from this ArrayBuffer
-      const array = Object.values(result);
-      if (array.every((r) => typeof r === "number")) {
-        return array;
-      }
-    }
-
-    console.error(`>>${result}<< is not a number[]`);
-    return null;
-  }
+  // public measureLibOnly(batchSize: number, numBatches: number): number[] | null {
+  //   let result: ArrayBuffer | undefined;
+  //   try {
+  //     result = ms.measure(batchSize, numBatches);
+  //   } catch (e) {
+  //     console.error("Measuresuite: in measuresuite_measure_lib_only, an error occurred", e);
+  //     throw new Error(`Could not measure.${e}`);
+  //   }
+  //
+  //   if (result) {
+  //     // I am not really sure how to create an number[] from this ArrayBuffer
+  //     const array = Object.values(result);
+  //     if (array.every((r) => typeof r === "number")) {
+  //       return array;
+  //     }
+  //   }
+  //
+  //   console.error(`>>${result}<< is not a number[]`);
+  //   return null;
+  // }
 
   public measure(
     functionA: string,
@@ -114,7 +122,9 @@ export class Measuresuite {
   ): MeasureResult | null {
     let result: string | undefined;
     try {
-      result = ms.measuresuite_measure(functionA, functionB, batchSize, numBatches);
+      ms.loadAsmString(functionA);
+      ms.loadAsmString(functionB);
+      result = ms.measure(batchSize, numBatches);
     } catch (e) {
       console.error("Measuresuite: in measuresuite_measure, an error occurred", e);
       throw new Error(`Could not measure.${e}`);

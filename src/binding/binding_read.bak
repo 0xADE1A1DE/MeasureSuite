@@ -14,56 +14,14 @@
  * limitations under the License.
  */
 
-// measuresuite.c
+#include "helper.h"
 #include <node/node_api.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <measuresuite.h>
-
-// how many arguments the measuresuite_init function takes
-#define MS_INIT_ARGC 7
-// how many arguments the measure function takes
-#define MS_MEASURE_ARGC 4
-
-// how may chars are allowed for the filename for the
-// /path/to/libcheckfunctions-clang-AMD.so
-#define MS_INIT_LIB_CHECK_FILE_NAME_MAX_LEN 10240
-// how many chars are allowed for the symbol within the lib
-#define MS_INIT_SYMBOL_NAME_MAX_LEN 10240
-
-// how many chars are allowed for the function A/ B
-#define MS_MEASURE_FUNCTION_MAX_LEN 1024000
-
-// NOLINTNEXTLINE (must declare hint as a valid callback for NODE_API)
-void finalise(napi_env env, void *finalize_data, void *finalize_hint) {
-  if (ms_terminate((measuresuite_t)finalize_data)) {
-    if (napi_throw_error(env, NULL, "measure_end didnt work.") != napi_ok) {
-      fprintf(stderr, "Unable to throw error.\n");
-    }
-  }
-}
-void throw_error_return_void(napi_env env, const char *msg) {
-  // getting back the instance
-  void *instance_data = NULL;
-  if (napi_get_instance_data(env, &instance_data) == napi_ok) {
-    // and call finalise here (to not cause memory leaks)
-    finalise(env, instance_data, NULL);
-  } else {
-    fprintf(stderr, "Unable to get instance data.\n");
-  }
-  if (napi_throw_error(env, NULL, msg) != napi_ok) {
-    fprintf(stderr, "Unable to throw error.\n");
-  }
-}
-
-napi_value throw_and_return_napi_val(napi_env env, const char *msg) {
-  throw_error_return_void(env, msg);
-  napi_value res = NULL;
-  const char errmsg[] = {"Error, see exception"};
-  napi_create_string_latin1(env, errmsg, strlen(errmsg), &res);
-  return res;
-}
 
 void measuresuite_init(napi_env env, napi_callback_info info) {
   size_t argc = MS_INIT_ARGC;
@@ -318,8 +276,8 @@ napi_value measuresuite_measure_lib_only(napi_env env,
   return result;
 }
 
-void registerFunction(napi_env env, napi_value exports, void *function,
-                      const char *symbol) {
+static void registerFunction(napi_env env, napi_value exports, void *function,
+                             const char *symbol) {
   napi_value _function = NULL;
 
   if (napi_create_function(env, NULL, 0, function, NULL, &_function) !=
@@ -334,10 +292,26 @@ void registerFunction(napi_env env, napi_value exports, void *function,
 
 napi_value Init(napi_env env, napi_value exports) {
 
-  registerFunction(env, exports, measuresuite_init, "measuresuite_init");
-  registerFunction(env, exports, measuresuite_measure, "measuresuite_measure");
-  registerFunction(env, exports, measuresuite_measure_lib_only,
-                   "measuresuite_measure_lib_only");
+  // init(argWidth: number, numArgIn: number, numArgOut: number): void;
+  registerFunction(env, exports, init, "init");
+  // loadAsmString(assembly: string): string;
+  registerFunction(env, exports, loadAsmString, "loadAsmString");
+  // loadAsmFile(path: string): string;
+  registerFunction(env, exports, loadAsmFile, "loadAsmFile");
+  // loadBinFile(path: string): string;
+  registerFunction(env, exports, loadBinFile, "loadBinFile");
+  // loadElfFile(path: string, symbol?: string): string;
+  registerFunction(env, exports, loadElfFile, "loadElfFile");
+  // loadSharedObjectFile(path: string, symbol: string): string;
+  registerFunction(env, exports, loadSharedObjectFile, "loadSharedObjectFile");
+  // enableChecking(): void;
+  registerFunction(env, exports, enableChecking, "enableChecking");
+  // enableChunkCounting(chunkSize: number): void;
+  registerFunction(env, exports, enableChunkCounting, "enableChunkCounting");
+  // setBounds(bounds: BigUint64Array): void;
+  registerFunction(env, exports, setBounds, "setBounds");
+  // measure(batchSize: number, numBatches: number): string;
+  registerFunction(env, exports, measure, "measure");
 
   return exports;
 }
