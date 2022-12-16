@@ -22,145 +22,13 @@
 #include "checker.h"             // check
 #include "evaluator.h"           // own
 #include "fisher_yates.h"        // shuffle_permutations
+#include "json.h"                // generate_json_from_measurement_results
 #include "randomizer.h"          // randomize
 #include "struct_measuresuite.h" // struct ms; struct function_tuple
 #include "timer.h"               // {start,stop}_timer / current_timestamp
 #include <stdio.h>               // snprintf
 #include <stdlib.h>              // alloc / size_t
 #include <string.h>              // memset / strerror
-
-static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
-                      uint64_t *count);
-
-static int generate_json_from_measurement_results(struct measuresuite *ms,
-                                                  uint64_t start_time,
-                                                  size_t check_result) {
-  unsigned long delta_in_seconds = current_timestamp() - start_time;
-  char *json = ms->json;
-  char *json_end = ms->json + ms->json_len;
-
-  json += snprintf(json, ms->json_len,
-                   "{\"stats\":"
-                   "{"
-                   "\"numFunctions\":%" PRIu64 ","
-                   "\"runtime\":%" PRIu64 "," // in seconds
-                   "\"incorrect\":%" PRIu64
-                   "}," // if 0, ok, otherwise the index of which function is
-                        // incorrect to the previous one.
-                   "\"functions\":[",
-                   ms->num_functions, delta_in_seconds, check_result);
-
-  // print function meta data
-  for (size_t i = 0; i < ms->num_functions; i++) {
-    struct function_tuple *fct = &ms->functions[i];
-    switch (fct->type) {
-    case ASM:
-      json +=
-          snprintf(json, json_end - json,
-                   "{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", fct->chunks);
-      break;
-    case BIN:
-      json += snprintf(json, json_end - json, "{\"type\":\"BIN\"},");
-      break;
-    case ELF:
-      json += snprintf(json, json_end - json, "{\"type\":\"ELF\"},");
-      break;
-    case SHARED_OBJECT:
-      json += snprintf(json, json_end - json, "{\"type\":\"SHARED_OBJECT\"},");
-      break;
-    }
-  }
-  // overwrite comma
-  json--;
-  json += snprintf(json, json_end - json, "],\"cycles\":[");
-
-  // print cycles
-  for (size_t i = 0; i < ms->num_functions; i++) {
-    struct function_tuple *fct = &ms->functions[i];
-    json += snprintf(json, json_end - json, "[");
-    for (size_t run_i = 0; run_i < ms->num_batches; run_i++) {
-      json += snprintf(json, json_end - json, "%" PRIu64 ",",
-                       fct->cycle_results[run_i]);
-    }
-    // overwrite comma
-    json--;
-    json += snprintf(json, json_end - json, "],[");
-  }
-  // overwrite comma and last [
-  json -= 2;
-  json += snprintf(json, json_end - json, "]}");
-
-  if (json_end - json <= 0) {
-    // we did not have enough space.
-
-    // enlarge
-    ms->json_len *= 2;
-    if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len)) {
-      return 1;
-    }
-
-    // and try again recursively
-    return generate_json_from_measurement_results(ms, start_time, check_result);
-  }
-
-  return 0;
-}
-
-int run_measurement(struct measuresuite *ms) {
-
-  // init result indicator
-  size_t check_result = 0;
-  if (init_cycle_results(ms)) {
-    return 1;
-  };
-
-  // START MEASUREMENT
-  uint64_t start_time = current_timestamp();
-
-  for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
-
-    if (randomize(ms) != 0 || shuffle_permutations(ms) != 0) {
-      return 1;
-    }
-
-    // for as many functions as we need to measure
-    for (size_t func_i = 0; func_i < ms->num_functions; func_i++) {
-
-      // get the function to measure
-      size_t function_index = ms->permutation[func_i];
-      struct function_tuple *fct = &ms->functions[function_index];
-
-      // measure
-      run_batch(ms, fct, &fct->cycle_results[batch_i]);
-    }
-
-    if (ms->enable_check) {
-
-      for (size_t func_i = 1; func_i < ms->num_functions; func_i++) {
-
-        // get the tuple and the previous
-        struct function_tuple *fct = &ms->functions[func_i];
-        struct function_tuple *prev = &ms->functions[func_i - 1];
-
-        // check
-        if (check(ms->arg_width * ms->num_arg_out, fct->arithmetic_results,
-                  prev->arithmetic_results)) {
-          check_result = func_i;
-          break;
-        };
-      }
-    }
-  }
-
-  int json_generation_result_code =
-      generate_json_from_measurement_results(ms, start_time, check_result);
-
-  if (json_generation_result_code) {
-    return 1;
-  }
-
-  return 0;
-}
 
 static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
                       uint64_t *count) {
@@ -220,4 +88,59 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   }
 
   *count = stop_timer(ms, start_time);
+}
+
+int run_measurement(struct measuresuite *ms) {
+
+  // init result indicator
+  size_t check_result = 0;
+  if (init_cycle_results(ms)) {
+    return 1;
+  };
+
+  // START MEASUREMENT
+  uint64_t start_time = current_timestamp();
+
+  for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
+
+    if (randomize(ms) != 0 || shuffle_permutations(ms) != 0) {
+      return 1;
+    }
+
+    // for as many functions as we need to measure
+    for (size_t func_i = 0; func_i < ms->num_functions; func_i++) {
+
+      // get the function to measure
+      size_t function_index = ms->permutation[func_i];
+      struct function_tuple *fct = &ms->functions[function_index];
+
+      // measure
+      run_batch(ms, fct, &fct->cycle_results[batch_i]);
+    }
+
+    if (ms->enable_check) {
+
+      for (size_t func_i = 1; func_i < ms->num_functions; func_i++) {
+
+        // get the tuple and the previous
+        struct function_tuple *fct = &ms->functions[func_i];
+        struct function_tuple *prev = &ms->functions[func_i - 1];
+
+        // check
+        if (check(ms->arg_width * ms->num_arg_out, fct->arithmetic_results,
+                  prev->arithmetic_results)) {
+          check_result = func_i;
+          break;
+        };
+      }
+    }
+  }
+
+  unsigned long elapsed_in_sec = current_timestamp() - start_time;
+
+  if (generate_json(ms, elapsed_in_sec, check_result)) {
+    return 1;
+  }
+
+  return 0;
 }

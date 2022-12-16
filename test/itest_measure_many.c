@@ -50,7 +50,7 @@ static int test_measure_four_ok() {
 
   return 0;
 }
-// 16 bin's
+// 12 bin's
 static int test_measure_many_ok() {
   measuresuite_t ms = NULL;
 

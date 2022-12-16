@@ -86,10 +86,7 @@ int init_arithmetic_results(measuresuite_t ms, struct function_tuple *fct) {
 
 int init_cycle_results(struct measuresuite *ms) {
 
-  struct function_tuple *first = ms->functions;
-  struct function_tuple *last = ms->functions + (ms->num_functions - 1);
-
-  for (struct function_tuple *fct = first; fct <= last; fct++) {
+  FOR_EACH_FUNCTION {
 
     fct->cycle_results = malloc(ms->num_batches * sizeof(uint64_t));
 
