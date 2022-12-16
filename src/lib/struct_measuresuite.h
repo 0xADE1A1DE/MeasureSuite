@@ -19,6 +19,7 @@
 
 #include "error/error.h"  // ERROR_NUMBER
 #include "measuresuite.h" // load_type
+#include <linux/perf_event.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -101,6 +102,13 @@ struct measuresuite {
   // holds the last error number
   ERROR_NUMBER errorno;
   char *additional_info;
+
+  // timer
+  struct timer {
+    int fdperf;
+    struct perf_event_mmap_page *buf;
+    void (*timer_function)(struct measuresuite *ms, uint64_t *dest);
+  } timer;
 };
 
 #endif

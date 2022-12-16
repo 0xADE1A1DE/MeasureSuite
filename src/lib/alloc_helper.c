@@ -1,5 +1,6 @@
 #include "alloc_helper.h"
 #include "error/error.h"
+#include "struct_measuresuite.h"
 #include <errno.h> // errno
 #include <stdint.h>
 #include <stdlib.h>   // realloc
@@ -85,14 +86,14 @@ int init_arithmetic_results(measuresuite_t ms, struct function_tuple *fct) {
 
 int init_cycle_results(struct measuresuite *ms) {
 
-  size_t max_runs = ms->num_batches;
+  struct function_tuple *first = ms->functions;
+  struct function_tuple *last = ms->functions + (ms->num_functions - 1);
 
-  for (size_t function_i = 0; function_i < ms->num_functions; function_i++) {
-    // will shuffle the perm-array
-    uint64_t **current_cycle_res = &ms->functions[function_i].cycle_results;
-    *current_cycle_res = malloc(max_runs);
+  for (struct function_tuple *fct = first; fct <= last; fct++) {
 
-    if (*current_cycle_res == 0) {
+    fct->cycle_results = malloc(ms->num_batches * sizeof(uint64_t));
+
+    if (fct->cycle_results == 0) {
       ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
       ms->additional_info = strerror(errno);
       return 1;

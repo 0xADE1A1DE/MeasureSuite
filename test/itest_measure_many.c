@@ -36,7 +36,11 @@ static int test_measure_four_ok() {
   measuresuite_t ms = NULL;
 
   int ids[] = {-1, -1, -1, -1};
-  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
+  int ret = ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
+  if (ret) {
+    ms_assert_ok(ret);
+    return ret;
+  }
   ms_load_file(ms, ASM, file_asm, symbol, ids);
   ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + 1);
   ms_load_file(ms, BIN, file_bin, symbol, ids + 2);

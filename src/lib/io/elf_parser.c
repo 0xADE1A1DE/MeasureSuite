@@ -38,22 +38,26 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
     return 1;
   }
 
-  unsigned long offset = 0; // get offset of .text first
-  find_section_offset(file, eh64, sh_tbl, ".text", &offset);
+  unsigned long index = 0; // get offset of .text first
+  find_section_offset(file, eh64, sh_tbl, ".text", &index);
+  Elf64_Shdr text = sh_tbl[index];
 
   Elf64_Sym sym = {0};
   find_symbol_in_table(file, eh64, sh_tbl, symbol, &sym);
   free(sh_tbl);
 
-  // then add the offset of the symbol within the section
-  offset += sym.st_value;
+  // now we wwant to copy into dest from symbol-offset to the end of the section
+  // size to copy is
+  unsigned long size = text.sh_size - sym.st_value;
 
   // check if destination buffer is big enough
-  Elf64_Xword size = sym.st_size;
-  assert(sym.st_size <= dest_size);
+  assert(size <= dest_size);
+
+  // then position in file is
+  unsigned long offset_in_file = text.sh_offset + sym.st_value;
 
   // read code into *dest
-  lseek(file, (long)offset, SEEK_SET);
+  lseek(file, (long)offset_in_file, SEEK_SET);
   read(file, dest, size);
 
   return 0;
@@ -83,22 +87,28 @@ int elf_load_symbol_mem(measuresuite_t ms, void *dest, size_t dest_size,
     return 1;
   }
 
-  unsigned long offset = 0; // get offset of .text first
-  find_section_offset_mem(src, eh64, sh_tbl, ".text", &offset);
+  unsigned long index = 0; // get offset of .text first
+  find_section_offset_mem(src, eh64, sh_tbl, ".text", &index);
+  Elf64_Shdr text = sh_tbl[index];
 
   Elf64_Sym sym = {0};
   find_symbol_in_table_mem(&sym, src, sh_tbl, eh64.e_shnum, symbol);
   free(sh_tbl);
 
-  // then add the offset of the symbol within the section
-  offset += sym.st_value;
+  // now we wwant to copy into dest from symbol-offset to the end of the section
+  // size to copy is
+  unsigned long size = text.sh_size - sym.st_value;
 
   // check if destination buffer is big enough
-  Elf64_Xword size = sym.st_size;
-  assert(sym.st_size <= dest_size);
+  assert(size <= dest_size);
+
+  // calc offset in mem
+  unsigned long offset_in_mem = text.sh_offset + sym.st_value;
+  // then position in memory is
+  const uint8_t *pos_in_mem = src + offset_in_mem;
 
   // read code into *dest
-  memcpy(dest, src + offset, size);
+  memcpy(dest, pos_in_mem, size);
 
   return 0;
 };

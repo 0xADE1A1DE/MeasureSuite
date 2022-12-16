@@ -45,7 +45,7 @@ void find_section_offset_mem(const uint8_t *src, Elf64_Ehdr hdr,
     char *name = sh_str + sh_table[i].sh_name;
 
     if (strncmp(name, needle, len_needle) == 0) {
-      *dest = sh_table[i].sh_offset;
+      *dest = i;
       break;
     }
   }

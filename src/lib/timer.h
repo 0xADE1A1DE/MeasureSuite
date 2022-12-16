@@ -17,11 +17,13 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "struct_measuresuite.h"
 #include <stdint.h>
 
-void start_timer(uint64_t *start);
-void init_timer();
-uint64_t stop_timer(uint64_t start);
+int init_timer(struct measuresuite *ms);
+void start_timer(struct measuresuite *ms, uint64_t *start);
+uint64_t stop_timer(struct measuresuite *ms, uint64_t start);
+
 uint64_t current_timestamp();
 
 #endif

@@ -53,14 +53,19 @@ void find_section_offset(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
   size_t len_needle = strlen(needle);
 
   /* Read section-header string-table */
-  void *sh_str = NULL;
-  read_section(file, sh_table[hdr.e_shstrndx], &sh_str);
+  char *sh_str = NULL;
+  read_section(file, sh_table[hdr.e_shstrndx], (void **)&sh_str);
 
   for (int i = 0; i < hdr.e_shnum; i++) {
-    char *name = sh_str + sh_table[i].sh_name;
+
+    // sh_name is the index in the string_table
+    Elf64_Word index = sh_table[i].sh_name;
+
+    // get the address of the string to compare
+    const char *name = &(sh_str[index]);
 
     if (strncmp(name, needle, len_needle) == 0) {
-      *dest = sh_table[i].sh_offset;
+      *dest = i;
       break;
     }
   }
@@ -87,14 +92,18 @@ void find_symbol_in_table(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
      * symbols of this section
      */
     Elf64_Word str_tbl_ndx = sh_table[i].sh_link;
-    char *str_tbl = NULL;
-    read_section(file, sh_table[str_tbl_ndx], (void *)&str_tbl);
+    char *string_tbl = NULL;
+    read_section(file, sh_table[str_tbl_ndx], (void *)&string_tbl);
 
     unsigned long symbol_count = sh_table[i].sh_size / sizeof(Elf64_Sym);
 
     for (unsigned long j = 0; j < symbol_count; j++) {
 
-      const char *name = str_tbl + sym_tbl[j].st_name;
+      // st_name is the index in the string_table
+      Elf64_Word index = sym_tbl[j].st_name;
+
+      // get the address of the string to compare
+      const char *name = &(string_tbl[index]);
       // if we don't have a symbol(i.e. symbol len == 0),
       // or the current symbol is the required one
       if (symbol_len == 0 || strncmp(name, symbol, symbol_len) == 0) {
@@ -102,7 +111,7 @@ void find_symbol_in_table(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
         break;
       }
     }
-    free(str_tbl);
+    free(string_tbl);
     free(sym_tbl);
   }
 }

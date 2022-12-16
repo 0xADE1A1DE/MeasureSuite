@@ -8,6 +8,9 @@ int read_section_header_table64(int32_t file, Elf64_Ehdr hdr,
 void find_symbol_in_table(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
                           const char *symbol, Elf64_Sym *dest);
 int read_elf_header(int32_t file, Elf64_Ehdr *elf_header);
+
+// this will  look for 'needle' as a section name in the sh_table and set @param
+// *dest to the index in the table
 void find_section_offset(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
                          const char *needle, unsigned long *dest);
 #endif

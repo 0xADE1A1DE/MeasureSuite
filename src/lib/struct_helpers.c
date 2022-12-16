@@ -96,6 +96,12 @@ measuresuite_t create_default_ms() {
   ms->errorno = E_SUCCESS;
   ms->random_data_fd = -1;
 
+  // timer
+  ms->timer.fdperf = -1;
+  ms->timer.buf = NULL;
+  ms->timer.timer_function = NULL;
+  ;
+
   return ms;
 }
 

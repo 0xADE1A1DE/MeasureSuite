@@ -41,11 +41,10 @@ int ms_initialize(measuresuite_t *dest_ms, int arg_width, int num_arg_in,
       || validate_num_args(ms)       // validate arg counts
       || init_random(ms)             // initialize randomness structures
       || init_json(ms)               // initialize measure structs
+      || init_timer(ms)              // initialize timer structures
   ) {
     return 1;
   }
-
-  init_timer();
 
   ms->errorno = E_SUCCESS;
   return 0;

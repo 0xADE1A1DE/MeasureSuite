@@ -23,35 +23,26 @@
 #include <sys/time.h>
 #include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
 
-// declaration
-static void measuresuite_time_pmc(uint64_t *t);
+static void init_fdperf(struct measuresuite *ms) {
+  struct perf_event_attr attr = {
+      .type = PERF_TYPE_HARDWARE,
+      .config = PERF_COUNT_HW_CPU_CYCLES,
+      .exclude_kernel = 1,
+  };
 
-// NOLINTNEXTLINE (state)
-static int fdperf = -1;
-// NOLINTNEXTLINE (state)
-static struct perf_event_mmap_page *buf = 0;
-
-// prefer pmc
-// NOLINTNEXTLINE (state)
-static void (*timer_function)(uint64_t *) = measuresuite_time_pmc;
-
-static void init_fdperf() {
-  struct perf_event_attr attr;
-  attr.type = PERF_TYPE_HARDWARE;
-  attr.config = PERF_COUNT_HW_CPU_CYCLES;
-  attr.exclude_kernel = 1;
-  fdperf = (int)syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
-  if (fdperf == -1) {
+  ms->timer.fdperf = (int)syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
+  if (ms->timer.fdperf == -1) {
     return;
   }
-  buf = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ, MAP_SHARED, fdperf, 0);
+  ms->timer.buf = mmap(NULL, sysconf(_SC_PAGESIZE), PROT_READ, MAP_SHARED,
+                       ms->timer.fdperf, 0);
   // NOLINTNEXTLINE (mmap - api)
-  if (buf == MAP_FAILED) {
-    fdperf = -1;
+  if (ms->timer.buf == MAP_FAILED) {
+    ms->timer.fdperf = -1;
   }
 }
 
-static void measuresuite_time_pmc(uint64_t *t) {
+static void measuresuite_time_pmc(struct measuresuite *ms, uint64_t *dest) {
   // eax: low 32
   // edx: high 32
 #if defined(__x86_64__) || defined(__amd64__)
@@ -60,17 +51,17 @@ static void measuresuite_time_pmc(uint64_t *t) {
   long long offset = 0;
 
   do {
-    seq = buf->lock;
+    seq = ms->timer.buf->lock;
     // barrier for cc
     asm volatile("" ::: "memory");
-    offset = buf->offset;
+    offset = ms->timer.buf->offset;
     // barrier for cpu
     asm volatile("lfence;\n\t"
                  "cpuid;\n\t" ::
                      : "rax", "rbx", "rcx", "rdx");
     asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
                  : "=a"(result)
-                 : "c"(buf->index - 1)
+                 : "c"(ms->timer.buf->index - 1)
                  : "%rdx");
 
     // barrier for cpu
@@ -80,9 +71,9 @@ static void measuresuite_time_pmc(uint64_t *t) {
 
     // barrier for cc
     asm volatile("" ::: "memory");
-  } while (buf->lock != seq);
+  } while (ms->timer.buf->lock != seq);
 
-  *t = (result + offset);
+  *dest = (result + offset);
 
   // ARM on Darwin does not support mrc p15.
   // clang complains with:
@@ -95,9 +86,9 @@ static void measuresuite_time_pmc(uint64_t *t) {
 #elif (__linux__ &&                                                            \
        __ARM_ARCH >=                                                           \
            6) // V6 is the earliest arch that has a standard cyclecount
-  uint32_t pmccntr;
-  uint32_t pmuseren;
-  uint32_t pmcntenset;
+  uint32_t pmccntr = 0;
+  uint32_t pmuseren = 0;
+  uint32_t pmcntenset = 0;
   // Read the user mode perf monitor counter access permissions. (__ARM_ARCH >=
   // 6)
   asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
@@ -116,7 +107,7 @@ static void measuresuite_time_pmc(uint64_t *t) {
 }
 
 uint64_t current_timestamp() {
-  struct timeval time;
+  struct timeval time = {0};
   gettimeofday(&time, NULL); // get current time
 
   const long long millisonds_per_second = 1000LL;
@@ -129,7 +120,9 @@ uint64_t current_timestamp() {
 }
 
 // NOLINTNEXTLINE (the inlineasm is not analyzed with clang tidy)
-static void measuresuite_time_rdtscp(uint64_t *t) {
+static void measuresuite_time_rdtscp(struct measuresuite *ms, uint64_t *dest) {
+  if (ms) {
+  }
   // barrier for cc
   asm volatile("" ::: "memory");
   __asm__ __volatile__("LFENCE;\n\t"
@@ -138,7 +131,7 @@ static void measuresuite_time_rdtscp(uint64_t *t) {
                        "or %%rdx, %%rax; \n\t"
                        "mov %%rax, %[time]; \n\t"
                        "CPUID; \n\t"
-                       : [time] "=&m"(*t)::"rax", "rbx", "rcx", "rdx");
+                       : [time] "=&m"(*dest)::"rax", "rbx", "rcx", "rdx");
   // barrier for cc
   asm volatile("" ::: "memory");
 }
@@ -146,30 +139,33 @@ static void measuresuite_time_rdtscp(uint64_t *t) {
 /**
  * This function checks if we use PMC or fall back to something different
  */
-void init_timer() {
+int init_timer(struct measuresuite *ms) {
 
   // try to initialize
-  init_fdperf();
+  init_fdperf(ms);
 
-  if (fdperf == -1) {
+  if (ms->timer.fdperf == -1) {
     // if that  failed, we need to resort to RDTSCP
-    timer_function = measuresuite_time_rdtscp;
+    ms->timer.timer_function = measuresuite_time_rdtscp;
+  } else {
+    // otherwise we'd use pmc
+    ms->timer.timer_function = measuresuite_time_pmc;
   }
+  return 0;
 }
 
-// exposed
-void start_timer(uint64_t *start) {
+void start_timer(struct measuresuite *ms, uint64_t *start) {
   // we need to reset the PMC if we are using them.
-  if (timer_function == measuresuite_time_pmc) {
-    ioctl(fdperf, PERF_EVENT_IOC_RESET, 0);
+  if (ms->timer.timer_function == measuresuite_time_pmc) {
+    ioctl(ms->timer.fdperf, PERF_EVENT_IOC_RESET, 0);
   }
-  timer_function(start);
+  ms->timer.timer_function(ms, start);
 }
 
-uint64_t stop_timer(uint64_t start) {
+uint64_t stop_timer(struct measuresuite *ms, uint64_t start) {
 
   uint64_t now = 0;
-  timer_function(&now);
+  ms->timer.timer_function(ms, &now);
   uint64_t delta = now - start;
 
   return delta;

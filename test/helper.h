@@ -63,7 +63,7 @@ void assert_print_ms_error(measuresuite_t ms, char *file, int lineno,
 #define ms_assert_ok(exp)                                                      \
   if ((exp) != 0) {                                                            \
     assert_print_ms_error(ms, __FILE__, __LINE__, __ASSERT_FUNCTION, #exp,     \
-                          exp);                                                \
+                          ((exp) == 0));                                       \
   }
 
 #define ms_assert(exp)                                                         \

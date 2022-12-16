@@ -56,41 +56,41 @@ static int generate_json_from_measurement_results(struct measuresuite *ms,
     switch (fct->type) {
     case ASM:
       json +=
-          snprintf(json, json - json_end,
+          snprintf(json, json_end - json,
                    "{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", fct->chunks);
       break;
     case BIN:
-      json += snprintf(json, json - json_end, "{\"type\":\"BIN\"},");
+      json += snprintf(json, json_end - json, "{\"type\":\"BIN\"},");
       break;
     case ELF:
-      json += snprintf(json, json - json_end, "{\"type\":\"ELF\"},");
+      json += snprintf(json, json_end - json, "{\"type\":\"ELF\"},");
       break;
     case SHARED_OBJECT:
-      json += snprintf(json, json - json_end, "{\"type\":\"SHARED_OBJECT\"},");
+      json += snprintf(json, json_end - json, "{\"type\":\"SHARED_OBJECT\"},");
       break;
     }
   }
   // overwrite comma
   json--;
-  json += snprintf(json, json - json_end, "],\"cycles\":[");
+  json += snprintf(json, json_end - json, "],\"cycles\":[");
 
   // print cycles
   for (size_t i = 0; i < ms->num_functions; i++) {
     struct function_tuple *fct = &ms->functions[i];
-    json += snprintf(json, json - json_end, "[");
+    json += snprintf(json, json_end - json, "[");
     for (size_t run_i = 0; run_i < ms->num_batches; run_i++) {
-      json += snprintf(json, json - json_end, "%" PRIu64 ",",
+      json += snprintf(json, json_end - json, "%" PRIu64 ",",
                        fct->cycle_results[run_i]);
     }
     // overwrite comma
     json--;
-    json += snprintf(json, json - json_end, "],[");
+    json += snprintf(json, json_end - json, "],[");
   }
   // overwrite comma and last [
   json -= 2;
-  json += snprintf(json, json - json_end, "]}");
+  json += snprintf(json, json_end - json, "]}");
 
-  if (json - json_end <= 0) {
+  if (json_end - json <= 0) {
     // we did not have enough space.
 
     // enlarge
@@ -212,12 +212,12 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   }
 
   uint64_t start_time = 0;
-  start_timer(&start_time);
+  start_timer(ms, &start_time);
   void (*func)(uint64_t * out, ...) = fct->code;
   for (; batch_size > 0;) {
     func(arg0, arg1, arg2, arg3, arg4, arg5);
     batch_size--;
   }
 
-  *count = stop_timer(start_time);
+  *count = stop_timer(ms, start_time);
 }

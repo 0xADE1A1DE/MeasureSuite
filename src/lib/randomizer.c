@@ -67,7 +67,7 @@ int init_random(struct measuresuite *ms) {
 }
 
 int randomize(struct measuresuite *ms) {
-  if (ms->random_data_fd == -1 || ms->permutation == NULL) {
+  if (ms->random_data_fd == -1) {
     ms->errorno = E_INTERNAL_RANDOMNESS__UNINITIALIZED;
     return 1;
   }
