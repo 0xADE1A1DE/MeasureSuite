@@ -14,7 +14,9 @@
 
 # Files / Directories
 SRCS        = $(shell find ./src/lib -type f -name '*.c')
-TEST_SRCS   = $(wildcard ./test/itest_*.c)
+UTEST_SRCS  = $(wildcard ./test/utest_*.c) # unit tests
+ITEST_SRCS  = $(wildcard ./test/itest_*.c) # integration tests (i.e. using public api only )
+TEST_SRCS   = $(UTEST_SRCS) $(ITEST_SRCS)
 TESTS      ?= $(TEST_SRCS:.c=.test)
 TEST_DATA   = $(addprefix test/test_data/add_two_numbers., so bin o)
 C_COV_DIR   = coverage-c

@@ -34,7 +34,7 @@ fail() {
 pushd "test" >/dev/null || exit 2
 
 printf "\033[33m RUN  \033[0m%s" "${filename}"
-LD_LIBRARY_PATH=${libpath} "./${filename}"
+LD_LIBRARY_PATH=${libpath} "./${filename}" 2>"./${filename}.err" 1>"./${filename}.out"
 
 case ${?} in
 0)

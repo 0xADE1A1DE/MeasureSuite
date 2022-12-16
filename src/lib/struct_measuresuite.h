@@ -107,7 +107,7 @@ struct measuresuite {
   struct timer {
     int fdperf;
     struct perf_event_mmap_page *buf;
-    void (*timer_function)(struct measuresuite *ms, uint64_t *dest);
+    uint64_t (*timer_function)(struct measuresuite *ms);
   } timer;
 };
 

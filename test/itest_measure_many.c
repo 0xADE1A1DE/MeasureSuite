@@ -36,15 +36,13 @@ static int test_measure_four_ok() {
   measuresuite_t ms = NULL;
 
   int ids[] = {-1, -1, -1, -1};
-  int ret = ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
-  if (ret) {
-    ms_assert_ok(ret);
-    return ret;
-  }
-  ms_load_file(ms, ASM, file_asm, symbol, ids);
-  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + 1);
-  ms_load_file(ms, BIN, file_bin, symbol, ids + 2);
-  ms_load_file(ms, ELF, file_elf, symbol, ids + 3);
+  int pointer = 0;
+  ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
+
+  ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, ELF, file_elf, symbol, ids + pointer++);
 
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
 
@@ -52,27 +50,28 @@ static int test_measure_four_ok() {
 
   return 0;
 }
+// 16 bin's
 static int test_measure_many_ok() {
   measuresuite_t ms = NULL;
 
-  int id = -1;
+  int ids[] = {
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  };
+  int pointer = 0;
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
-  ms_load_file(ms, ASM, file_asm, symbol, &id);
-  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, BIN, file_bin, symbol, &id);
-  ms_load_file(ms, ELF, file_elf, symbol, &id);
+
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
 
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
 

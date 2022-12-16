@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "timer.h"
 #include <linux/perf_event.h> // PERF_*
 #include <stdio.h>            // NULL
@@ -21,6 +20,7 @@
 #include <sys/mman.h>         // mmap
 #include <sys/syscall.h>      // __NR_perf_event_open
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
 
 static void init_fdperf(struct measuresuite *ms) {
@@ -42,7 +42,7 @@ static void init_fdperf(struct measuresuite *ms) {
   }
 }
 
-static void measuresuite_time_pmc(struct measuresuite *ms, uint64_t *dest) {
+static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
   // eax: low 32
   // edx: high 32
 #if defined(__x86_64__) || defined(__amd64__)
@@ -73,7 +73,7 @@ static void measuresuite_time_pmc(struct measuresuite *ms, uint64_t *dest) {
     asm volatile("" ::: "memory");
   } while (ms->timer.buf->lock != seq);
 
-  *dest = (result + offset);
+  return result + offset;
 
   // ARM on Darwin does not support mrc p15.
   // clang complains with:
@@ -97,12 +97,12 @@ static void measuresuite_time_pmc(struct measuresuite *ms, uint64_t *dest) {
     if (pmcntenset & 0x80000000ul) { // Is it counting?
       asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
       // The counter is set up to count every 64th cycle
-      *t = (uint64_t)(pmccntr)*64; // Should optimize to << 6
+      return (uint64_t)(pmccntr)*64; // Should optimize to << 6
     }
   }
 #else
   // fallback
-  *t = ms_current_timestamp();
+  return ms_current_timestamp();
 #endif
 }
 
@@ -120,9 +120,9 @@ uint64_t current_timestamp() {
 }
 
 // NOLINTNEXTLINE (the inlineasm is not analyzed with clang tidy)
-static void measuresuite_time_rdtscp(struct measuresuite *ms, uint64_t *dest) {
-  if (ms) {
-  }
+static uint64_t measuresuite_time_rdtscp() {
+
+  uint64_t result = 0;
   // barrier for cc
   asm volatile("" ::: "memory");
   __asm__ __volatile__("LFENCE;\n\t"
@@ -131,9 +131,10 @@ static void measuresuite_time_rdtscp(struct measuresuite *ms, uint64_t *dest) {
                        "or %%rdx, %%rax; \n\t"
                        "mov %%rax, %[time]; \n\t"
                        "CPUID; \n\t"
-                       : [time] "=&m"(*dest)::"rax", "rbx", "rcx", "rdx");
+                       : [time] "=&m"(result)::"rax", "rbx", "rcx", "rdx");
   // barrier for cc
   asm volatile("" ::: "memory");
+  return result;
 }
 
 /**
@@ -151,6 +152,7 @@ int init_timer(struct measuresuite *ms) {
     // otherwise we'd use pmc
     ms->timer.timer_function = measuresuite_time_pmc;
   }
+
   return 0;
 }
 
@@ -159,13 +161,13 @@ void start_timer(struct measuresuite *ms, uint64_t *start) {
   if (ms->timer.timer_function == measuresuite_time_pmc) {
     ioctl(ms->timer.fdperf, PERF_EVENT_IOC_RESET, 0);
   }
-  ms->timer.timer_function(ms, start);
+  *start = ms->timer.timer_function(ms);
 }
 
 uint64_t stop_timer(struct measuresuite *ms, uint64_t start) {
 
-  uint64_t now = 0;
-  ms->timer.timer_function(ms, &now);
+  uint64_t now = ms->timer.timer_function(ms);
+
   uint64_t delta = now - start;
 
   return delta;
