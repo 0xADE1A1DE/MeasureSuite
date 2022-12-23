@@ -8,6 +8,7 @@
 #include <sys/mman.h> // mmap...
 
 int realloc_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
+
   *dest = realloc(*dest, new_len);
 
   if (*dest == NULL) {
@@ -103,8 +104,8 @@ int init_cycle_results(struct measuresuite *ms) {
 int init_json(struct measuresuite *ms) {
 
   const unsigned long char_per_long = 10;
-  // every one produces  num_functions long numbers
-  const unsigned long char_per_batch = char_per_long * ms->num_functions;
+  // at max, every function poduces one long per batch
+  const unsigned long char_per_batch = char_per_long * ms->size_functions;
 
   // every batch produces char_per_batch' chars
   const unsigned long dynamic_length = char_per_batch * ms->num_batches;
