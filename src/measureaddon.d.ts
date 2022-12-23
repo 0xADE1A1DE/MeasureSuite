@@ -18,15 +18,15 @@
 declare module "measureaddon" {
   function init(argWidth: number, numArgIn: number, numArgOut: number): void;
 
-  function loadAsmString(assembly: string): number; // returns id of where the function has been loaded into
-  function loadAsmFile(path: string): number;
-  function loadBinFile(path: string): number;
-  function loadElfFile(path: string, symbol?: string): number;
-  function loadSharedObjectFile(path: string, symbol: string): number;
+  function load_asm_string(assembly: string): number; // returns id of where the function has been loaded into
+  function load_asm_file(path: string): number;
+  function load_bin_file(path: string): number;
+  function load_elf_file(path: string, symbol?: string): number;
+  function load_shared_object_file(path: string, symbol: string): number;
 
-  function enableChecking(): void;
-  function enableChunkCounting(chunkSize: number): void;
-  function setBounds(bounds: BigUint64Array): void;
+  function enable_checking(): void;
+  function enable_chunk_counting(chunkSize: number): void;
+  function set_bounds(bounds: BigUint64Array): void;
 
   function measure(batchSize: number, numBatches: number): string;
 }

@@ -65,7 +65,7 @@ void init(napi_env env, napi_callback_info info) {
   }
 }
 
-napi_value setBounds(napi_env env, napi_callback_info info) {
+napi_value binding_set_bounds(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {

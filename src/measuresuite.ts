@@ -30,15 +30,15 @@ import type { uiCAResult, MeasureResult } from "./measure.interface";
 export const native_ms = {
   init: ms.init,
 
-  loadAsmString: ms.loadAsmString,
-  loadAsmFile: ms.loadAsmFile,
-  loadBinFile: ms.loadBinFile,
-  loadElfFile: ms.loadElfFile,
-  loadSharedObjectFile: ms.loadSharedObjectFile,
+  load_asm_string: ms.load_asm_string,
+  load_asm_file: ms.load_asm_file,
+  load_bin_file: ms.load_bin_file,
+  load_elf_file: ms.load_elf_file,
+  load_shared_object_file: ms.load_shared_object_file,
 
-  enableChecking: ms.enableChecking,
-  enableChunkCounting: ms.enableChunkCounting,
-  setBounds: ms.setBounds,
+  enable_checking: ms.enable_checking,
+  enable_chunk_counting: ms.enable_chunk_counting,
+  set_bounds: ms.set_bounds,
 
   measure: ms.measure,
 };
@@ -83,10 +83,10 @@ export class Measuresuite {
 
     try {
       ms.init(argwidth, argNumIn, argNumOut);
-      ms.enableChecking();
-      ms.loadSharedObjectFile(libcheckfunctionsFilename, functionSymbol);
-      ms.enableChunkCounting(chunkSize);
-      ms.setBounds(bounds_u64);
+      ms.enable_checking();
+      ms.load_shared_object_file(libcheckfunctionsFilename, functionSymbol);
+      ms.enable_chunk_counting(chunkSize);
+      ms.set_bounds(bounds_u64);
     } catch (e) {
       console.error(e);
       throw new Error("Could not initialize Measuresuite.");
@@ -122,8 +122,8 @@ export class Measuresuite {
   ): MeasureResult | null {
     let result: string | undefined;
     try {
-      ms.loadAsmString(functionA);
-      ms.loadAsmString(functionB);
+      ms.load_asm_string(functionA);
+      ms.load_asm_string(functionB);
       result = ms.measure(batchSize, numBatches);
     } catch (e) {
       console.error("Measuresuite: in measuresuite_measure, an error occurred", e);

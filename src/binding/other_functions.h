@@ -18,7 +18,7 @@
  */
 #include <node/node_api.h>
 void init(napi_env env, napi_callback_info info);
-napi_value setBounds(napi_env env, napi_callback_info info);
+napi_value binding_set_bounds(napi_env env, napi_callback_info info);
 napi_value measure(napi_env env, napi_callback_info info);
 
 #endif /* OTHER_FUNCTIONS_H */

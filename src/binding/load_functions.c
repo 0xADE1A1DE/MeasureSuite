@@ -19,7 +19,7 @@
 #include "helper.h"
 #include "measuresuite.h"
 
-napi_value loadAsmString(napi_env env, napi_callback_info info) {
+napi_value load_asm_string(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {
@@ -65,7 +65,7 @@ napi_value loadAsmString(napi_env env, napi_callback_info info) {
   return napi_result;
 }
 
-napi_value loadAsmFile(napi_env env, napi_callback_info info) {
+napi_value load_asm_file(napi_env env, napi_callback_info info) {
 
   const size_t argc_init = 1;
   size_t argc = argc_init;
@@ -111,7 +111,7 @@ napi_value loadAsmFile(napi_env env, napi_callback_info info) {
   return napi_result;
 }
 
-napi_value loadBinFile(napi_env env, napi_callback_info info) {
+napi_value load_bin_file(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {
@@ -155,7 +155,7 @@ napi_value loadBinFile(napi_env env, napi_callback_info info) {
   return napi_result;
 }
 
-napi_value loadElfFile(napi_env env, napi_callback_info info) {
+napi_value load_elf_file(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {
@@ -212,7 +212,7 @@ napi_value loadElfFile(napi_env env, napi_callback_info info) {
   return napi_result;
 }
 
-napi_value loadSharedObjectFile(napi_env env, napi_callback_info info) {
+napi_value load_shared_object_file(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {

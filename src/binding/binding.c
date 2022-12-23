@@ -20,8 +20,8 @@
 #include "other_functions.h"
 #include <node/node_api.h>
 
-static void registerFunction(napi_env env, napi_value exports, void *function,
-                             const char *symbol) {
+static void register_function(napi_env env, napi_value exports, void *function,
+                              const char *symbol) {
   napi_value _function = NULL;
 
   if (napi_create_function(env, NULL, 0, function, NULL, &_function) !=
@@ -37,25 +37,27 @@ static void registerFunction(napi_env env, napi_value exports, void *function,
 napi_value Init(napi_env env, napi_value exports) {
 
   // init(argWidth: number, numArgIn: number, numArgOut: number): void;
-  registerFunction(env, exports, init, "init");
-  // loadAsmString(assembly: string): string;
-  registerFunction(env, exports, loadAsmString, "loadAsmString");
-  // loadAsmFile(path: string): string;
-  registerFunction(env, exports, loadAsmFile, "loadAsmFile");
-  // loadBinFile(path: string): string;
-  registerFunction(env, exports, loadBinFile, "loadBinFile");
-  // loadElfFile(path: string, symbol?: string): string;
-  registerFunction(env, exports, loadElfFile, "loadElfFile");
-  // loadSharedObjectFile(path: string, symbol: string): string;
-  registerFunction(env, exports, loadSharedObjectFile, "loadSharedObjectFile");
-  // enableChecking(): void;
-  registerFunction(env, exports, enableChecking, "enableChecking");
-  // enableChunkCounting(chunkSize: number): void;
-  registerFunction(env, exports, enableChunkCounting, "enableChunkCounting");
-  // setBounds(bounds: BigUint64Array): void;
-  registerFunction(env, exports, setBounds, "setBounds");
+  register_function(env, exports, init, "init");
+  // load_asm_string(assembly: string): string;
+  register_function(env, exports, load_asm_string, "load_asm_string");
+  // load_asm_file(path: string): string;
+  register_function(env, exports, load_asm_file, "load_asm_file");
+  // load_bin_file(path: string): string;
+  register_function(env, exports, load_bin_file, "load_bin_file");
+  // load_elf_file(path: string, symbol?: string): string;
+  register_function(env, exports, load_elf_file, "load_elf_file");
+  // load_shared_object_file(path: string, symbol: string): string;
+  register_function(env, exports, load_shared_object_file,
+                    "load_shared_object_file");
+  // enable_checking(): void;
+  register_function(env, exports, enable_checking, "enable_checking");
+  // enable_chunk_counting(chunkSize: number): void;
+  register_function(env, exports, enable_chunk_counting,
+                    "enable_chunk_counting");
+  // set_bounds(bounds: BigUint64Array): void;
+  register_function(env, exports, binding_set_bounds, "set_bounds");
   // measure(batchSize: number, numBatches: number): string;
-  registerFunction(env, exports, measure, "measure");
+  register_function(env, exports, measure, "measure");
 
   return exports;
 }

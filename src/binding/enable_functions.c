@@ -18,7 +18,7 @@
 #include "helper.h"
 #include <measuresuite.h>
 
-napi_value enableChecking(napi_env env, napi_callback_info info) {
+napi_value enable_checking(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {
@@ -42,7 +42,7 @@ napi_value enableChecking(napi_env env, napi_callback_info info) {
   napi_create_int32(env, 0, &napi_result);
   return napi_result;
 }
-napi_value enableChunkCounting(napi_env env, napi_callback_info info) {
+napi_value enable_chunk_counting(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
   if (napi_get_instance_data(env, &instance_data) != napi_ok) {

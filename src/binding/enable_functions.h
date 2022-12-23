@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 #include <node/node_api.h>
-napi_value enableChecking(napi_env env, napi_callback_info info);
-napi_value enableChunkCounting(napi_env env, napi_callback_info info);
+napi_value enable_checking(napi_env env, napi_callback_info info);
+napi_value enable_chunk_counting(napi_env env, napi_callback_info info);
 
 #endif /* ENABLE_FUNCTIONS_H */
