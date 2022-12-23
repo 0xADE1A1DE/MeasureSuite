@@ -26,7 +26,7 @@ CPPFLAGS   += -I. -I./src/lib/ -I./src/include
 LDLIBS     += -ldl
 
 # compile with assemblyline if possible
-LIBS_AL = $(shell pkg-config --libs assemblyline && echo 1 || echo 0)
+LIBS_AL = $(shell pkg-config --libs assemblyline >/dev/null && echo 1 || echo 0)
 ifeq ($(LIBS_AL), 1)
 LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
