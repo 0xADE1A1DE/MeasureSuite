@@ -77,9 +77,10 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
     new->al = NULL;
   }
 #else
-  fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
-                  "compiled with AssemblyLine.");
-  return 1;
+  if (type == ASM) {
+    ms->errorno = E_NO_ASSEMBLYLINE;
+    return 1;
+  }
 
 #endif
 
@@ -183,8 +184,7 @@ int load_file(measuresuite_t ms, enum load_type type, const char *filename,
     }
     return 0;
 #else
-    fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
-                    "compiled with AssemblyLine.");
+    ms->errorno = E_NO_ASSEMBLYLINE;
     return 1;
 #endif
   }
@@ -235,8 +235,7 @@ int load_data(measuresuite_t ms, enum load_type type, const uint8_t *data,
     }
     return 0;
 #else
-    fprintf(stderr, "Fatal Error: Cannot use ASM as a load type if not "
-                    "compiled with AssemblyLine.");
+    ms->errorno = E_NO_ASSEMBLYLINE;
     return 1;
 #endif
   }

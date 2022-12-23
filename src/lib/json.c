@@ -35,7 +35,9 @@ int generate_json(struct measuresuite *ms, uint64_t delta_in_seconds,
        fct <= &ms->functions[ms->num_functions - 1]; fct++) {
     switch (fct->type) {
     case ASM:
+#ifdef USE_ASSEMBLYLINE
       PRINT("{\"type\":\"ASM\", \"chunks\":%" PRIi32 "},", fct->chunks);
+#endif
       break;
     case BIN:
       PRINT("{\"type\":\"BIN\"},");

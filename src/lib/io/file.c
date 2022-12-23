@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
 int filesize(measuresuite_t ms, const char *filename, size_t *size) {
   struct stat stats;
   if (stat(filename, &stats)) {
