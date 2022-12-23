@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-#include <stddef.h>
-#ifdef USE_ASSEMBLYLINE
-#include <assemblyline.h> // asm_get_code
-#endif
-#include "alloc_helper.h"        // realloc_or_fail
-#include "checker.h"             // check
 #include "evaluator.h"           // own
+#include "alloc_helper.h"        // init_cycle_results
+#include "checker.h"             // check
 #include "fisher_yates.h"        // shuffle_permutations
 #include "json.h"                // generate_json_from_measurement_results
 #include "randomizer.h"          // randomize
 #include "struct_measuresuite.h" // struct ms; struct function_tuple
 #include "timer.h"               // {start,stop}_timer / current_timestamp
+#include <assert.h>              // assert
 #include <stdio.h>               // snprintf
 #include <stdlib.h>              // alloc / size_t
 #include <string.h>              // memset / strerror
