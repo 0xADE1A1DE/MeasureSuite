@@ -44,10 +44,7 @@ export interface MeasureResult {
   };
   functions: FunctionSummary[];
 
-  cycles: [
-    [2406, 1749, 1702, 1733, 1887, 2716, 2738, 2729, 2746, 2735],
-    [1874, 1730, 1698, 1720, 1803, 1791, 2721, 2732, 2724, 2729],
-  ];
+  cycles: number[][];
 }
 export type FunctionSummary =
   | BaseSummary<"ELF">
