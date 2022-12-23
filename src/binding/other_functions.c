@@ -16,6 +16,7 @@
 #include "other_functions.h"
 #include "helper.h"
 #include "measuresuite.h"
+#include <node/js_native_api.h>
 #include <stddef.h>
 #include <stdint.h>
 void init(napi_env env, napi_callback_info info) {
@@ -51,7 +52,7 @@ void init(napi_env env, napi_callback_info info) {
   // execute measure_init
   measuresuite_t ms = NULL;
   if (ms_initialize(&ms, arg_width, num_arg_in, num_arg_out) != 0) {
-    ms_printf_error(ms);
+    ms_fprintf_error(ms, stderr);
     return throw_error_return_void(env,
                                    "Unable to create measuresuite instance.");
   }
@@ -106,6 +107,7 @@ napi_value setBounds(napi_env env, napi_callback_info info) {
   }
 
   if (ms_set_bounds(ms, bounds) != 0) {
+    ms_fprintf_error(ms, stderr);
     return throw_and_return_napi_val(env, "Could not set Bounds on MS.");
   };
 
@@ -113,6 +115,7 @@ napi_value setBounds(napi_env env, napi_callback_info info) {
   napi_create_int32(env, 0, &napi_result);
   return napi_result;
 };
+
 napi_value measure(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;
@@ -145,10 +148,16 @@ napi_value measure(napi_env env, napi_callback_info info) {
   }
 
   if (ms_measure(ms, batch_size, num_batches) != 0) {
+    ms_fprintf_error(ms, stderr);
     return throw_and_return_napi_val(env, "Could not measure.");
   };
 
+  // get json and return string
+  const char *json = NULL;
+  size_t json_len = 0;
+  ms_get_json(ms, &json, &json_len);
   napi_value napi_result = NULL;
-  napi_create_int32(env, 0, &napi_result);
+  napi_create_string_latin1(env, json, json_len, &napi_result);
+
   return napi_result;
 };
