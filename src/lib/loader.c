@@ -6,13 +6,13 @@
 #include "io/shared_object.h"
 #include "measuresuite.h"
 #include "struct_measuresuite.h"
+#ifdef USE_ASSEMBLYLINE
+#include <assemblyline.h>
+#endif
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef USE_ASSEMBLYLINE
-#include <assemblyline.h>
-#endif
 
 // this essentially re-allocs the  permutation array with the new number of
 // active functions and fills it with numbers 0..num_functions
