@@ -114,7 +114,7 @@ struct measuresuite {
 // helper to iterate over all available function
 #define FOR_EACH_FUNCTION                                                      \
   for (struct function_tuple *fct = ms->functions;                             \
-       fct <= ms->functions + (ms->num_functions - 1); fct++)
+       fct <= &ms->functions[ms->num_functions - 1]; fct++)
 
 // use it like:
 // FOR_EACH_FUNCTION {
