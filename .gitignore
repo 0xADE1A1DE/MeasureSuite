@@ -38,19 +38,20 @@ vgcore.*
 *.gcno
 *.gcda
 dist
+ms
 build
 coverage-c
 coverage
 
 compile_commands.json
 
-test/.deps
-test/*.test
-test/*.out
-test/*.err
-test/test_data/*.bin
-test/test_data/*.so
-test/test_data/*.o
+.deps
+*.tst
+*.out
+*.err
+lib/test/test_data/*.bin
+lib/test/test_data/*.so
+lib/test/test_data/*.o
 
 
 

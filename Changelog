@@ -1,3 +1,24 @@
+version 2.0.0 (2022-12-xx)
+	- BREAKING CHANGES  (API changed)
+	- MS can now load elf (*.o) files (specific symbol or 'just the first one')
+	- MS can now load bin files (raw machine code)
+
+	- MS can now measure an arbitrary number of functions of arbitrary type
+	  the default was: "one Shared Object and two ASMs"
+	  now one can load a colorful mix of ELFs / BINs / ASMs shared_objects
+
+	- MS no longer measures 'ac-bc-ac-ac-bc'. Instead, all loaded functions are
+	  executed exactly once, but in a random permutation (abc-bca-abc-cba-cab).
+
+    - MS no longer needs to have three functions calculating the same.
+	  In fact, equality check is optional.
+
+	- Directory separation of libmeasuresuite and ts-binding to make forking
+	and reuse easier
+	
+	- Auto-detect AssemblyLine. Compile without it, if not available. 
+
+
 version 1.3.0 (2022-09-11)
 	- now supports up to 6 arguments. i.e. 2 out's and 4 in's. Before, it was
 	limited to 3 each 
