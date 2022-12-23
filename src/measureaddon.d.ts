@@ -18,11 +18,11 @@
 declare module "measureaddon" {
   function init(argWidth: number, numArgIn: number, numArgOut: number): void;
 
-  function loadAsmString(assembly: string): string;
-  function loadAsmFile(path: string): string;
-  function loadBinFile(path: string): string;
-  function loadElfFile(path: string, symbol?: string): string;
-  function loadSharedObjectFile(path: string, symbol: string): string;
+  function loadAsmString(assembly: string): number; // returns id of where the function has been loaded into
+  function loadAsmFile(path: string): number;
+  function loadBinFile(path: string): number;
+  function loadElfFile(path: string, symbol?: string): number;
+  function loadSharedObjectFile(path: string, symbol: string): number;
 
   function enableChecking(): void;
   function enableChunkCounting(chunkSize: number): void;
