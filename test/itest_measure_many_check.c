@@ -31,7 +31,7 @@ static const int arg_num_out = 1;
 static const int batch_size = 2;
 static const int number_of_batches = 10;
 
-static int test_measure_four_ok() {
+static int test_measure_four_check_ok() {
 
   measuresuite_t ms = NULL;
 
@@ -39,20 +39,26 @@ static int test_measure_four_ok() {
   int pointer = 0;
   ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
 
-  ms_assert_ok(ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++));
-  ms_assert_ok(ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol,
-                            ids + pointer++));
-  ms_assert_ok(ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++));
-  ms_assert_ok(ms_load_file(ms, ELF, file_elf, symbol, ids + pointer++));
+  ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
+  ms_load_file(ms, ELF, file_elf, symbol, ids + pointer++);
+
+  // SET CHECKING
+  ms_set_checking(ms, 1);
 
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
 
-  ms_assert_ok(ms_terminate(ms));
+  const char *json = NULL;
+  size_t len = 0;
+  ms_get_json(ms, &json, &len);
+  printf("JSON %lu: %s\n", len, json);
 
+  ms_assert_ok(ms_terminate(ms));
   return 0;
 }
 // 12 bin's
-static int test_measure_many_ok() {
+static int test_measure_many_check_ok() {
   measuresuite_t ms = NULL;
 
   int ids[] = {
@@ -74,16 +80,10 @@ static int test_measure_many_ok() {
   ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
   ms_load_file(ms, BIN, file_bin, symbol, ids + pointer++);
 
+  // SET CHECKING
+  ms_set_checking(ms, 1);
+
   ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
-
-  const char *json = NULL;
-  size_t len = 0;
-  ms_get_json(ms, &json, &len);
-
-  ms_assert(len != 0);
-  ms_assert(json != NULL);
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":12,\"runtime\":");
-  assert(pos != NULL);
 
   ms_assert_ok(ms_terminate(ms));
 
@@ -92,7 +92,7 @@ static int test_measure_many_ok() {
 
 int main() {
   int res = 0;
-  res |= test_measure_four_ok();
-  res |= test_measure_many_ok();
+  res |= test_measure_four_check_ok();
+  res |= test_measure_many_check_ok();
   return res;
 }

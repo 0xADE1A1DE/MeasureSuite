@@ -29,47 +29,23 @@ static const int arg_num_out = 1;
 static const int batch_size = 2;
 static const int number_of_batches = 10;
 
-static int test_measure_long_json_ok() {
+static int test_measure_load_check_ok() {
 
   measuresuite_t ms = NULL;
 
-  int ids[] = {-1, -1, -1, -1};
+  int ids[] = {-1, -1, -1};
   int pointer = 0;
   ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
 
-  ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++);
+  /** 1x so */
+  ms_assert_ok(ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol,
+                            ids + pointer++));
 
-  const int many_nob = number_of_batches * 1000;
-  ms_measure(ms, batch_size, many_nob);
-  const char *json = NULL;
-  size_t len = 0;
-  ms_get_json(ms, &json, &len);
+  /** 1x asm */
+  ms_assert_ok(ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++));
+  /** 2x asm */
+  ms_assert_ok(ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++));
 
-  ms_assert(len != 0);
-  ms_assert(len > many_nob * strlen("123,"));
-  ms_assert(json != NULL);
-
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":1,\"runtime\":");
-  assert(pos != NULL);
-  pos = strstr(json, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
-                     "\"chunks\":0}],\"cycles\":[[");
-  assert(pos != NULL);
-
-  ms_assert_ok(ms_terminate(ms));
-
-  return 0;
-}
-
-static int test_measure_two_ok() {
-
-  measuresuite_t ms = NULL;
-
-  int ids[] = {-1, -1, -1, -1};
-  int pointer = 0;
-  ms_assert_ok(ms_initialize(&ms, arg_width, arg_num_in, arg_num_out));
-
-  ms_load_file(ms, ASM, file_asm, symbol, ids + pointer++);
-  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
   ms_set_checking(ms, 1);
 
   ms_measure(ms, batch_size, number_of_batches);
@@ -84,11 +60,13 @@ static int test_measure_two_ok() {
   //{"stats":{"numFunctions":2,"runtime":0,"incorrect":0},"functions":[{"type":"ASM",
   //"chunks":0},{"type":"SHARED_OBJECT"}],"cycles":[[1721,1714,1589,1701,1704,2589,2550,2589,2584,2593],[2403,1674,1639,1674,1782,1751,2597,2594,2598,2589]]}
 
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":2,\"runtime\":");
+  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":3,\"runtime\":");
   assert(pos != NULL);
-  pos =
-      strstr(json, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
-                   "\"chunks\":0},{\"type\":\"SHARED_OBJECT\"}],\"cycles\":[[");
+  pos = strstr(json, "\"incorrect\":0},\"functions\":["
+                     "{\"type\":\"SHARED_OBJECT\"},"
+                     "{\"type\":\"ASM\", \"chunks\":0},"
+                     "{\"type\":\"ASM\", \"chunks\":0}"
+                     "],\"cycles\":[[");
   assert(pos != NULL);
 
   ms_assert_ok(ms_terminate(ms));
@@ -98,7 +76,6 @@ static int test_measure_two_ok() {
 
 int main() {
   int res = 0;
-  res |= test_measure_long_json_ok();
-  res |= test_measure_two_ok();
+  res |= test_measure_load_check_ok();
   return res;
 }
