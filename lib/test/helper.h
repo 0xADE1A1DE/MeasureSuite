@@ -53,9 +53,9 @@ void exit_skip();
   do {                                                                         \
     if (!check_ise_bit(BMI2) || !check_ise_bit(ADX))                           \
       exit_skip();                                                             \
-    struct sigaction sa;                                                       \
-    sa.sa_sigaction = &exit_skip;                                              \
-    sigaction(SIGILL, &sa, NULL);                                              \
+    struct sigaction siga;                                                     \
+    siga.sa_sigaction = &exit_skip;                                            \
+    sigaction(SIGILL, &siga, NULL);                                            \
   } while (0)
 
 // do not use. use the macro ms_assert like you would use <assert.h>

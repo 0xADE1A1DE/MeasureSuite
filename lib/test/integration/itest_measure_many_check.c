@@ -93,6 +93,7 @@ static int test_measure_many_check_ok() {
 }
 
 int main() {
+  SIGILL_SETUP();
   int res = 0;
   res |= test_measure_four_check_ok();
   res |= test_measure_many_check_ok();

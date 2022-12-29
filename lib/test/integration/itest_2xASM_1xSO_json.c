@@ -75,6 +75,8 @@ static int test_measure_load_check_ok() {
 }
 
 int main() {
+  SIGILL_SETUP();
+
 #if USE_ASSEMBLYLINE
   int res = 0;
   res |= test_measure_load_check_ok();

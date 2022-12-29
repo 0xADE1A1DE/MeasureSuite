@@ -93,8 +93,9 @@ static int test_measure_shared_object_ok() {
 }
 
 int main() {
-  int res = 0;
+  SIGILL_SETUP();
 
+  int res = 0;
 #if USE_ASSEMBLYLINE
   res |= test_measure_asm_ok();
 #endif

@@ -44,16 +44,13 @@ static int test_measure_long_json_ok() {
   const char *json = NULL;
   size_t len = 0;
   ms_get_json(ms, &json, &len);
-
+  ms_assert(json != NULL);
   ms_assert(len != 0);
   ms_assert(len > many_nob * strlen("123,"));
-  ms_assert(json != NULL);
 
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":1,\"runtime\":");
-  assert(pos != NULL);
-  pos = strstr(json, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
-                     "\"chunks\":0}],\"cycles\":[[");
-  assert(pos != NULL);
+  assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":1,\"runtime\":");
+  assert_string_in_json(ms, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\","
+                            " \"chunks\":0}],\"cycles\":[[");
 
   ms_assert_ok(ms_terminate(ms));
 
@@ -84,12 +81,11 @@ static int test_measure_two_ok() {
   //{"stats":{"numFunctions":2,"runtime":0,"incorrect":0},"functions":[{"type":"ASM",
   //"chunks":0},{"type":"SHARED_OBJECT"}],"cycles":[[1721,1714,1589,1701,1704,2589,2550,2589,2584,2593],[2403,1674,1639,1674,1782,1751,2597,2594,2598,2589]]}
 
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":2,\"runtime\":");
-  assert(pos != NULL);
-  pos =
-      strstr(json, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
-                   "\"chunks\":0},{\"type\":\"SHARED_OBJECT\"}],\"cycles\":[[");
-  assert(pos != NULL);
+  assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":2,\"runtime\":");
+
+  assert_string_in_json(
+      ms, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
+          "\"chunks\":0},{\"type\":\"SHARED_OBJECT\"}],\"cycles\":[[");
 
   ms_assert_ok(ms_terminate(ms));
 
@@ -97,8 +93,13 @@ static int test_measure_two_ok() {
 }
 
 int main() {
+  SIGILL_SETUP();
+#if USE_ASSEMBLYLINE
   int res = 0;
   res |= test_measure_long_json_ok();
   res |= test_measure_two_ok();
   return res;
+#else
+  return SKIP;
+#endif
 }

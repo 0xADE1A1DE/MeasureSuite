@@ -70,6 +70,7 @@ static int test_init_terminate_arg_num_out() {
 }
 
 int main() {
+  SIGILL_SETUP();
   int res = 0;
   res |= test_init_terminate_ok();
   res |= test_init_terminate_arg_width();

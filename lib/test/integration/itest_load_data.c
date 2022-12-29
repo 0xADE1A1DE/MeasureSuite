@@ -197,6 +197,7 @@ static int test_load_shared_object_fail() {
 }
 
 int main() {
+  SIGILL_SETUP();
 #if USE_ASSEMBLYLINE
   int res = 0;
   res |= test_load_asm_ok();
