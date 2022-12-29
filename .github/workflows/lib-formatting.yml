@@ -43,7 +43,7 @@ jobs:
           version: 13
           tidy-checks: ""
           database: "compile_commands.json"
-          ignore: ".github"
+          ignore: ".github|test"
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0
         run: |
