@@ -63,8 +63,6 @@ libmeasuresuite.a: $(SRCS:c=o)
 libmeasuresuite.so: $(SRCS:c=o)
 	$(CC) $(CFLAGS) $(^) $(LDLIBS) -shared -fpie -o $(@)
 
-
-
 test/%.tst: test/%.c Makefile test/helper.o libmeasuresuite.so
 	@$(CC) $(CFLAGS) -Wno-unused-const-variable -Wno-unused-function $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -I./test -o $(@)
 	@./test/wrapper.sh $(@)
