@@ -7,9 +7,6 @@ on:
       - main
       - dev
 
-env:
-  cDir: lib
-
 jobs:
   build:
     name: Build and test Measuresuite
@@ -25,7 +22,7 @@ jobs:
     - uses: 0xADE1A1DE/AssemblyLine@main
 
     - name: C checks (including coverage)
-      run: make -C ${{ cDir }} clean check
+      run: make -C lib clean check
 
     - name: Code Coverage Summary
       if: ${{ github.actor != 'dependabot[bot]' }}
@@ -34,7 +31,7 @@ jobs:
         badge: true
         format: markdown
         output: both
-        filename: ./${{ cDir }}/coverage/coverage.xml
+        filename: ./lib/coverage/coverage.xml
 
     - uses: jwalton/gh-find-current-pr@v1
       if: ${{ github.actor != 'dependabot[bot]' }}
