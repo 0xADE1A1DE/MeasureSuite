@@ -7,6 +7,7 @@
 #include <stdlib.h>   // realloc
 #include <string.h>   // strerror
 #include <sys/mman.h> // mmap...
+#include <unistd.h>   // close
 
 int realloc_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
 
