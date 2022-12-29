@@ -58,7 +58,7 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
 
   // read code into *dest
   lseek(file, (long)offset_in_file, SEEK_SET);
-  if (read(file, dest, size) != 0) {
+  if ((unsigned long)read(file, dest, size) != size) {
     ms->errorno = E_LOAD__ELF_FILE_IO;
     return 1;
   };
