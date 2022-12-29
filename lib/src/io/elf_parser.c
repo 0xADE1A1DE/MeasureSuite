@@ -58,7 +58,10 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
 
   // read code into *dest
   lseek(file, (long)offset_in_file, SEEK_SET);
-  read(file, dest, size);
+  if (read(file, dest, size) != 0) {
+    ms->errorno = E_LOAD__ELF_FILE_IO;
+    return 1;
+  };
 
   return 0;
 }
@@ -111,4 +114,4 @@ int elf_load_symbol_mem(measuresuite_t ms, void *dest, size_t dest_size,
   memcpy(dest, pos_in_mem, size);
 
   return 0;
-};
+}
