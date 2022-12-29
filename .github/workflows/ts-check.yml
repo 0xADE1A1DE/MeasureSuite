@@ -49,7 +49,7 @@ jobs:
         badge: true
         format: markdown
         output: both
-        filename: ./coverage/cobertura-coverage.xml
+        filename: ./ts/coverage/cobertura-coverage.xml
 
     - uses: jwalton/gh-find-current-pr@v1
       if: ${{ github.actor != 'dependabot[bot]' }}
