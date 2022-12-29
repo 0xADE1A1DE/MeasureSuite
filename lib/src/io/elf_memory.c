@@ -13,7 +13,7 @@
 int read_section_header_table64_mem(const uint8_t *src, Elf64_Ehdr hdr,
                                     Elf64_Shdr *sh_table) {
 
-  memcpy(sh_table, src + hdr.e_shoff, hdr.e_shentsize * hdr.e_shnum);
+  memcpy(sh_table, src + hdr.e_shoff, (long)hdr.e_shentsize * hdr.e_shnum);
 
   return 0;
 }

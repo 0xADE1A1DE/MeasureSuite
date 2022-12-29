@@ -32,7 +32,7 @@ int elf_load_symbol(measuresuite_t ms, void *dest, size_t dest_size,
   }
 
   /* Section header table :  */
-  Elf64_Shdr *sh_tbl = malloc(eh64.e_shentsize * eh64.e_shnum);
+  Elf64_Shdr *sh_tbl = malloc((long)eh64.e_shentsize * eh64.e_shnum);
   if (!sh_tbl || read_section_header_table64(file, eh64, sh_tbl)) {
     ms->errorno = E_LOAD__ELF_FILE_MALLOC;
     return 1;
@@ -84,7 +84,8 @@ int elf_load_symbol_mem(measuresuite_t ms, void *dest, size_t dest_size,
   }
 
   /* Section header table :  */
-  Elf64_Shdr *sh_tbl = malloc(eh64.e_shentsize * eh64.e_shnum);
+
+  Elf64_Shdr *sh_tbl = malloc((long)eh64.e_shentsize * eh64.e_shnum);
   if (!sh_tbl || read_section_header_table64_mem(src, eh64, sh_tbl)) {
     ms->errorno = E_LOAD__ELF_FILE_MALLOC;
     return 1;

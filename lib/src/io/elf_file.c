@@ -19,7 +19,7 @@ int read_section_header_table64(int32_t file, Elf64_Ehdr hdr,
   };
 
   // read all headers at once
-  const ssize_t combined_size = hdr.e_shnum * hdr.e_shentsize;
+  const ssize_t combined_size = (long)hdr.e_shnum * hdr.e_shentsize;
   if (read(file, sh_table, combined_size) != combined_size) {
     return 1;
   }
@@ -100,8 +100,9 @@ void find_symbol_in_table(int32_t file, Elf64_Ehdr hdr, Elf64_Shdr sh_table[],
 
     for (unsigned long j = 0; j < symbol_count; j++) {
 
+      Elf64_Sym cur_sym = sym_tbl[j];
       // st_name is the index in the string_table
-      Elf64_Word index = sym_tbl[j].st_name;
+      Elf64_Word index = cur_sym.st_name;
 
       // get the address of the string to compare
       const char *name = &(string_tbl[index]);
