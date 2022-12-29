@@ -74,7 +74,7 @@ int parse(struct opts *dest, int argc, char *argv[]) {
       PARSE(dest->batch_size);
       break;
     case 's':
-      _DEBUG("reading symbol now %s\n", optarg);
+      DEBUG("reading symbol now %s\n", optarg);
       if (optarg == NULL)
         break;
       dest->sym = calloc(strlen(optarg), sizeof(char));
@@ -82,7 +82,7 @@ int parse(struct opts *dest, int argc, char *argv[]) {
         break;
       }
       strncpy(dest->sym, optarg, strlen(optarg));
-      _DEBUG("symbol %s\n", optarg);
+      DEBUG("symbol %s\n", optarg);
       break;
 
     case '?':

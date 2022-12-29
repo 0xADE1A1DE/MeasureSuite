@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
   ms_set_checking(ms, parsed.check);
 
   for (; idx < argc; idx++) {
-    _DEBUG("loading file %s\n", argv[idx]);
+    DEBUG("loading file %s\n", argv[idx]);
     int res = load(ms, argv[idx], parsed.sym);
     if (res == 0) {
       continue;
