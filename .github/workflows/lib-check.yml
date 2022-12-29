@@ -23,6 +23,7 @@ jobs:
 
     - name: C checks (including coverage)
       run: |
+        cd ..
         pwd
         ls -la
         make -C lib clean check
