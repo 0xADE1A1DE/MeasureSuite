@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt install -y lcov python3 python3-pip
+      run: sudo apt install -y lcov python3 python3-pip nasm
     - run: pip3 install plotly lcov_cobertura
 
     - name: C checks (including coverage)

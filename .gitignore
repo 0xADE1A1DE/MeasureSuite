@@ -26,7 +26,6 @@ vgcore.*
 
 # artifacts
 *.a
-*.asm
 *.h.gch
 *.js
 *.la
