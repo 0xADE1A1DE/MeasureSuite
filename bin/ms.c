@@ -15,6 +15,7 @@
  */
 
 #include "arg_parse.h"
+#include "debug.h"
 #include <measuresuite.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -26,8 +27,12 @@ static const int arg_num_out = 1;
 static void print_usage(char *bin_name) {
   printf("Usage: %s [OPTIONS]... FILE...\n", bin_name);
   printf("\
-          Measures all provided FILE's, by calling assumed function signature  int (*)(uint64_t out_1[], uint64_t out_2[], ..., uint64_t in_1[], uint64_t in_1[]);\n\
-          The [FILE]... must have valid extensions such as {.asm,.bin,.o,.so}\n\
+          Measures all provided FILE's, by calling assumed function signature  int (*)(uint64_t out_1[], uint64_t out_2[], ..., uint64_t in_1[], uint64_t in_2[], ...);\n\
+          The [FILE]... must have valid extensions such as {"
+#if USE_ASSEMBLYLINE
+         ".asm,"
+#endif
+         ".bin,.o,.so}\n\
           -w=N --width          Number of elements in each array. Defaults to %d.\n\
           -o=N --out            Number of out-arrays. Defaults to %d.\n\
           -i=N --in             Number of in-arrays. Defaults to %d.\n\
@@ -35,7 +40,11 @@ static void print_usage(char *bin_name) {
           -b=N --batch_size     Number of iterations of each function per batch. Defaults to %d.\n\
           -s=SYM --symbol       SYM is the symbol being looked for in all .so and .o files.\n\
                                 Required for .so-files. Will resort in the first found symbol in .o files if SYM omitted.\n\
-                                Will be ignored for .bin and .asm\n\
+                                Will be ignored for .bin"
+#if USE_ASSEMBLYLINE
+         " and .asm"
+#endif
+         "\n\
           -c --check            If set, will check if all out's of all functions calculate the same result provided same input. Defaults to %s.\n\
           -h --help             This help message.\n",
 
@@ -48,7 +57,7 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
 
   const char *dot = strrchr(filename, '.');
   if (!dot || dot == filename) {
-    fprintf(stderr, "File must have an extention.\n");
+    fprintf(stderr, "File >>%s<<must have an extention.\n", filename);
     return -1;
   }
   dot++;
@@ -57,8 +66,15 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
   char valid = 0;
 
   if (strstr(dot, "asm") != NULL) {
+
+#if USE_ASSEMBLYLINE
     type = ASM;
     valid = 1;
+#else
+    fprintf(stderr, "AssemblyLine not installed. Thus, file cannot have asm "
+                    "extension. Install AssemblyLine and recompile.\n");
+    return -1;
+#endif
   }
 
   if (strstr(dot, "bin") != NULL) {
@@ -76,7 +92,7 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
   }
 
   if (!valid) {
-    fprintf(stderr, "File must have a valid extention.\n");
+    fprintf(stderr, "File >>%s<<must have a valid extention.\n", filename);
     return -1;
   }
 
@@ -106,6 +122,7 @@ int main(int argc, char *argv[]) {
   ms_set_checking(ms, parsed.check);
 
   for (; idx < argc; idx++) {
+    _DEBUG("loading file %s\n", argv[idx]);
     int res = load(ms, argv[idx], parsed.sym);
     if (res == 0) {
       continue;
@@ -129,6 +146,7 @@ int main(int argc, char *argv[]) {
   if (ms_terminate(ms)) {
     goto ms_error;
   }
+  free(parsed.sym);
 
   return 0;
 
