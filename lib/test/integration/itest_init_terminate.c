@@ -42,13 +42,16 @@ static int test_init_terminate_arg_num_in() {
 
   measuresuite_t ms = NULL;
 
-  ms_assert(ms_initialize(&ms, arg_width, 200, arg_num_out) == 1);
+  const int too_many_arg_in = 200;
+  ms_assert(ms_initialize(&ms, arg_width, too_many_arg_in, arg_num_out) == 1);
   ms_assert_ok(ms_terminate(ms));
 
-  ms_assert(ms_initialize(&ms, arg_width, -1, arg_num_out) == 1);
+  const int neg_arg_in = -1;
+  ms_assert(ms_initialize(&ms, arg_width, neg_arg_in, arg_num_out) == 1);
   ms_assert_ok(ms_terminate(ms));
 
-  ms_assert(ms_initialize(&ms, arg_width, 6, arg_num_out) == 1);
+  const int too_many_arg_in_2 = 6;
+  ms_assert(ms_initialize(&ms, arg_width, too_many_arg_in_2, arg_num_out) == 1);
   ms_assert_ok(ms_terminate(ms));
 
   return 0;
@@ -57,13 +60,16 @@ static int test_init_terminate_arg_num_out() {
 
   measuresuite_t ms = NULL;
 
-  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, -1) == 1);
+  const int neg_arg_out = -1;
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, neg_arg_out) == 1);
   ms_assert_ok(ms_terminate(ms));
 
-  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, 7) == 1);
+  const int too_many_arg_out = 7;
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, too_many_arg_out) == 1);
   ms_assert_ok(ms_terminate(ms));
 
-  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, 1000) == 1);
+  const int too_many_arg_out_2 = 1000;
+  ms_assert(ms_initialize(&ms, arg_width, arg_num_in, too_many_arg_out_2) == 1);
   ms_assert_ok(ms_terminate(ms));
 
   return 0;
