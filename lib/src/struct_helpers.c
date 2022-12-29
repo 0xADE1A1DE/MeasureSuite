@@ -86,7 +86,7 @@ measuresuite_t create_default_ms() {
   if (ms->functions == NULL) {
     ms->errorno = E_INTERNAL_INITIALIZE__ALLOC;
     ms->additional_info = strerror(errno);
-    return NULL;
+    return ms;
   }
 
   ms->enable_check = 0;
@@ -99,7 +99,6 @@ measuresuite_t create_default_ms() {
   ms->timer.fdperf = -1;
   ms->timer.buf = NULL;
   ms->timer.timer_function = NULL;
-  ;
 
   return ms;
 }
