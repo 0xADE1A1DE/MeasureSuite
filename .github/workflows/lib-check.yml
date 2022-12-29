@@ -1,4 +1,4 @@
-name: libmeasuresuite tests with AL
+name: lib-check
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build and test Measuresuite
+    name: Build and test libmeasuresuite w AL
     runs-on: ubuntu-latest
 
     steps:

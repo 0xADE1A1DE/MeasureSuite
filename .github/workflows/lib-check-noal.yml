@@ -1,4 +1,4 @@
-name: libmeasuresuite tests no assemblyline
+name: lib-check-noal
 
 on:
   pull_request:
