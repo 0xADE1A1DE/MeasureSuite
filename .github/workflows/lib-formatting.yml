@@ -40,7 +40,7 @@ jobs:
           files-changed-only: false
           thread-comments: true
           style: file
-          version: 15
+          version: 14
           tidy-checks: ""
           ignore: ".github"
       - name: Fail fast?!
