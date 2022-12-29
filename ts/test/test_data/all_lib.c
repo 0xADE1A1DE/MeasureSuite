@@ -16,8 +16,6 @@
 
 #include <stdint.h>
 
-
-
 void increment(long *dest, const long *src) { *dest = *src + 1; }
 
 // reminder of calling convention:

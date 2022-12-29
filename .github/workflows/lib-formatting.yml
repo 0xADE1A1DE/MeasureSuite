@@ -48,6 +48,7 @@ jobs:
           version: 14
           tidy-checks: ""
           ignore: ".github"
+          extra-args: "-I./lib/src/include -DUSE_ASSEMBLYLINE"
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0
         run: |
