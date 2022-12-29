@@ -15,8 +15,8 @@ int generate_json(struct measuresuite *ms, uint64_t delta_in_seconds,
   char *json = ms->json;
   char *json_end = ms->json + ms->json_len - 1;
 
-  size_t size = json_end - json; // available
-  size_t len = 0;                // written
+  size_t size = 0; // available
+  size_t len = 0;  // written
 
   PRINT("{\"stats\":"
         "{"
