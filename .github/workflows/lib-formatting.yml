@@ -30,7 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:    
 
-      # we need this to get <node/node_api.h> to get linting right 
     - uses: actions/setup-node@v3
       with:
         node-version: 18
