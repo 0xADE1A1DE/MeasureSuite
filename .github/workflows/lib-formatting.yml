@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: C/C++ Lint Action
-        uses: cpp-linter/cpp-linter-action@v1.4.3
+        uses: cpp-linter/cpp-linter-action@v2
         id: linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
