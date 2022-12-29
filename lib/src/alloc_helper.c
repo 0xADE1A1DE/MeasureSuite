@@ -2,6 +2,7 @@
 #include "error/error.h"
 #include "struct_measuresuite.h"
 #include <errno.h> // errno
+#include <fcntl.h> // open
 #include <stdint.h>
 #include <stdlib.h>   // realloc
 #include <string.h>   // strerror
@@ -21,9 +22,23 @@ int realloc_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
 }
 
 int map_rwx(struct measuresuite *ms, void **dest, size_t new_len) {
-  *dest = mmap(NULL, new_len, PROT_READ | PROT_WRITE | PROT_EXEC,
-               MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-  if (*dest == NULL) {
+  int fd_zero = open("/dev/zero", O_RDWR);
+  if (fd_zero == -1) {
+    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+
+  *dest = mmap(NULL, new_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE,
+               fd_zero, 0);
+  // NOLINTNEXTLINE
+  if (*dest == MAP_FAILED) {
+    ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
+    ms->additional_info = strerror(errno);
+    return 1;
+  }
+
+  if (close(fd_zero) == -1) { /*No longer needed*/
     ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
     ms->additional_info = strerror(errno);
     return 1;
@@ -44,8 +59,8 @@ int realloc_rwx_or_fail(struct measuresuite *ms, void **dest, size_t old_len,
   return map_rwx(ms, *dest, new_len);
 }
 
-int unmap(struct measuresuite *ms, void **dest, size_t old_len) {
-  if (munmap(*dest, old_len)) {
+int unmap(struct measuresuite *ms, void *dest, size_t old_len) {
+  if (munmap(dest, old_len)) {
     ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
     ms->additional_info = strerror(errno);
     return 1;

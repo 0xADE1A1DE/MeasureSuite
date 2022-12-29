@@ -1,8 +1,9 @@
 #include "elf_file.h"
-#include <stdio.h>  // EOF
-#include <stdlib.h> // malloc
-#include <string.h> // memcpy
-#include <unistd.h> // seek
+#include <stdio.h>     // EOF
+#include <stdlib.h>    // malloc
+#include <string.h>    // memcpy
+#include <sys/types.h> // off_t
+#include <unistd.h>    // seek
 
 // CREDIT https://github.com/TheCodeArtist/elf-parser/blob/master/elf-parser.c
 

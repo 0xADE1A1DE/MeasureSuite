@@ -145,4 +145,4 @@ int get_random_number(struct measuresuite *ms, size_t max, size_t *dest) {
   } while (1);
 
   return 0;
-};
+}

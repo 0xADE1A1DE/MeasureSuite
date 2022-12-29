@@ -22,7 +22,6 @@
 #include <stdio.h>  // FILE
 
 typedef struct measuresuite *measuresuite_t;
-typedef struct ERROR_NUMBER error_t;
 
 /**
  *

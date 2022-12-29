@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "timer.h"
 #include <linux/perf_event.h> // PERF_*
 #include <stdio.h>            // NULL
@@ -21,8 +22,27 @@
 #include <sys/syscall.h>      // __NR_perf_event_open
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h> // syscall, sysconf, _SC_PAGESIZE
+#include <unistd.h>
 
+static int get_fdperf(struct perf_event_attr *attr) {
+
+  // Apparently not valid c99, c17..
+  /** return (int)syscall(__NR_perf_event_open, attr, 0, -1, -1, 0); */
+
+  // I'll do it myself then for x64
+  long ret = -1;
+  __asm volatile("mov $0, %%rsi\n\t"
+                 "mov $-1, %%rdx\n\t"
+                 "mov $-1, %%r10\n\t"
+                 "mov $0, %%r8\n\t"
+                 "syscall\n\t"
+                 : "=a"(ret)
+                 : "a"(__NR_perf_event_open), "rdi"(attr)
+                 : "%rsi", "%rdx", "%r10", "%r8"
+
+  );
+  return (int)ret;
+}
 static void init_fdperf(struct measuresuite *ms) {
   struct perf_event_attr attr = {
       .type = PERF_TYPE_HARDWARE,
@@ -30,7 +50,8 @@ static void init_fdperf(struct measuresuite *ms) {
       .exclude_kernel = 1,
   };
 
-  ms->timer.fdperf = (int)syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
+  ms->timer.fdperf = get_fdperf(&attr);
+
   if (ms->timer.fdperf == -1) {
     return;
   }
@@ -53,24 +74,24 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
   do {
     seq = ms->timer.buf->lock;
     // barrier for cc
-    asm volatile("" ::: "memory");
+    __asm volatile("" ::: "memory");
     offset = ms->timer.buf->offset;
     // barrier for cpu
-    asm volatile("lfence;\n\t"
-                 "cpuid;\n\t" ::
-                     : "rax", "rbx", "rcx", "rdx");
-    asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
-                 : "=a"(result)
-                 : "c"(ms->timer.buf->index - 1)
-                 : "%rdx");
+    __asm volatile("lfence;\n\t"
+                   "cpuid;\n\t" ::
+                       : "rax", "rbx", "rcx", "rdx");
+    __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
+                   : "=a"(result)
+                   : "c"(ms->timer.buf->index - 1)
+                   : "%rdx");
 
     // barrier for cpu
-    asm volatile("lfence;\n\t"
-                 "cpuid;\n\t" ::
-                     : "rax", "rbx", "rcx", "rdx");
+    __asm volatile("lfence;\n\t"
+                   "cpuid;\n\t" ::
+                       : "rax", "rbx", "rcx", "rdx");
 
     // barrier for cc
-    asm volatile("" ::: "memory");
+    __asm volatile("" ::: "memory");
   } while (ms->timer.buf->lock != seq);
 
   return result + offset;
@@ -91,11 +112,11 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
   uint32_t pmcntenset = 0;
   // Read the user mode perf monitor counter access permissions. (__ARM_ARCH >=
   // 6)
-  asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
+  __asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
   if (pmuseren & 1) { // Allows reading perfmon counters for user mode code.
-    asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
+    __asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
     if (pmcntenset & 0x80000000ul) { // Is it counting?
-      asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
+      __asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
       // The counter is set up to count every 64th cycle
       return (uint64_t)(pmccntr)*64; // Should optimize to << 6
     }
@@ -124,7 +145,7 @@ static uint64_t measuresuite_time_rdtscp() {
 
   uint64_t result = 0;
   // barrier for cc
-  asm volatile("" ::: "memory");
+  __asm volatile("" ::: "memory");
   __asm__ __volatile__("LFENCE;\n\t"
                        "RDTSCP;\n\t"
                        "shl $0x20, %%rdx; \n\t"
@@ -133,7 +154,7 @@ static uint64_t measuresuite_time_rdtscp() {
                        "CPUID; \n\t"
                        : [time] "=&m"(result)::"rax", "rbx", "rcx", "rdx");
   // barrier for cc
-  asm volatile("" ::: "memory");
+  __asm volatile("" ::: "memory");
   return result;
 }
 

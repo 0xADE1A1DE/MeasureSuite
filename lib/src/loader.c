@@ -1,14 +1,14 @@
-#include "loader.h"
+#ifdef USE_ASSEMBLYLINE
+#include <assemblyline.h>
+#endif
 #include "alloc_helper.h"
 #include "error/error.h"
 #include "io/elf_parser.h"
 #include "io/file.h"
 #include "io/shared_object.h"
+#include "loader.h"
 #include "measuresuite.h"
 #include "struct_measuresuite.h"
-#ifdef USE_ASSEMBLYLINE
-#include <assemblyline.h>
-#endif
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -32,7 +32,8 @@ static int reset_permutaions(measuresuite_t ms) {
     ms->permutation[i] = i;
   }
   return 0;
-};
+}
+
 const size_t DEFAULT_CODE_SIZE = 60000;
 static int create_new_function(measuresuite_t ms, enum load_type type,
                                size_t code_size_bytes) {

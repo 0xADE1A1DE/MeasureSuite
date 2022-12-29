@@ -82,7 +82,7 @@ static int test_load_many_asm_ok() {
                             strlen(add_two_asm), NULL, &id));
   ms_assert(id == 3);
 
-  ms_assert_ok(ms_measure(ms, 10, 10));
+  ms_assert_ok(ms_measure(ms, 1, 1));
 
   assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":4,\"runtime\":");
 

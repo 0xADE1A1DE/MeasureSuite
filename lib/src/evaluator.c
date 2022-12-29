@@ -80,7 +80,7 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   uint64_t start_time = 0;
   start_timer(ms, &start_time);
 
-  void (*func)(uint64_t * out, ...) = fct->code;
+  int (*func)(uint64_t * out, ...) = fct->code;
   assert(func != NULL);
 
   while (batch_size > 0) {

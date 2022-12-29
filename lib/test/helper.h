@@ -31,11 +31,18 @@ void error_handling_helper_template_str(measuresuite_t ms, const char *tpl_str);
 void assert_string_in_json(measuresuite_t ms, const char *needle);
 
 // a skipped test returns with 77 (based on Auto tools convention).
-#define SKIP 77
+enum exit_codes {
+  OK = 0,
+  FAIL = 1,
+  SKIP = 77,
+  FATAL = 99,
+};
 
 // Bit position of flag from CPUID, according to Intel manual
-#define ADX 19
-#define BMI2 8
+enum ise_bits {
+  ADX = 19,
+  BMI2 = 8,
+};
 
 /**
  * @returns 1 if the bit is set
@@ -49,14 +56,21 @@ int check_ise_bit(int bit_no);
 
 void exit_skip();
 
+#if __USE_POSIX199309
 #define SIGILL_SETUP()                                                         \
   do {                                                                         \
     if (!check_ise_bit(BMI2) || !check_ise_bit(ADX))                           \
       exit_skip();                                                             \
-    struct sigaction siga;                                                     \
-    siga.sa_sigaction = &exit_skip;                                            \
+    struct sigaction siga = {.sa_sigaction = &exit_skip};                      \
     sigaction(SIGILL, &siga, NULL);                                            \
   } while (0)
+#else
+#define SIGILL_SETUP()                                                         \
+  do {                                                                         \
+    if (!check_ise_bit(BMI2) || !check_ise_bit(ADX))                           \
+      exit_skip();                                                             \
+  } while (0)
+#endif
 
 // do not use. use the macro ms_assert like you would use <assert.h>
 void assert_print_ms_error(measuresuite_t ms, char *file, int lineno,

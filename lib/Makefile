@@ -20,7 +20,7 @@ TEST_SRCS   = $(UTEST_SRCS) $(ITEST_SRCS)
 TESTS      ?= $(TEST_SRCS:.c=.tst)
 C_COV_DIR   = coverage
 
-CFLAGS     ?= -O2 -Wall -Wextra -Werror
+CFLAGS     ?= -O2 -Wall -Wextra -Werror -std=c17
 CPPFLAGS   += -I./src/ -I./src/include
 LDLIBS     += -ldl
 
@@ -41,7 +41,7 @@ all: libmeasuresuite.so libmeasuresuite.a
 check: test report
 
 test: cleantest test_data
-test: CFLAGS = -g -Wall -Wextra -Werror --coverage
+test: CFLAGS+= -g -Wall -Wextra -Werror --coverage 
 test: LDLIBS+= -L. -lmeasuresuite
 test: $(TESTS) Makefile
 
