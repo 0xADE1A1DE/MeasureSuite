@@ -67,7 +67,9 @@ static int test_measure_bin_elf_ok() {
 
 int main() {
   int res = 0;
+#if USE_ASSEMBLYLINE
   res |= test_measure_asm_so_ok();
+#endif
   res |= test_measure_bin_elf_ok();
   return res;
 }

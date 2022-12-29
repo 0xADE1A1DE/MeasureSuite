@@ -129,6 +129,7 @@ static int test_load_shared_object_ok() {
 }
 
 int main() {
+#if USE_ASSEMBLYLINE
   int res = 0;
   res |= test_load_asm_ok();
   res |= test_load_asm2_ok();
@@ -136,4 +137,7 @@ int main() {
   res |= test_load_elf_ok();
   res |= test_load_shared_object_ok();
   return res;
+#else
+  return SKIP;
+#endif
 }

@@ -94,7 +94,10 @@ static int test_measure_shared_object_ok() {
 
 int main() {
   int res = 0;
+
+#if USE_ASSEMBLYLINE
   res |= test_measure_asm_ok();
+#endif
   res |= test_measure_bin_ok();
   res |= test_measure_elf_ok();
   res |= test_measure_shared_object_ok();

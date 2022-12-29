@@ -1,0 +1,61 @@
+name: TS Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ts
+
+
+jobs:
+  build:
+    name: Build and test Measuresuite
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: sudo apt install -y lcov python3 python3-pip
+    - run: pip3 install plotly lcov_cobertura
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    # - name: bootstrap uiCA
+    #   run: make install-uiCA
+
+    - name: TS build
+      run: npm clean-install
+
+    - name: TS checks
+      run: npm run test-cov
+
+    - name: Code Coverage Summary
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      uses: irongut/CodeCoverageSummary@v1.2.0
+      with:
+        badge: true
+        format: markdown
+        output: both
+        filename: ./coverage/cobertura-coverage.xml
+
+    - uses: jwalton/gh-find-current-pr@v1
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      id: finder
+    - name: Add Coverage PR Comment
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        number: ${{ steps.finder.outputs.pr }}
+        recreate: true
+        path: code-coverage-results.md

@@ -7,7 +7,7 @@ on:
       - main
       - dev
 
-dafaults:
+defaults:
   run:
     shell: bash
     working-directory: ts
@@ -18,10 +18,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - uses: actions/checkout@v3
+          node-version: 18
 
       - name: Check Format
         run: npm run format-check
@@ -30,11 +31,11 @@ jobs:
     name: TS Lint check
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-
-      - uses: actions/checkout@v3
+          node-version: 18
 
       - name: Install dependencies
         run: npm clean-install --ignore-scripts

@@ -84,15 +84,7 @@ static int test_load_many_asm_ok() {
 
   ms_assert_ok(ms_measure(ms, 10, 10));
 
-  const char *json = NULL;
-  size_t len = 0;
-  ms_get_json(ms, &json, &len);
-
-  ms_assert(len != 0);
-  ms_assert(json != NULL);
-
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":4,\"runtime\":");
-  assert(pos != NULL);
+  assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":4,\"runtime\":");
 
   ms_assert_ok(ms_terminate(ms));
 
@@ -205,6 +197,7 @@ static int test_load_shared_object_fail() {
 }
 
 int main() {
+#if USE_ASSEMBLYLINE
   int res = 0;
   res |= test_load_asm_ok();
   res |= test_load_many_asm_ok();
@@ -212,4 +205,7 @@ int main() {
   res |= test_load_shared_object_fail();
   res |= test_load_elf_ok();
   return res;
+#else
+  return SKIP;
+#endif
 }

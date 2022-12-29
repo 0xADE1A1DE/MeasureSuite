@@ -1,0 +1,46 @@
+name: libmeasuresuite tests no assemblyline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+env:
+  cDir: lib
+
+jobs:
+  build:
+    name: Build and test libmeasuresuite w/o AL
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt install -y lcov python3 python3-pip
+    - run: pip3 install plotly lcov_cobertura
+
+    - name: C checks (including coverage)
+      run: make -C ${{ cDir }} clean check
+
+    - name: Code Coverage Summary
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      uses: irongut/CodeCoverageSummary@v1.2.0
+      with:
+        badge: true
+        format: markdown
+        output: both
+        filename: ./${{ cDir }}/coverage/coverage.xml
+
+    - uses: jwalton/gh-find-current-pr@v1
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      id: finder
+    - name: Add Coverage PR Comment
+      if: ${{ github.actor != 'dependabot[bot]' }}
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        number: ${{ steps.finder.outputs.pr }}
+        recreate: true
+        path: code-coverage-results.md

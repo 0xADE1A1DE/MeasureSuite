@@ -18,7 +18,7 @@ UTEST_SRCS  = $(wildcard ./test/unit/*.c)
 ITEST_SRCS  = $(wildcard ./test/integration/*.c) # (i.e. using public api only )
 TEST_SRCS   = $(UTEST_SRCS) $(ITEST_SRCS)
 TESTS      ?= $(TEST_SRCS:.c=.tst)
-C_COV_DIR   = coverage-c
+C_COV_DIR   = coverage
 
 CFLAGS     ?= -O2 -Wall -Wextra -Werror
 CPPFLAGS   += -I./src/ -I./src/include
@@ -66,7 +66,7 @@ libmeasuresuite.so: $(SRCS:c=o)
 
 
 test/%.tst: test/%.c Makefile test/helper.o libmeasuresuite.so
-	@$(CC) $(CFLAGS) $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -I./test -o $(@)
+	@$(CC) $(CFLAGS) -Wno-unused-const-variable -Wno-unused-function $(<) $(CPPFLAGS) test/helper.o $(LDLIBS) -I./test -o $(@)
 	@./test/wrapper.sh $(@)
 	@rm $(@)
 
