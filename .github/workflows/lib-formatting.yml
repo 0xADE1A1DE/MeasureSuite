@@ -40,9 +40,8 @@ jobs:
           files-changed-only: false
           thread-comments: true
           style: file
-          version: 14
+          version: 15
           tidy-checks: ""
-          database: "compile_commands.json"
           ignore: ".github"
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0
