@@ -21,8 +21,9 @@ _all: $(TEST_DATA)
 %.o: %.asm
 	nasm -felf64 $(<) -o $(@)
 
-%.bin: %.asm
-	asmline $(<) -P $(@)
+%.bin: %.o
+	objcopy ${<} --dump-section .text=${@}
+	# alternatively, using the asm file and AL: asmline $(<) -P $(@)
 
 %.so: %.o
 	$(CC) -shared -fPIC -fpie $(<) -o $(@)
