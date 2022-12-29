@@ -30,9 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:    
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      # we need this to get <node/node_api.h> to get linting right 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - uses: actions/checkout@v3
 
       - name: C/C++ Lint Action
