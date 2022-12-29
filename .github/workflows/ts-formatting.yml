@@ -7,6 +7,11 @@ on:
       - main
       - dev
 
+dafaults:
+  run:
+    shell: bash
+    working-directory: ts
+
 jobs:
   formatting-check:
     name: TS Prettier formatting check
