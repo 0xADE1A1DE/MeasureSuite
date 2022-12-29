@@ -10,6 +10,7 @@
   }                                                                            \
   json += len;
 
+// NOLINTBEGIN (readability-function-cognitive-complexity)
 int generate_json(struct measuresuite *ms, uint64_t delta_in_seconds,
                   size_t check_result) {
   char *json = ms->json;
@@ -87,3 +88,4 @@ enlarge:
   return generate_json(ms, delta_in_seconds, check_result);
 }
 #undef PRINT
+// NOLINTEND
