@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-import { writeFileSync, mkdtempSync, existsSync, rmSync } from "fs";
-import { resolve } from "path";
-import { tmpdir } from "os";
-import { execSync, spawnSync } from "child_process";
+import { existsSync } from "fs";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 // import * as ms from "measuresuite-native-module"; // for development and get the types and type completion
 const ms = require("measuresuite-native-module");
 
-import type { uiCAResult, MeasureResult } from "./measure.interface";
+import type { MeasureResult } from "./measure.interface";
 
 // use with caution
 export const native_ms = {
@@ -124,74 +121,5 @@ export class Measuresuite {
       }
     }
     return null;
-  }
-
-  public static supportedUicaArchs = [
-    "SNB",
-    "IVB",
-    "HSW",
-    "BDW",
-    "SKL",
-    "SKX",
-    "KBL",
-    "CFL",
-    "CLX",
-    "ICL",
-    "TGL",
-    "RKL",
-  ];
-
-  private static uiCAPath: string;
-
-  public static setUiCaPath(path: string) {
-    Measuresuite.uiCAPath = path;
-  }
-
-  private static assertOkUiCaPath() {
-    if (!Measuresuite.uiCAPath || !existsSync(Measuresuite.uiCAPath)) {
-      throw new Error(
-        `${Measuresuite.uiCAPath} does not exist. Cannot execute uiCA if the path does not even exist.`,
-      );
-    }
-  }
-
-  public static measureUiCA(functionA: string, functionB: string, arch: string): uiCAResult {
-    Measuresuite.assertOkUiCaPath();
-
-    if (!Measuresuite.supportedUicaArchs.includes(arch)) {
-      throw new Error(
-        `unsupported architecture. Supported are: ${Measuresuite.supportedUicaArchs.join(", ")}`,
-      );
-    }
-
-    const tmpDir = mkdtempSync(resolve(tmpdir(), "measure"));
-    const [throughputA, throughputB] = [functionA, functionB].map((fun) => {
-      // write to disk
-      const asmFile = resolve(tmpDir, "func.asm");
-      writeFileSync(asmFile, fun);
-
-      // create binary with asmline
-      const binFile = resolve(tmpDir, "func.bin");
-      spawnSync(`asmline`, ["-P", binFile, asmFile]);
-
-      // call uiCA
-      const uiCACmd = `python3 ${Measuresuite.uiCAPath} ${binFile} -raw -TPonly -arch ${arch}`;
-      try {
-        const tp = execSync(uiCACmd).toString();
-        const nu = Number(tp);
-        if (!isNaN(nu)) {
-          return nu;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      return -1;
-    });
-    rmSync(tmpDir, { recursive: true });
-
-    return {
-      throughputA,
-      throughputB,
-    };
   }
 }

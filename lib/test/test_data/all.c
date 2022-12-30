@@ -16,6 +16,10 @@
 
 #include <stdint.h>
 
+void add_two_numbers(uint64_t *out0, const uint64_t *in0, const uint64_t *in1) {
+  *out0 = *in0 + *in1;
+}
+
 void increment(long *dest, const long *src) { *dest = *src + 1; }
 
 // reminder of calling convention:
@@ -34,10 +38,6 @@ void array_width_three_add(uint64_t out0[3], const uint64_t in0[3]) {
   *out0++ = *in0++ + 1;
   *out0++ = *in0++ + 1;
   *out0 = *in0 + 1;
-}
-
-void add_two_numbers(uint64_t *out0, const uint64_t *in0, const uint64_t *in1) {
-  *out0 = *in0 + *in1;
 }
 
 void broadcast_2(uint64_t *out0, uint64_t *out1, const uint64_t *in0) {

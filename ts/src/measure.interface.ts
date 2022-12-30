@@ -75,8 +75,3 @@ interface BaseSummary<T extends FunctionType> {
                       // each element contains num_batches numbers of the cyclecounts for the respective loaded function
 }
   */
-
-export interface uiCAResult {
-  throughputA: number;
-  throughputB: number;
-}

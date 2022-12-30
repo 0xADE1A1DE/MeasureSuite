@@ -1,4 +1,4 @@
-version 2.0.0 (2022-12-xx)
+version 2.0.0 (2022-12-30)
 	- BREAKING CHANGES  (API changed)
 	- MS can now load elf (*.o) files (specific symbol or 'just the first one')
 	- MS can now load bin files (raw machine code)
@@ -10,13 +10,16 @@ version 2.0.0 (2022-12-xx)
 	- MS no longer measures 'ac-bc-ac-ac-bc'. Instead, all loaded functions are
 	  executed exactly once, but in a random permutation (abc-bca-abc-cba-cab).
 
-    - MS no longer needs to have three functions calculating the same.
+	- MS no longer needs to have three functions calculating the same.
 	  In fact, equality check is optional.
 
 	- Directory separation of libmeasuresuite and ts-binding to make forking
 	and reuse easier
 	
-	- Auto-detect AssemblyLine. Compile without it, if not available. 
+	- Auto-detect AssemblyLine. Compile without it, if not available.
+	  (disable with make AL=0 -C lib)
+
+	- removed uiCA wrapper, as now considered out of scope
 
 
 version 1.3.0 (2022-09-11)

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import type { uiCAResult, MeasureResult } from "./measure.interface";
+import type { MeasureResult } from "./measure.interface";
 import { Measuresuite, native_ms } from "./measuresuite";
 
-export type { uiCAResult, MeasureResult };
+export type { MeasureResult };
 export { Measuresuite, native_ms };

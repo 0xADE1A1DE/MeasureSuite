@@ -3,89 +3,133 @@
 ![Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/clang-format-check.yml/badge.svg)
 <!-- ![Version](https://img.shields.io/github/v/release/0xADE1A1DE/MeasureSuite?logo=github&style=flat) -->
 
-This library measures the execution time for code.
-In a nutshell, input is two assembly strings and a symbol in a shared object and the output is robust timing measures.
-It can also predict the throughput of a Assembly program with the help of [uiCA (uops.info Code Analyzer)](https://github.com/andreas-abel/uiCA)
+This library measures the execution time of code.
 
 ## Features
-- It assembles assembly code using [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
-- Runs two assembly programs in a random fashion with random inputs.
-- Checks if the results matches the results of a dynamically loaded method.
-- Prediction of the throughput without running the code.
+- You can load `.o`, `.so`, `.bin`, `.asm` files and out comes a `JSON` with cycle counts. 
+- Runs all loaded programs in a random order with random inputs.
+- Can check if the results matches the results of a the other loaded methods.
 - C-interface
 - TypeScript-interface
-- Supports functions of the C-like type `void A(uint64_t *out, const uint64_t *in)` (up to three out and three in parameters)
-- Reports chunk size counting. (i.e. how many instructions of a function beaks a chunk boundary)
+- Supports functions of the C-like type `void A(uint64_t *out, const uint64_t *in)` (up to six parameters)
+- It assembles assembly code using [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
+- Reports chunk size counting. (i.e. How many instructions of a function beaks a chunk boundary, if in use with AssemblyLine)
 - Returns a JSON string with the measurement metrics.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
-- Features a measure-lib-only mode: Only provide a shared object file and a symbol. Be Aware: no checking and no random measurement possible (as there is nothing to inerleave / check against)
+- cli-tools `ms`, takes files in and outputs `JSON` measurements
 
 ## Examples
 
+###TODO: better examples
+
 ### Increment a number (C-land)
 
-- Find `increment`-function in [the test library](./test/all_lib.c)
+
+- suppose we have an `add_two_numbers`-function (as we do in [the test library](./lib/test/test_data/all.c)) like this:
 ```c
-void increment(long *d, const long *s) {
-    *d = *s + 1;
+void add_two_numbers(uint64_t *out0, const uint64_t *in0, const uint64_t *in1) {
+  *out0 = *in0 + *in1;
 }
 ```
-- Next, find the [`increment`-test](./test/test_increment.c)
-- We see an assembly version of a program which adds one to the second parameter and writes the result to the first parameter. (`char fa[]`)
-- We see the initialization of our measure parameters, the measurement and printing the JSON to the console.
+
+- and we want to measure equivalent asm-code with measurewuite
+```c
+
+#include <measuresuite.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+
+int main (){
+
+  // properties of the function
+  const int arg_width = 1;   // each param points to only one element
+  const int arg_num_in = 2;
+  const int arg_num_out = 1;
+
+  // asm to measure
+  char add_two_asm[] = {"mov rax, [rsi]\n"
+                        "add rax, [rdx]\n"
+                        "mov [rdi], rax\n"
+                        "ret\n"};
+
+  // our measuresuite handle
+  measuresuite_t ms = NULL;
+
+  // initializing the measuresuite
+  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
+
+  // id =- means we want to load to the next free spot.
+  // it will be set to the spot taken by the loaded function.
+  int id = -1;
+  ms_load_data(ms,                     // handle
+               ASM,                    // type of input data is assembly
+               (uint8_t *)add_two_asm, // pointer to input data
+               strlen(add_two_asm),    // length of input data
+               NULL,                   // symbol (ignored for BIN/ASM, optional for ELF, required for SHARED_OBJECT))
+               &id);                   // ID (in/out)
+
+  // first spot (subsequent loads will load to 1, 2, ...)
+  assert(id == 0);
+
+  const int batch_size = 100;
+  const int number_of_batches = 10;
+
+  // run the measurement
+  ms_measure(ms, batch_size, number_of_batches);
+
+  // prepare got JSON collection
+  const char *json = NULL;
+  size_t len = 0;
+  ms_get_json(ms, &json, &len);
+
+  assert(json != NULL);
+  assert(len != 0);
+
+  //prints the result json
+  printf("%s\n",json);
+
+  ms_terminate(ms);
+
+  return 0;
+}
+```
 
 ### Plus 1 (TS-land)
 
-- Find the `functionA` and `functionB` in the [functions.ts](./test/ts/functions.ts)
+- Find the `functionA` and `functionB` in the [functions.ts](./ts/test/test_data/functions.ts)
 - Both functions increment a number.
-- We set up the boilerplate to use MeasureSuite from TypeScript-land in the [Plus 1 Test](./test/ts/plus1.test.ts)
+- We set up the boilerplate to use MeasureSuite from TypeScript-land in the [Plus 1 Test](./ts/test/plus1.test.ts)
 - And analyze the measurement Result
 
-### uiCA: Curve25519 throughput estimation (TS-land)
-
-- Find two implementations of the Curve25519-SQ method as `functionA` and `functionB` in the [functions-sq.ts](./test/ts/functions_sq.ts)
-- MeasureSuite can be called from TypeScript-land in the [ui CA test](./test/ts/uica.test.ts)
-- Note that the implementations use instructions, which are not supported in Sandy bridge CPUS.
-- We see two tests, we call the static `measure_uiCA` method on the MeasureSuite class and get the estimation of the throughput for both functions.
-
 ## Dependencies
-- [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine) (Can be skipped if builing with `NO_AL=1`, then MeasureSuite will only be able to measure runtime of a symbol in a shared object)
-- `git`, `make`
+- `make`, C-compiler
+- [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine) (Can be skipped if builing with `NO_AL=1`, then MeasureSuite will not only be able to handle `asm` inputs.)
+- Note: If you want to use the ts-wrapper without AssemblyLine, remove the `defines:["USE_ASSEMBLYLINE"]` and `libraries:["-lassemblyline"]` in `ts/binding.gyp`, and then `npm install` it.
 - For C-tests coverage `lcov` 
 - For TS: [Node.js](https://nodejs.org/en/)
 
 ## Build for TS-land
 
 1. Install dependencies
-1. Run `$ npm install`
+1. Run `$ npm install` in `ts`
 
 ## Build for C-land
 
 1. Install dependencies
 1. Run `make`
-1. Find `./libmeasuresuite.{a,so}` and use the methods from [`./src/include/measuresuite.h`](./src/include/measuresuite.h)
+1. Find `./lib/libmeasuresuite.{a,so}` and use the methods from [`./lib/src/include/measuresuite.h`](./lib/src/include/measuresuite.h)
+1. Find `ms`, a small CLI-tool. Essentially a wrapper to load files into Measuresuite. `./ms --help` for more info, but in a nutshell: `./ms ./my/file.asm ./my/secondfile.bin` prints the json.
 
 ## Run tests
 
-1. For TypeScript-land tests `npm i && npm test`
-1. For C-land tests `make check`
-1. Find the html versions of the test report in `coverage{,-c}/index.html`
+1. For TypeScript-land tests `cd ts && npm i && npm test`
+1. For C-land tests `make check -C lib`
+1. Find the html versions of the test report in `{lib,ts}/coverage/index.html`
 
 ## Use cases
 
-You can run MS with 
-- two asm-strings and one shared object + symbol (will run acacbcacbc, where a/b is random, and check result against c, needs AssemblyLine)
-  - `ms_initialize`, `ms_enable_checking`, `ms_measure`, `ms_get_json`, `ms_terminate`
-- two asm-strings (will run ababaababaaab, skips the check, needs AssemblyLine)
-  - `ms_initialize`, `ms_measure`, `ms_get_json`, `ms_terminate`
-- one shared object symbol (will run ccccccc) (uses dlopen)
-  - `ms_initialize`, `ms_enable_checking`, `ms_measure_lib_only`, `ms_get_libcycles`, `ms_terminate`
-- object-file+symbol(s) (runs aaaaaaa or ababaaab, if one or two are loaded, used mmap to allocate/ copy the code from object into. )
-  - `ms_initialize`, `ms_load_elf`, `ms_load_elf`, `ms_measure`, `ms_get_json`, `ms_terminate`
-
-measure()
-measure_ab()
-measure_abc(char* a, char*, size_t bs, size_t nob) // a, b, check,
 
 ## Acknowledgements
 #### This project was supported by:  
