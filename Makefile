@@ -32,7 +32,9 @@ ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a
 	$(CC) $(CFLAGS) -I./lib/src/include $(^) $(CPPFLAGS) $(LDLIBS) -o $(@)
 
 clean:
-	rm -rf ms
+	rm -rf ms \
+		ts/coverage \
+		ts/dist
 	$(MAKE) -C lib $(@)
 
 check: ms
