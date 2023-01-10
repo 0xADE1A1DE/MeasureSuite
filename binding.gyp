@@ -26,7 +26,8 @@
         "./lib/src/timer.c"
       ],
       "include_dirs": [
-        "./lib/src/include"
+        "./lib/src/include",
+        "./lib/src"
       ],
       "conditions": [
         [
