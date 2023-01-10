@@ -85,8 +85,8 @@ const [functionARes, functionBRes] = measurementResult.cycles;
 console.log(`Function A's cycles: ${functionARes.join(",")}`);
 console.log(`Function B's cycles: ${functionBRes.join(",")}`);
 
-const medianA = functionARes.sort().at(Math.floor(nob / 2));
-const medianB = functionBRes.sort().at(Math.floor(nob / 2));
+const medianA = functionARes.sort().at(Math.floor(nob / 2))!;
+const medianB = functionBRes.sort().at(Math.floor(nob / 2))!;
 
 console.log(`Function A's median: ${medianA}`);
 console.log(`Function B's median: ${medianB}`);
