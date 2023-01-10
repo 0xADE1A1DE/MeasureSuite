@@ -11,12 +11,12 @@ This library measures the execution time of code.
 - Can check if the results matches the results of a the other loaded methods.
 - C-interface
 - TypeScript-interface
+- Cli-tool `ms`, takes files in and outputs `JSON` measurements
 - Supports functions of the C-like type `void A(uint64_t *out, const uint64_t *in)` (up to six parameters)
 - It assembles assembly code using [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
-- Reports chunk size counting. (i.e. How many instructions of a function beaks a chunk boundary, if in use with AssemblyLine)
+- Reports chunk size counting. (i.e. How many instructions of a function beaks a chunk boundary, when assembling assemblyfiles with AssemblyLine)
 - Returns a JSON string with the measurement metrics.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
-- cli-tools `ms`, takes files in and outputs `JSON` measurements
 
 ## Organization
 
@@ -25,7 +25,6 @@ This repository contains
 - a cli-tool `ms` in [bin](./bin); use like `./ms ./fileA.asm ./fileB.o`, out comes `JSON`.
 - a TypeScript-Wrapper in [ts](./ts), around `libmeasuresuite` built with `node-gyp`.
 
-More detailed in `Readme.md`'s in the respecive sub directory.
 *Build*-instructions in [Build.md](./Build.md).
 
 ## Examples

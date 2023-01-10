@@ -54,9 +54,6 @@ report:
 %.o: %.c Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -c $(<) -o $(@)  
 
-# ms: src/bin/ms.o libmeasuresuite.a
-#     $(CC) $(CFLAGS) $(^) $(LDLIBS) -o $(@)
-
 libmeasuresuite.a: $(SRCS:c=o)
 	$(AR) rcs $(@) $(^)
 

@@ -31,12 +31,12 @@
 
 ## Run tests
 
-1. For TypeScript-land tests `cd ts && npm i && npm test`
-1. For C-land tests `make check -C lib`
+1. For TypeScript tests `cd ts && npm i && npm test`
+1. For C tests `make check -C lib`
 1. Find the html versions of the test report in `{lib,ts}/coverage/index.html`
 
-## debug messages
+## Debug messages
 
-To enable debug messages, you can pass `-DENABLE_DEBUG` CPP-Flag like so, when building
-- C: `CPPFLAGS=-DENABLE_DEBUG` make
-- TS: add `"ENABLE_DEBUG"` to `targets.defines` in `./ts/binding.gyp`
+To enable debug messages, you can pass `-DENABLE_DEBUG` CPP-Flag when building
+- C: `CPPFLAGS=-DENABLE_DEBUG make`
+- TS: add `"ENABLE_DEBUG"` to `targets.defines` in `./ts/binding.gyp`, then run `npm install`
