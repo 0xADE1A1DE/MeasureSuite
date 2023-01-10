@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import typescript from "@rollup/plugin-typescript";
-import copy from "rollup-plugin-copy";
 
 const external = ["fs", "module", "path"];
 export default [
@@ -25,16 +24,6 @@ export default [
       format: "es",
     },
     external,
-    plugins: [
-      typescript(),
-      copy({
-        targets: [
-          {
-            src: ["ts/build/Release/measuresuite.node"],
-            dest: "ts/dist",
-          },
-        ],
-      }),
-    ],
+    plugins: [typescript()],
   },
 ];
