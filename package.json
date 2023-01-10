@@ -1,6 +1,6 @@
 {
   "name": "measuresuite",
-  "version": "2.0.0-rc.2",
+  "version": "2.0.0-rc.3",
   "description": "Typescript wrapper around libmeasuresuite",
   "main": "./ts/dist/index.js",
   "types": "./ts/dist/dts/index.d.ts",
@@ -32,14 +32,12 @@
   "license": "Apache-2.0",
   "homepage": "https://0xade1a1de.github.io/MeasureSuite",
   "scripts": {
-    "postinstall": "$npm_execpath run pack",
     "test": "vitest -r ts ",
     "test-cov": "vitest -r ts --coverage",
     "lint-check": "eslint ts",
     "lint-fix": "eslint ts --fix",
     "format-check": "npx prettier --check \"./ts/**/*.ts\" \"!./ts/dist\"",
-    "pack": "rollup --config ts/rollup.config.js",
-    "prepublish": "$npm_execpath run pack"
+    "build": "rollup --config ts/rollup.config.js"
   },
   "gypfile": true,
   "prettier": {
