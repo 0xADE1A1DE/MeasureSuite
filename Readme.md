@@ -18,7 +18,7 @@ This library measures the execution time of code.
 - Returns a JSON string with the measurement metrics.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
 
-## Organization
+## Repo Contents
 
 This repository contains
 - the C-library `libmeasuresuite` in [lib](./lib)

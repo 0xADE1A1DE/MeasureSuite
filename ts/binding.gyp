@@ -1,4 +1,7 @@
 {
+  "variables": {
+    "hasAL": "'<!(pkg-config --exists assemblyline --silence-errors && echo y || echo n)'=='y'"
+  },
   "targets": [
     {
       "target_name": "libmeasuresuite",
@@ -25,8 +28,15 @@
       "include_dirs": [
         "../lib/src/include"
       ],
-      "defines": [
-        "USE_ASSEMBLYLINE"
+      "conditions": [
+        [
+          "<(hasAL)",
+          {
+            "defines": [
+              "USE_ASSEMBLYLINE"
+            ]
+          }
+        ]
       ]
     },
     {
@@ -45,8 +55,15 @@
         "../lib/src/include",
         "./src/binding"
       ],
-      "libraries": [
-        "-lassemblyline"
+      "conditions": [
+        [
+          "<(hasAL)",
+          {
+            "libraries": [
+              "<!(pkg-config --libs assemblyline)"
+            ]
+          }
+        ]
       ]
     }
   ]

@@ -6,16 +6,6 @@
 - For C-tests coverage `lcov` 
 - For TS: [Node.js](https://nodejs.org/en/)
 
-
-
-## Use Typescript without AssemblyLine
-
-- Note: If you want to use the ts-wrapper without AssemblyLine
-
-1. Remove the `defines:["USE_ASSEMBLYLINE"]` in `ts/binding.gyp`
-1. Remove the `libraries:["-lassemblyline"]` in `ts/binding.gyp`
-1. `npm install`
-
 ## Build for TS
 
 1. Install dependencies (node, AssemblyLine)
