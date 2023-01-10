@@ -29,7 +29,7 @@ This repository contains
 
 ## Examples
 
-Find C and TS examples in the [examples](./examples) directory. Some nees AssemblyLine installed.
+Find full `C` and `TS` examples in the [examples](./examples) directory. Some need AssemblyLine installed.
 
 
 ### Sneak Peak C-lib
@@ -131,7 +131,7 @@ $ ./ms -n 3 ./examples/elf/add_two_numbers.o ./examples/elf/add_two_numbers.asm 
 
 ```
 
-### Sneak Peak C
+### Sneak Peak TypeScript
 
 ```ts
 import { type MeasureResult, Measuresuite } from "measuresuite";

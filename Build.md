@@ -8,7 +8,7 @@
 
 
 
-## Use Typescipt without Assemblyline
+## Use Typescript without AssemblyLine
 
 - Note: If you want to use the ts-wrapper without AssemblyLine
 
@@ -27,7 +27,7 @@
 1. Install dependencies (make, clang, lcov, AssemblyLine)
 1. Run `make`
 1. Find `./lib/libmeasuresuite.{a,so}` and use the methods from [`./lib/src/include/measuresuite.h`](./lib/src/include/measuresuite.h)
-1. Find `ms`, a small CLI-tool. Essentially a wrapper to load files into Measuresuite. `./ms --help` for more info, but in a nutshell: `./ms ./my/file.asm ./my/secondfile.bin` prints the json.
+1. Find `ms`, a small CLI-tool. Essentially a wrapper to load files into MeasureSuite. `./ms --help` for more info, but in a nutshell: `./ms ./my/file.asm ./my/secondfile.bin` prints the JSON.
 
 ## Run tests
 
@@ -37,6 +37,6 @@
 
 ## Debug messages
 
-To enable debug messages, you can pass `-DENABLE_DEBUG` CPP-Flag when building
+To enable debug messages, you can pass `-DENABLE_DEBUG` when building
 - C: `CPPFLAGS=-DENABLE_DEBUG make`
 - TS: add `"ENABLE_DEBUG"` to `targets.defines` in `./ts/binding.gyp`, then run `npm install`
