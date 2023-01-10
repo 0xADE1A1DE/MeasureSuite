@@ -15,13 +15,14 @@
  */
 
 import { existsSync } from "fs";
+import { extname } from "path";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 // import * as ms from "measuresuite-native-module"; // for development and get the types and type completion
 const ms = require("measuresuite-native-module");
 
-import type { MeasureResult } from "./measure.interface";
+import type { MeasureResult, FunctionType } from "./measure.interface";
 
 // use with caution
 export const native_ms = {
@@ -50,7 +51,7 @@ export class Measuresuite {
    * bounds may also be an empty array, in which case -1 as the mask is assumed. (all bits used, no effective bound.)
    */
   public constructor(
-    argwidth: number,
+    private argwidth: number,
     argNumIn: number,
     argNumOut: number,
     chunkSize?: number,
@@ -63,20 +64,6 @@ export class Measuresuite {
         `${libcheckfunctionsFilename} does not exist. Cannot use measuresuite if there is no shared object for check the functions' results against.`,
       );
     }
-    if (!bounds || bounds.length === 0) {
-      // default to 'use all bits'
-      bounds = Array(argwidth).fill("0xffffffffffffffff");
-    }
-    if (argwidth !== bounds.length) {
-      throw new Error("Illegal arguments. Bounds array must be same size as argwidth, or empty.");
-    }
-    const bigInts = bounds.map((v) => {
-      if (["0", "2", "4", "8"].some((end) => v.endsWith(end))) {
-        return BigInt(v) - BigInt(1);
-      }
-      return BigInt(v);
-    });
-    const bounds_u64 = new BigUint64Array(bigInts);
 
     try {
       ms.init(argwidth, argNumIn, argNumOut);
@@ -88,11 +75,76 @@ export class Measuresuite {
         ms.enable_chunk_counting(chunkSize);
       }
 
-      ms.set_bounds(bounds_u64);
+      if (!bounds || bounds.length === 0) {
+        // default to 'use all bits'
+        bounds = Array(argwidth).fill("0xffffffffffffffff");
+      }
+      this.setBounds(bounds);
     } catch (e) {
       console.error(e);
       throw new Error("Could not initialize Measuresuite.");
     }
+
+    // initializing the load's
+    this.ft2load.set("ELF", ms.load_elf_file);
+    this.ft2load.set("ASM", ms.load_asm_file);
+    this.ft2load.set("BIN", ms.load_bin_file);
+    this.ft2load.set("SHARED_OBJECT", ms.load_shared_object_file);
+  }
+
+  // mapping tables
+  private ft2load = new Map<FunctionType, (filename: string, symbol: string) => void>();
+
+  private ext2FT: { [ext: string]: FunctionType } = {
+    o: "ELF",
+    elf: "ELF",
+    so: "SHARED_OBJECT",
+    bin: "BIN",
+    asm: "ASM",
+  };
+
+  public enableChecking(): void {
+    ms.enable_checking();
+  }
+
+  public loadFile({
+    filename,
+    filetype,
+    functionSymbol,
+  }: {
+    filename: string;
+    filetype?: FunctionType;
+    functionSymbol?: string;
+  }): void {
+    if (!filetype) {
+      const ext = extname(filename).substring(1);
+      filetype = this.ext2FT[ext];
+      if (!filetype) {
+        throw new Error(
+          `type was not given, and could not be inferred from filename ${filename} (ext: ${ext})`,
+        );
+      }
+    }
+
+    if (functionSymbol) {
+      this.ft2load.get(filetype)!(filename, functionSymbol);
+    } else {
+      this.ft2load.get(filetype)!(filename, "");
+    }
+  }
+
+  public setBounds(bounds: string[]): void {
+    if (this.argwidth !== bounds.length) {
+      throw new Error("Illegal arguments. Bounds array must be same size as argwidth, or empty.");
+    }
+    const bigInts = bounds.map((v) => {
+      if (["0", "2", "4", "8"].some((end) => v.endsWith(end))) {
+        return BigInt(v) - BigInt(1);
+      }
+      return BigInt(v);
+    });
+    const bounds_u64 = new BigUint64Array(bigInts);
+    ms.set_bounds(bounds_u64);
   }
 
   public measure(batchSize: number, numBatches: number, functions: string[] = []): MeasureResult | null {

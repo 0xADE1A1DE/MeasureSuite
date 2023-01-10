@@ -15,7 +15,7 @@
  */
 
 #include "arg_parse.h"
-#include "debug.h"
+#include <debug.h>
 #include <measuresuite.h>
 #include <stddef.h>
 #include <stdio.h>

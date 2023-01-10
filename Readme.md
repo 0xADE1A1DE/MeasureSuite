@@ -18,41 +18,40 @@ This library measures the execution time of code.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
 - cli-tools `ms`, takes files in and outputs `JSON` measurements
 
+## Organization
+
+This repository contains
+- the C-library `libmeasuresuite` in [lib](./lib)
+- a cli-tool `ms` in [bin](./bin); use like `./ms ./fileA.asm ./fileB.o`, out comes `JSON`.
+- a TypeScript-Wrapper in [ts](./ts), around `libmeasuresuite` built with `node-gyp`.
+
+More detailed in `Readme.md`'s in the respecive sub directory.
+*Build*-instructions in [Build.md](./Build.md).
+
 ## Examples
 
-###TODO: better examples
-
-### Increment a number (C-land)
+Find C and TS examples in the [examples](./examples) directory. Some nees AssemblyLine installed.
 
 
-- suppose we have an `add_two_numbers`-function (as we do in [the test library](./lib/test/test_data/all.c)) like this:
+### Sneak Peak C-lib
+
 ```c
-void add_two_numbers(uint64_t *out0, const uint64_t *in0, const uint64_t *in1) {
-  *out0 = *in0 + *in1;
-}
-```
-
-- and we want to measure equivalent asm-code with measurewuite
-```c
-
 #include <measuresuite.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <assert.h>
-#include <string.h>
 
-int main (){
+/*
+ * void add_two_numbers(uint64_t *out0, const uint64_t *in0, const uint64_t *in1) {
+ *    *out0 = *in0 + *in1;
+ * }
+ */
+char add_two_asm[] = {"mov rax, [rsi]\n"
+                      "add rax, [rdx]\n"
+                      "mov [rdi], rax\n"
+                      "ret\n"};
 
-  // properties of the function
-  const int arg_width = 1;   // each param points to only one element
-  const int arg_num_in = 2;
+
+  const int arg_width = 1;
   const int arg_num_out = 1;
-
-  // asm to measure
-  char add_two_asm[] = {"mov rax, [rsi]\n"
-                        "add rax, [rdx]\n"
-                        "mov [rdi], rax\n"
-                        "ret\n"};
+  const int arg_num_in = 2;
 
   // our measuresuite handle
   measuresuite_t ms = NULL;
@@ -60,26 +59,20 @@ int main (){
   // initializing the measuresuite
   ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
 
-  // id =- means we want to load to the next free spot.
-  // it will be set to the spot taken by the loaded function.
   int id = -1;
   ms_load_data(ms,                     // handle
                ASM,                    // type of input data is assembly
                (uint8_t *)add_two_asm, // pointer to input data
                strlen(add_two_asm),    // length of input data
-               NULL,                   // symbol (ignored for BIN/ASM, optional for ELF, required for SHARED_OBJECT))
-               &id);                   // ID (in/out)
+               NULL, // symbol (ignored for BIN/ASM, optional for ELF, required
+                     // for SHARED_OBJECT)
+               &id); // ID (in/out)
 
-  // first spot (subsequent loads will load to 1, 2, ...)
-  assert(id == 0);
+  const int number_of_batches = 10; // 10 batches of
+  const int batch_size = 100;       // 100 iterations of the function-unter-test (add_two_asm), each
 
-  const int batch_size = 100;
-  const int number_of_batches = 10;
-
-  // run the measurement
   ms_measure(ms, batch_size, number_of_batches);
 
-  // prepare got JSON collection
   const char *json = NULL;
   size_t len = 0;
   ms_get_json(ms, &json, &len);
@@ -87,49 +80,116 @@ int main (){
   assert(json != NULL);
   assert(len != 0);
 
-  //prints the result json
-  printf("%s\n",json);
+  printf("%s\n", json);
+  // prints:
+  //
+  // {
+  // "stats": {
+  //   "numFunctions": 1,
+  //   "runtime": 0,
+  //   "incorrect": 0
+  // },
+  // "functions": [ { "type": "ASM", "chunks": 0 } ],
+  // "cycles": [ [ 1352, 890, 895, 884, 888, 886, 886, 886, 884, 888 ] ]
+  // }
+
 
   ms_terminate(ms);
-
   return 0;
 }
 ```
 
-### Plus 1 (TS-land)
+### Sneak Peak CLI
 
-- Find the `functionA` and `functionB` in the [functions.ts](./ts/test/test_data/functions.ts)
-- Both functions increment a number.
-- We set up the boilerplate to use MeasureSuite from TypeScript-land in the [Plus 1 Test](./ts/test/plus1.test.ts)
-- And analyze the measurement Result
 
-## Dependencies
-- `make`, C-compiler
-- [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine) (Can be skipped if builing with `NO_AL=1`, then MeasureSuite will not only be able to handle `asm` inputs.)
-- Note: If you want to use the ts-wrapper without AssemblyLine, remove the `defines:["USE_ASSEMBLYLINE"]` and `libraries:["-lassemblyline"]` in `ts/binding.gyp`, and then `npm install` it.
-- For C-tests coverage `lcov` 
-- For TS: [Node.js](https://nodejs.org/en/)
+```bash
+$ make
+$ make -B -C ./examples/elf/add_two_numbers.o
+$ ./ms -n 3 ./examples/elf/add_two_numbers.o ./examples/elf/add_two_numbers.asm | jq
+``` 
 
-## Build for TS-land
+```json
+{
+  "stats": {
+    "numFunctions": 2,
+    "runtime": 1,
+    "incorrect": 0
+  },
+  "functions": [
+    {
+      "type": "ELF"
+    },
+    {
+      "type": "ASM",
+      "chunks": 0
+    }
+  ],
+  "cycles": [
+    [ 7074, 7705, 7358 ],
+    [ 7640, 7259, 7858 ]
+  ]
+}
 
-1. Install dependencies
-1. Run `$ npm install` in `ts`
+```
 
-## Build for C-land
+### Sneak Peak C
 
-1. Install dependencies
-1. Run `make`
-1. Find `./lib/libmeasuresuite.{a,so}` and use the methods from [`./lib/src/include/measuresuite.h`](./lib/src/include/measuresuite.h)
-1. Find `ms`, a small CLI-tool. Essentially a wrapper to load files into Measuresuite. `./ms --help` for more info, but in a nutshell: `./ms ./my/file.asm ./my/secondfile.bin` prints the json.
+```ts
+import { type MeasureResult, Measuresuite } from "measuresuite";
 
-## Run tests
+/**
+ * our assembly strings to measure, same as in ./add_two_numbers.c
+ */
 
-1. For TypeScript-land tests `cd ts && npm i && npm test`
-1. For C-land tests `make check -C lib`
-1. Find the html versions of the test report in `{lib,ts}/coverage/index.html`
+const functionA = [
+  "mov rax, [rsi]",
+  "add rax, [rdx]",
+  "mov [rdi], rax",
+  "ret",
+].join("\n");
 
-## Use cases
+const functionB = [
+  "mov rax, [rsi]",
+  "push rbx",
+  "mov rbx, [rdx]",
+  "lea rax, [rbx + rax]",
+  "mov [rdi], rax",
+  "pop rbx",
+  "ret",
+].join("\n");
 
+const arg_width = 1;
+const arg_num_out = 1;
+const arg_num_in = 2;
+
+// create a Measuresuite object
+const ms = new Measuresuite(arg_width, arg_num_in, arg_num_out);
+ms.enableChecking();
+
+const nob = 50;
+const batchSize = 10000;
+
+// measure
+const measurementResult: MeasureResult | null = ms.measure(batchSize, nob, [ functionA, functionB ]);
+
+
+
+console.log( `The Measurement took ${measurementResult.stats.runtime}ms to complete`);
+
+const [functionARes, functionBRes] = measurementResult.cycles;
+console.log(`Function A's cycles: ${functionARes.join(",")}`);
+console.log(`Function B's cycles: ${functionBRes.join(",")}`);
+
+const medianA = functionARes.sort().at(Math.floor(nob / 2));
+const medianB = functionBRes.sort().at(Math.floor(nob / 2));
+
+console.log(`Function A's median: ${medianA}`);
+console.log(`Function B's median: ${medianB}`);
+
+console.log(
+  `Function A is ${medianA < medianB ? "" : "not"} faster than Function B`
+);
+```
 
 ## Acknowledgements
 #### This project was supported by:  

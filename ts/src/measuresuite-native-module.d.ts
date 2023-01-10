@@ -21,7 +21,7 @@ declare module "measuresuite-native-module" {
   function load_asm_string(assembly: string): number; // returns id of where the function has been loaded into
   function load_asm_file(path: string): number;
   function load_bin_file(path: string): number;
-  function load_elf_file(path: string, symbol?: string): number;
+  function load_elf_file(path: string, symbol: string): number; // empty symbol string if none was passed. Parameter cannot be 'undefined'
   function load_shared_object_file(path: string, symbol: string): number;
 
   function enable_checking(): void;

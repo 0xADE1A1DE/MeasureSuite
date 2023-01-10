@@ -1,0 +1,18 @@
+{
+  "name": "ts-examples-asm",
+  "version": "1.0.0",
+  "description": "- Those exmaples require assemblyline to be installed.",
+  "type": "module",
+  "scripts": {
+    "pretest": "tsc -p .",
+    "test": "node ./add_two_numbers.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "measuresuite": "file:../../ts"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}

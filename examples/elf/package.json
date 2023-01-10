@@ -1,0 +1,19 @@
+{
+  "name": "ts-examples-elf",
+  "version": "1.0.0",
+  "description": "Eamples to use MeasureSuite with object files",
+  "type": "module",
+  "scripts": {
+    "pretest": "tsc -p .",
+    "test": "node ./add_two_numbers.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^18.11.18",
+    "measuresuite": "file:../../ts"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}

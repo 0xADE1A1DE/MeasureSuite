@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "es2020" ,
+    "lib": ["dom", "es2022"],
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  },
+  "include": ["/**/*.ts"],
+  "exclude": ["node_modules"]
+}

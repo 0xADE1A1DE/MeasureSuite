@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef DEBUG_H
+#define DEBUG_H
 
-import type { MeasureResult, AsmFunctionSummary, FunctionSummary, FunctionType } from "./measure.interface";
-import { Measuresuite, native_ms } from "./measuresuite";
+#ifdef ENABLE_DEBUG
+#define DEBUG(...) printf(__VA_ARGS__)
+#else
+#define DEBUG(...)                                                             \
+  {}
+#endif
 
-export type { MeasureResult, AsmFunctionSummary, FunctionSummary, FunctionType };
-export { Measuresuite, native_ms };
+#endif /* DEBUG_H */

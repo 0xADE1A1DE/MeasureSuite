@@ -196,15 +196,16 @@ napi_value load_elf_file(napi_env env, napi_callback_info info) {
 
   ) {
     return throw_and_return_napi_val(env,
-                                     "Invalid elf filename was passed as "
+                                     "Invalid elf symbol was passed as "
                                      "argument 1, may have been too long.");
   }
 
   // load elf data in instance
   int id_elf = -1;
-  if (ms_load_file(ms, ELF, elf_symbol, elf_symbol, &id_elf) != 0) {
+  if (ms_load_file(ms, ELF, elf_filename, read_bytes == 0 ? NULL : elf_symbol,
+                   &id_elf) != 0) {
     ms_fprintf_error(ms, stderr);
-    return throw_and_return_napi_val(env, "Could not load bin file to MS.");
+    return throw_and_return_napi_val(env, "Could not load elf file to MS.");
   };
 
   napi_value napi_result = NULL;
