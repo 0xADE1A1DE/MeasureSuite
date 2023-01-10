@@ -1,16 +1,19 @@
 {
   "name": "measuresuite",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0-rc.2",
   "description": "Typescript wrapper around libmeasuresuite",
-  "main": "./dist/index.js",
-  "types": "./dist/dts/index.d.ts",
+  "main": "./ts/dist/index.js",
+  "types": "./ts/dist/dts/index.d.ts",
   "type": "module",
   "files": [
-    "../lib",
-    "./src",
-    "./binding.gyp",
-    "./dist/index.js",
-    "./dist/dts.js"
+    "./lib/src/*.c",
+    "./lib/src/*.h",
+    "./ts/src/binding/*.c",
+    "./ts/src/binding/*.h",
+    "./ts/binding.gyp",
+    "./ts/dist/index.js",
+    "./ts/dist/dts",
+    "./ts/dist/Readme.md"
   ],
   "cpu": [
     "x64"
@@ -30,12 +33,13 @@
   "homepage": "https://0xade1a1de.github.io/MeasureSuite",
   "scripts": {
     "postinstall": "$npm_execpath run pack",
-    "test": "vitest",
-    "test-cov": "vitest --coverage",
-    "lint-check": "eslint .",
-    "lint-fix": "eslint . --fix",
-    "format-check": "npx prettier --check \"./**/*.ts\" \"!./dist\"",
-    "pack": "rollup --config rollup.config.js"
+    "test": "vitest -r ts ",
+    "test-cov": "vitest -r ts --coverage",
+    "lint-check": "eslint ts",
+    "lint-fix": "eslint ts --fix",
+    "format-check": "npx prettier --check \"./ts/**/*.ts\" \"!./ts/dist\"",
+    "pack": "rollup --config ts/rollup.config.js",
+    "prepublish": "$npm_execpath run pack"
   },
   "gypfile": true,
   "prettier": {
@@ -43,7 +47,7 @@
     "printWidth": 110
   },
   "dependencies": {
-    "measuresuite-native-module": "file:./dist/measuresuite.node"
+    "measuresuite-native-module": "file:./ts/dist/measuresuite.node"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.0.0",

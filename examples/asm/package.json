@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "measuresuite": "file:../../ts"
+    "measuresuite": "file:../../"
   },
   "devDependencies": {
     "typescript": "^4.9.4"

@@ -19,9 +19,9 @@ import copy from "rollup-plugin-copy";
 const external = ["fs", "module", "path"];
 export default [
   {
-    input: "src/index.ts",
+    input: "ts/src/index.ts",
     output: {
-      dir: "dist",
+      dir: "ts/dist",
       format: "es",
     },
     external,
@@ -30,8 +30,8 @@ export default [
       copy({
         targets: [
           {
-            src: ["build/Release/measuresuite.node"],
-            dest: "./dist",
+            src: ["ts/build/Release/measuresuite.node"],
+            dest: "ts/dist",
           },
         ],
       }),
