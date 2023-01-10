@@ -1,13 +1,13 @@
 {
   "name": "measuresuite",
-  "version": "2.0.0-rc.5",
+  "version": "2.0.0-rc.6",
   "description": "Typescript wrapper around libmeasuresuite",
   "main": "./ts/dist/index.js",
   "types": "./ts/dist/dts/index.d.ts",
   "type": "module",
   "files": [
-    "./lib/src/*.c",
-    "./lib/src/*.h",
+    "./lib/src/**/*.c",
+    "./lib/src/**/*.h",
     "./ts/src/binding/*.c",
     "./ts/src/binding/*.h",
     "./binding.gyp",
