@@ -1,6 +1,6 @@
 # Examples
 
-## TS exmaples
+## TS examples
 Generally, if you just want to use it via typescript, `npm install measuresuite` the package and use as described in  `./{asm,elf}/add_two_numbers.ts` or in the test folder `../ts/test`.
 
 If you want to use assembly, install AssemblyLine before `npm install measuresuite`
