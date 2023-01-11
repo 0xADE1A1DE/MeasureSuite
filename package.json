@@ -23,14 +23,13 @@
   ],
   "repository": {
     "type": "git",
-    "homepage": "https://github.com/0xADE1AIDE/MeasureSuite.git"
+    "homepage": "https://github.com/0xADE1A1DE/MeasureSuite.git"
   },
   "author": "joel.kuepper@adelaide.edu.au",
   "contributors": [
     "david.wu@student.adelaide.edu.au"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://0xade1a1de.github.io/MeasureSuite",
   "scripts": {
     "test": "vitest -r ts ",
     "test-cov": "vitest -r ts --coverage",
