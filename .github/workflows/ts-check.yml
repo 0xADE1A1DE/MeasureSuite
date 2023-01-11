@@ -7,12 +7,6 @@ on:
       - main
       - dev
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ts
-
-
 jobs:
   build:
     name: Build and test Measuresuite
@@ -32,9 +26,6 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
-
-    # - name: bootstrap uiCA
-    #   run: make install-uiCA
 
     - name: TS build
       run: npm clean-install

@@ -1,6 +1,6 @@
 {
   "name": "measuresuite",
-  "version": "2.0.0-rc.7",
+  "version": "2.0.0-rc.8",
   "description": "Typescript wrapper around libmeasuresuite",
   "main": "./ts/dist/index.js",
   "types": "./ts/dist/dts/index.d.ts",
@@ -45,7 +45,7 @@
     "printWidth": 110
   },
   "dependencies": {
-    "measuresuite-native-module": "file:./ts/build/Release/measuresuite.node"
+    "measuresuite-native-module": "file:./build/Release/measuresuite.node"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.0.0",

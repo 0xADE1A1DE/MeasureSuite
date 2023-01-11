@@ -34,7 +34,8 @@ ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a
 clean:
 	rm -rf ms \
 		ts/coverage \
-		ts/dist
+		ts/dist \
+		build
 	$(MAKE) -C lib $(@)
 
 check: ms

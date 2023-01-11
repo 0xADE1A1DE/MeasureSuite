@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { resolve } from "path";
+import { dirname, resolve } from "path";
 import { existsSync } from "fs";
 import { execSync } from "child_process";
 import { expect } from "vitest";
+import { fileURLToPath } from "url";
+
+const me = fileURLToPath(import.meta.url);
+
+export const test_dataDir = resolve(dirname(me), "test_data");
 
 export function compileTestlib(outfile: string) {
-  const testlib_C = resolve(process.cwd(), "test", "test_data", "all_lib.c");
+  const testlib_C = resolve(test_dataDir, "all_lib.c");
   compile(testlib_C, outfile);
-}
-
-export function compileFiat(outile: string) {
-  const fiat_C = resolve(process.cwd(), "test", "all_fiat.c");
-  compile(fiat_C, outile);
 }
 
 function compile(infile: string, out: string) {
