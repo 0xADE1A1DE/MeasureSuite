@@ -1,6 +1,10 @@
 # MeasureSuite
-![Unit Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/check.yml/badge.svg)
-![Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/clang-format-check.yml/badge.svg)
+![Bin Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/bin-check.yml/badge.svg)
+![Lib Tests (no AssemblyLine)](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/lib-check-noal.yml/badge.svg)
+![Lib Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/lib-check.yml/badge.svg)
+![TS Tests](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/ts-check.yml/badge.svg)
+![C Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/lib-formatting.yml/badge.svg)
+![TS Code Style](https://github.com/0xADE1A1DE/MeasureSuite/actions/workflows/ts-formatting.yml/badge.svg)
 ![Version](https://img.shields.io/npm/v/measuresuite?logo=github&style=flat)
 
 This library measures the execution time of code.
