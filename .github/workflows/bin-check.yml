@@ -1,4 +1,4 @@
-name: bin-check
+name: cli tests
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: lib-check-noal
+name: lib tests (no AL)
 
 on:
   pull_request:

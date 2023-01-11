@@ -1,4 +1,4 @@
-name: lib-formatting
+name: C code formatting
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: ts-check
+name: ts tests
 
 on:
   pull_request:

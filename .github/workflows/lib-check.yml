@@ -1,4 +1,4 @@
-name: lib-check
+name: lib tests (with AL)
 
 on:
   pull_request:
