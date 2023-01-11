@@ -15,6 +15,7 @@
  */
 #include "json.h"
 #include "alloc_helper.h"
+#include "debug.h"
 #include "struct_measuresuite.h"
 
 #define PRINT(...)                                                             \
@@ -94,7 +95,8 @@ enlarge:
 
   // enlarge
   ms->json_len *= 2;
-  fprintf(stderr, "trying to realloc space for more json\n");
+  DEBUG("trying to realloc space for more json (new len: %lu) %lu, %lu\n",
+        ms->json_len, ms->num_batches, ms->batch_size);
   if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len)) {
     return 1;
   }

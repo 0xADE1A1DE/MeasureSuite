@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "elf_file.h"
-#include <stdio.h>     // EOF
+#include <stdio.h>     // EOF, fprintf
 #include <stdlib.h>    // malloc
 #include <string.h>    // memcpy
 #include <sys/types.h> // off_t
@@ -47,7 +47,8 @@ static int read_section(int32_t file, Elf64_Shdr sect_hdr, void **dest) {
 
   *dest = malloc(sect_hdr.sh_size);
   if (!dest) {
-    printf("%s:Failed to allocate %ldbytes\n", __func__, sect_hdr.sh_size);
+    fprintf(stderr, "%s:Failed to allocate %ldbytes\n", __func__,
+            sect_hdr.sh_size);
     return 1;
   }
 
