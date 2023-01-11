@@ -1,7 +1,25 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "./ts"
+    directory: "."
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+    ignore: 
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+  - package-ecosystem: "npm"
+    directory: "./examples/asm"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+    ignore: 
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+  - package-ecosystem: "npm"
+    directory: "./examples/elf"
     target-branch: "main"
     schedule:
       interval: "weekly"
