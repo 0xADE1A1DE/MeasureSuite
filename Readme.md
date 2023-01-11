@@ -21,6 +21,7 @@ This library measures the execution time of code.
 - Reports chunk size counting. (i.e. How many instructions of a function beaks a chunk boundary, when assembling assemblyfiles with AssemblyLine)
 - Returns a JSON string with the measurement metrics.
 - Uses Performance Counters (PMC), falls back to `RDTSC` if PMC are unavailable.
+- Installable with `npm i measuresuite`
 
 ## Repo Contents
 
