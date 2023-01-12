@@ -97,6 +97,7 @@ enlarge:
   ms->json_len *= 2;
   DEBUG("trying to realloc space for more json (new len: %lu) %lu, %lu\n",
         ms->json_len, ms->num_batches, ms->batch_size);
+  DEBUG("JSON was: %s", ms->json);
   if (realloc_or_fail(ms, (void **)&(ms->json), ms->json_len)) {
     return 1;
   }

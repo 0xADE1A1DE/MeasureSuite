@@ -18,6 +18,7 @@
 #include "constants.h"
 #include "helper.h"
 #include "measuresuite.h"
+#include <node/js_native_api.h>
 
 napi_value load_asm_string(napi_env env, napi_callback_info info) {
   // getting back the instance
@@ -266,5 +267,43 @@ napi_value load_shared_object_file(napi_env env, napi_callback_info info) {
 
   napi_value napi_result = NULL;
   napi_create_int32(env, id_so, &napi_result);
+  return napi_result;
+}
+
+napi_value unload_last(napi_env env, napi_callback_info info) {
+  // getting back the instance
+  void *instance_data = NULL;
+  if (napi_get_instance_data(env, &instance_data) != napi_ok) {
+    return throw_and_return_napi_val(env, "Unable to get instance data.");
+  }
+  measuresuite_t ms = (measuresuite_t)instance_data;
+
+  // unload_last function in instance
+  if (ms_unload_last(ms) != 0) {
+    ms_fprintf_error(ms, stderr);
+    return throw_and_return_napi_val(env,
+                                     "Could not unload last function in MS.");
+  };
+
+  napi_value napi_result = NULL;
+  napi_create_int32(env, 0, &napi_result);
+  return napi_result;
+}
+
+napi_value unload_all(napi_env env, napi_callback_info info) {
+  // getting back the instance
+  void *instance_data = NULL;
+  if (napi_get_instance_data(env, &instance_data) != napi_ok) {
+    return throw_and_return_napi_val(env, "Unable to get instance data.");
+  }
+  measuresuite_t ms = (measuresuite_t)instance_data;
+
+  if (ms_unload_all(ms)) {
+    ms_fprintf_error(ms, stderr);
+    return throw_and_return_napi_val(env, "Could not unload all functions.");
+  }
+
+  napi_value napi_result = NULL;
+  napi_create_int32(env, 0, &napi_result);
   return napi_result;
 }

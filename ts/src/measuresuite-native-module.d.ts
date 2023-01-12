@@ -24,6 +24,9 @@ declare module "measuresuite-native-module" {
   function load_elf_file(path: string, symbol: string): number; // empty symbol string if none was passed. Parameter cannot be 'undefined'
   function load_shared_object_file(path: string, symbol: string): number;
 
+  function unload_all(): number;
+  function unload_last(): number;
+
   function enable_checking(): void;
   function enable_chunk_counting(chunkSize: number): void;
   function set_bounds(bounds: BigUint64Array): void;

@@ -28,6 +28,8 @@ describe("native_ms", () => {
       "load_bin_file",
       "load_elf_file",
       "load_shared_object_file",
+      "unload_all",
+      "unload_last",
       "enable_checking",
       "enable_chunk_counting",
       "set_bounds",

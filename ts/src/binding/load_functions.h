@@ -24,4 +24,7 @@ napi_value load_bin_file(napi_env env, napi_callback_info info);
 napi_value load_elf_file(napi_env env, napi_callback_info info);
 napi_value load_shared_object_file(napi_env env, napi_callback_info info);
 
+napi_value unload_all(napi_env env, napi_callback_info info);
+napi_value unload_last(napi_env env, napi_callback_info info);
+
 #endif /* LOAD_FUNCTIONS_H */

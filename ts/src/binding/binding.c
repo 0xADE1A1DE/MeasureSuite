@@ -38,17 +38,24 @@ napi_value Init(napi_env env, napi_value exports) {
 
   // init(argWidth: number, numArgIn: number, numArgOut: number): void;
   register_function(env, exports, init, "init");
-  // load_asm_string(assembly: string): string;
+
+  // load_asm_string(assembly: string): number;
   register_function(env, exports, load_asm_string, "load_asm_string");
-  // load_asm_file(path: string): string;
+  // load_asm_file(path: string): number;
   register_function(env, exports, load_asm_file, "load_asm_file");
-  // load_bin_file(path: string): string;
+  // load_bin_file(path: string): number;
   register_function(env, exports, load_bin_file, "load_bin_file");
-  // load_elf_file(path: string, symbol?: string): string;
+  // load_elf_file(path: string, symbol?: string): number;
   register_function(env, exports, load_elf_file, "load_elf_file");
-  // load_shared_object_file(path: string, symbol: string): string;
+  // load_shared_object_file(path: string, symbol: string): number;
   register_function(env, exports, load_shared_object_file,
                     "load_shared_object_file");
+
+  // unload_all(): void;
+  register_function(env, exports, unload_all, "unload_all");
+  // unload(id: number): void;
+  register_function(env, exports, unload_last, "unload_last");
+
   // enable_checking(): void;
   register_function(env, exports, enable_checking, "enable_checking");
   // enable_chunk_counting(chunkSize: number): void;

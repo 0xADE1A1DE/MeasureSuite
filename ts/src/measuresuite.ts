@@ -34,6 +34,9 @@ export const native_ms = {
   load_elf_file: ms.load_elf_file,
   load_shared_object_file: ms.load_shared_object_file,
 
+  unload_all: ms.unload_all,
+  unload_last: ms.unload_last,
+
   enable_checking: ms.enable_checking,
   enable_chunk_counting: ms.enable_chunk_counting,
   set_bounds: ms.set_bounds,
@@ -153,7 +156,7 @@ export class Measuresuite {
     try {
       functions.forEach(ms.load_asm_string);
     } catch (e) {
-      console.error("Measuresuite: in measuresuite_measure, an error occurred whilel loading asm strings", e);
+      console.error("Measuresuite: in measuresuite_measure, an error occurred while loading asm strings", e);
       throw new Error(`Could not measure.${e}`);
     }
 
@@ -161,6 +164,17 @@ export class Measuresuite {
       result = ms.measure(batchSize, numBatches);
     } catch (e) {
       console.error("Measuresuite: in measuresuite_measure, an error occurred", e);
+      throw new Error(`Could not measure.${e}`);
+    }
+
+    // unload them
+    try {
+      functions.forEach((_) => ms.unload_last());
+    } catch (e) {
+      console.error(
+        "Measuresuite: in measuresuite_measure, an error occurred while unloading the functions after measuremets",
+        e,
+      );
       throw new Error(`Could not measure.${e}`);
     }
 
