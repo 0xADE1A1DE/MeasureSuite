@@ -1,4 +1,4 @@
-version 2.0.1
+version 2.0.1 (2023-01-19)
 	- Fixed a bug causeing out-of-memory after repeated calls to 'measure'
 	  from the typescript wrapper
 	- API: added the unload_{all,last} function to the native module
