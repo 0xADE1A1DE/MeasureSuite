@@ -65,7 +65,7 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
   enum load_type type = ASM;
   char valid = 0;
 
-  if (strstr(dot, "asm") != NULL) {
+  if (strcmp(dot, "asm") == 0) {
 
 #if USE_ASSEMBLYLINE
     type = ASM;
@@ -77,16 +77,16 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
 #endif
   }
 
-  if (strstr(dot, "bin") != NULL) {
+  if (strcmp(dot, "bin") == 0) {
     type = BIN;
     valid = 1;
   }
-  if (strstr(dot, "so") != NULL) {
+  if (strcmp(dot, "so") == 0) {
     type = SHARED_OBJECT;
     valid = 1;
   }
 
-  if (strstr(dot, "o") != NULL) {
+  if (strcmp(dot, "o") == 0) {
     type = ELF;
     valid = 1;
   }
