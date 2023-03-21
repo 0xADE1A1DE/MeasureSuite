@@ -33,12 +33,12 @@ static void print_usage(char *bin_name) {
          ".asm,"
 #endif
          ".bin,.o,.so}\n\
-          -w=N --width          Number of elements in each array. Defaults to %d.\n\
-          -o=N --out            Number of out-arrays. Defaults to %d.\n\
-          -i=N --in             Number of in-arrays. Defaults to %d.\n\
-          -n=N --num_batches    Number of batches to measure (=number of elements in each of the result json's cycles-property.) Defaults to %d.\n\
-          -b=N --batch_size     Number of iterations of each function per batch. Defaults to %d.\n\
-          -s=SYM --symbol       SYM is the symbol being looked for in all .so and .o files.\n\
+          -w N --width N        Number of elements in each array. Defaults to %d.\n\
+          -o N --out N          Number of out-arrays. Defaults to %d.\n\
+          -i N --in N           Number of in-arrays. Defaults to %d.\n\
+          -n N --num_batches N  Number of batches to measure (=number of elements in each of the result json's cycles-property.) Defaults to %d.\n\
+          -b N --batch_size N   Number of iterations of each function per batch. Defaults to %d.\n\
+          -s SYM --symbol SYM   SYM is the symbol being looked for in all .so and .o files.\n\
                                 Required for .so-files. Will resort in the first found symbol in .o files if SYM omitted.\n\
                                 Will be ignored for .bin"
 #if USE_ASSEMBLYLINE
