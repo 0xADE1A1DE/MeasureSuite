@@ -12,6 +12,7 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 
+LDLIBS     += -ldl
 # compile with assemblyline if possible
 LIBS_AL = $(shell pkg-config && pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
 ifeq ($(LIBS_AL), 1)
