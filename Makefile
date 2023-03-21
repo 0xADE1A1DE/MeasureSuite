@@ -14,7 +14,7 @@
 
 LDLIBS     += -ldl
 # compile with assemblyline if possible
-LIBS_AL = $(shell pkg-config && pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
+LIBS_AL = $(shell which pkg-config >/dev/null && pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
 ifeq ($(LIBS_AL), 1)
 LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE

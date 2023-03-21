@@ -24,9 +24,9 @@ CFLAGS     ?= -O2 -Wall -Wextra -Werror -std=c17
 CPPFLAGS   += -I./src/ -I./src/include
 LDLIBS     += -ldl
 
-# compile with assemblyline if possible (or use make AL=0 to manually disable compilation with AL)
-AL         ?= $(shell pkg-config --libs assemblyline >/dev/null && echo 1 || echo 0)
-ifeq ($(AL), 1)
+# compile with assemblyline if possible (or use make LIBS_AL=0 to manually disable compilation with LIBS_AL)
+LIBS_AL     ?= $(shell which pkg-config >/dev/null && pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
+ifeq ($(LIBS_AL), 1)
 LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 endif
