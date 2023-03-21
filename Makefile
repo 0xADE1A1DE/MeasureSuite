@@ -20,6 +20,8 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 endif
 
+# use make -B CFLAGS='-g -DENABLE_DEBUG' for debug output and better debugging experience
+
 .PHONY: all check clean 
 
 .PRECIOUS: libmeasuresuite.so libmeasuresuite.a ms

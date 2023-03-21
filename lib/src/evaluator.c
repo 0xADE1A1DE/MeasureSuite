@@ -17,6 +17,7 @@
 #include "evaluator.h"           // own
 #include "alloc_helper.h"        // init_cycle_results
 #include "checker.h"             // check
+#include "debug.h"               // DEBUG
 #include "fisher_yates.h"        // shuffle_permutations
 #include "json.h"                // generate_json_from_measurement_results
 #include "randomizer.h"          // randomize
@@ -82,6 +83,8 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
 
   int (*func)(uint64_t * out, ...) = fct->code;
   assert(func != NULL);
+  DEBUG("Function to evaluate is not NULL. Running with a batch size of %d\n",
+        batch_size);
 
   while (batch_size > 0) {
     func(arg0, arg1, arg2, arg3, arg4, arg5);
@@ -102,12 +105,14 @@ int run_measurement(struct measuresuite *ms) {
   // START MEASUREMENT
   uint64_t start_time = current_timestamp();
 
+  DEBUG("Evaluating %d batches %d\n", ms->num_batches);
   for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
 
     if (randomize(ms) != 0 || shuffle_permutations(ms) != 0) {
       return 1;
     }
 
+    DEBUG("Evaluating %d function %d\n", ms->num_functions);
     // for as many functions as we need to measure
     for (size_t func_i = 0; func_i < ms->num_functions; func_i++) {
 
@@ -116,6 +121,7 @@ int run_measurement(struct measuresuite *ms) {
       struct function_tuple *fct = &ms->functions[function_index];
 
       // measure
+      DEBUG("Run batch for function %d\n", batch_i);
       run_batch(ms, fct, &fct->cycle_results[batch_i]);
     }
 
@@ -128,6 +134,7 @@ int run_measurement(struct measuresuite *ms) {
         struct function_tuple *prev = &ms->functions[func_i - 1];
 
         // check
+        DEBUG("Checking correctness for function %d and previous\n", func_i);
         if (check(ms->arg_width * ms->num_arg_out, fct->arithmetic_results,
                   prev->arithmetic_results)) {
           check_result = func_i;
