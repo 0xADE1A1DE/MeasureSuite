@@ -1,3 +1,15 @@
+version 2.0.2 (TBD)
+	- Fixed a invalid extension check:
+        Instead of checking, whether the filename ends with .o,
+        the code was only checking if .o is in the filename.
+	- Minor: clarified help text in ms-binary
+	- Updated Typescript Dependencies
+	- Fixed issue when `pkg-config` is not installed
+	- Makefile, added missing `-ldl` to the link step for `ms`. This caused
+	  issues on older systems (How did that work without?)
+	- Makefile removed duplicated 'check' target
+	- CI: C-code formatting with clang 16
+
 version 2.0.1 (2023-01-19)
 	- Fixed a bug causeing out-of-memory after repeated calls to 'measure'
 	  from the typescript wrapper
