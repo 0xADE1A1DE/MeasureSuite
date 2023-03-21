@@ -26,7 +26,7 @@ endif
 
 all: lib/libmeasuresuite.so lib/libmeasuresuite.a ms
 
-lib/libmeasuresuite.a lib/libmeasuresuite.so check:
+lib/libmeasuresuite.a lib/libmeasuresuite.so:
 	$(MAKE) -C lib $(subst lib/,,$(@))
 
 ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a 
