@@ -31,6 +31,11 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 endif
 
+DEBUG ?= 0
+ifneq ($(DEBUG), 0)
+CFLAGS += -g -DENABLE_DEBUG
+endif
+
 
 
 .PHONY: all check test report clean deepclean install-uiCA

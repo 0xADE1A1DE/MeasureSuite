@@ -9,6 +9,11 @@ version 2.0.2 (TBD)
 	- Makefile, added missing `-ldl` to the link step for `ms`. This caused
 	  issues on older systems (How did that work without?)
 	- Makefile removed duplicated 'check' target
+	- Makefile added 'DEBUG' variable. To use debug mode, use
+	    `make DEBUG=1 -B`, which will define `ENABLE_DEBUG` and `-g` for debug
+		symbols.
+ 	- Reworked printing if the check fails.
+		Will now always print the hex, and binary if compiled with debug
 
 version 2.0.1 (2023-01-19)
 	- Fixed a bug causeing out-of-memory after repeated calls to 'measure'

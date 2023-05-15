@@ -20,7 +20,13 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 endif
 
-# use make -B CFLAGS='-g -DENABLE_DEBUG' for debug output and better debugging experience
+## Enable debug with make DEBUG=1
+DEBUG ?= 0
+ifneq ($(DEBUG), 0)
+CFLAGS += -g -DENABLE_DEBUG
+endif
+
+# use make -B DEBUG=1 CFLAGS='-g' for debug output and better debugging experience
 
 .PHONY: all check clean 
 
