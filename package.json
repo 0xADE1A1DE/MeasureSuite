@@ -1,6 +1,6 @@
 {
   "name": "measuresuite",
-  "version": "2.0.3-1",
+  "version": "2.0.3-2",
   "description": "Typescript wrapper around libmeasuresuite",
   "main": "./ts/dist/index.js",
   "types": "./ts/dist/dts/index.d.ts",
