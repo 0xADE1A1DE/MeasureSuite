@@ -27,7 +27,7 @@
 
 int realloc_or_fail(struct measuresuite *ms, void **dest, size_t new_len) {
 
-  DEBUG("Reallocing to new length of %d bytes\n", new_len);
+  DEBUG("Reallocing to new length of %lu bytes\n", new_len);
 
   *dest = realloc(*dest, new_len);
 
@@ -102,7 +102,7 @@ int init_arithmetic_results(measuresuite_t ms, struct function_tuple *fct) {
   /** +---------------------------------------------------------+ */
 
   size_t size = ms->arg_width * ms->num_arg_out * sizeof(uint64_t);
-  DEBUG("init_arithmetic_results, size: %d\n", size);
+  DEBUG("init_arithmetic_results, size: %lu\n", size);
 
   fct->arithmetic_results = malloc(size);
 

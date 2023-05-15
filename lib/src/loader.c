@@ -58,7 +58,7 @@ static int create_new_function(measuresuite_t ms, enum load_type type,
   // check size and allocate more if needed
   if (ms->size_functions <= ms->num_functions) {
     ms->size_functions *= 2;
-    DEBUG("Doubled size_functions to %d\n", ms->size_functions);
+    DEBUG("Doubled size_functions to %lu\n", ms->size_functions);
     if (realloc_or_fail(ms, (void **)&ms->functions,
                         ms->size_functions * sizeof(struct function_tuple))) {
       return 1;

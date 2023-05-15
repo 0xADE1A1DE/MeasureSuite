@@ -83,8 +83,9 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
 
   int (*func)(uint64_t * out, ...) = fct->code;
   assert(func != NULL);
-  DEBUG("Function to evaluate is not NULL. Running with a batch size of %d\n",
-        batch_size);
+  DEBUG("Function to evaluate is not NULL (%p). Running with a batch size of "
+        "%lu",
+        func, batch_size);
 
   while (batch_size > 0) {
     func(arg0, arg1, arg2, arg3, arg4, arg5);
@@ -92,6 +93,7 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   }
 
   *count = stop_timer(ms, start_time);
+  DEBUG("Done. Ran for %lu cycles.\n", count);
 }
 
 int run_measurement(struct measuresuite *ms) {
@@ -105,14 +107,14 @@ int run_measurement(struct measuresuite *ms) {
   // START MEASUREMENT
   uint64_t start_time = current_timestamp();
 
-  DEBUG("Evaluating %d batches %d\n", ms->num_batches);
+  DEBUG("Evaluating %lu batches\n", ms->num_batches);
   for (size_t batch_i = 0; batch_i < ms->num_batches; batch_i++) {
 
     if (randomize(ms) != 0 || shuffle_permutations(ms) != 0) {
       return 1;
     }
 
-    DEBUG("Evaluating %d function %d\n", ms->num_functions);
+    DEBUG("Evaluating %lu functions\n", ms->num_functions);
     // for as many functions as we need to measure
     for (size_t func_i = 0; func_i < ms->num_functions; func_i++) {
 
@@ -121,7 +123,7 @@ int run_measurement(struct measuresuite *ms) {
       struct function_tuple *fct = &ms->functions[function_index];
 
       // measure
-      DEBUG("Run batch for function %d\n", batch_i);
+      DEBUG("Run batch %lu for function %lu\n", batch_i, function_index);
       run_batch(ms, fct, &fct->cycle_results[batch_i]);
     }
 
@@ -134,7 +136,7 @@ int run_measurement(struct measuresuite *ms) {
         struct function_tuple *prev = &ms->functions[func_i - 1];
 
         // check
-        DEBUG("Checking correctness for function %d and previous\n", func_i);
+        DEBUG("Checking correctness for function %lu and previous\n", func_i);
         if (check(ms->arg_width * ms->num_arg_out, fct->arithmetic_results,
                   prev->arithmetic_results)) {
           check_result = func_i;
