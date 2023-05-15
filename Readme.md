@@ -15,7 +15,8 @@ This library measures the execution time of code.
 - Can check if the results matches the results of a the other loaded methods.
 - C-interface
 - TypeScript-interface
-- Cli-tool `ms`, takes files in and outputs `JSON` measurements
+- CLI tool `ms`, takes files in and outputs `JSON` measurements
+- CLI script `msc`, takes files in, reports relative performance toward first file.
 - Supports functions of the C-like type `void A(uint64_t *out, const uint64_t *in)` (up to six parameters)
 - It assembles assembly code using [AssemblyLine](https://github.com/0xADE1A1DE/AssemblyLine)
 - Reports chunk size counting. (i.e. How many instructions of a function beaks a chunk boundary, when assembling assemblyfiles with AssemblyLine)
@@ -27,7 +28,8 @@ This library measures the execution time of code.
 
 This repository contains
 - the C-library `libmeasuresuite` in [lib](./lib)
-- a cli-tool `ms` in [bin](./bin); use like `./ms ./fileA.asm ./fileB.o`, out comes `JSON`.
+- a cli tool `ms` in [bin](./bin); use like `./ms ./fileA.asm ./fileB.o`, out comes `JSON`.
+- a cli script `msc` in [bin](./bin); use `./msc --check base.asm change_a.asm change_b.asm`
 - a TypeScript-Wrapper in [ts](./ts), around `libmeasuresuite` built with `node-gyp`.
 
 *Build*-instructions in [Build.md](./Build.md).
@@ -134,6 +136,19 @@ $ ./ms -n 3 ./examples/elf/add_two_numbers.o ./examples/elf/add_two_numbers.asm 
   ]
 }
 
+```
+
+### Sneak Peak CLI MSC
+
+
+```bash
+$ make
+$ make -B -C ./examples/elf/add_two_numbers.o
+$ ./bin/msc base.asm try-x.asm try-y.asm
+Cycles (#3): 8228 8259 8280
+    8228 / 8228 =   1.0000 (base.asm)
+    8259 / 8228 =   1.0038 (try-x.asm)
+    8280 / 8228 =   1.0063 (try-y.asm)
 ```
 
 ### Sneak Peak TypeScript
