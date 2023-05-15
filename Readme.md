@@ -109,8 +109,8 @@ char add_two_asm[] = {"mov rax, [rsi]\n"
 
 
 ```bash
-$ make
-$ make -B -C ./examples/elf/add_two_numbers.o
+$ make ms
+$ make -B -C ./examples/elf add_two_numbers.o
 $ ./ms -n 3 ./examples/elf/add_two_numbers.o ./examples/elf/add_two_numbers.asm | jq
 ``` 
 
@@ -142,13 +142,15 @@ $ ./ms -n 3 ./examples/elf/add_two_numbers.o ./examples/elf/add_two_numbers.asm 
 
 
 ```bash
-$ make
-$ make -B -C ./examples/elf/add_two_numbers.o
-$ ./bin/msc base.asm try-x.asm try-y.asm
-Cycles (#3): 8228 8259 8280
-    8228 / 8228 =   1.0000 (base.asm)
-    8259 / 8228 =   1.0038 (try-x.asm)
-    8280 / 8228 =   1.0063 (try-y.asm)
+$ make ms
+$ make -B -C ./examples/elf add_two_numbers.o 
+$ ./bin/msc ./examples/elf/add_two_numbers.asm ./examples/elf/add_two_numbers_very_slow.asm  ./examples/elf/add_two_numbers.o
+``` 
+```
+Cycles (#3): 2941 3027 2941
+    2941 / 2941 =   1.0000 (./examples/elf/add_two_numbers.asm)
+    3027 / 2941 =   1.0292 (./examples/elf/add_two_numbers_very_slow.asm)
+    2941 / 2941 =   1.0000 (./examples/elf/add_two_numbers.o)
 ```
 
 ### Sneak Peak TypeScript
