@@ -38,7 +38,7 @@ static int get_fdperf(struct perf_event_attr *attr) {
                  "syscall\n\t"
                  : "=a"(ret)
                  : "a"(__NR_perf_event_open), "rdi"(attr)
-                 : "%rsi", "%rdx", "%r10", "%r8"
+                 : "rsi", "rdx", "r10", "r8"
 
   );
   return (int)ret;
@@ -83,7 +83,7 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
     __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
                    : "=a"(result)
                    : "c"(ms->timer.buf->index - 1)
-                   : "%rdx");
+                   : "rdx");
 
     // barrier for cpu
     __asm volatile("lfence;\n\t"
