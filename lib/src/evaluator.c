@@ -78,14 +78,14 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
     arg1 = out + width;
   }
 
-  uint64_t start_time = 0;
-  start_timer(ms, &start_time);
-
   int (*func)(uint64_t * out, ...) = fct->code;
   assert(func != NULL);
   DEBUG("Function to evaluate is not NULL (%p). Running with a batch size of "
         "%lu",
         func, batch_size);
+
+  uint64_t start_time = 0;
+  start_timer(ms, &start_time);
 
   while (batch_size > 0) {
     func(arg0, arg1, arg2, arg3, arg4, arg5);
