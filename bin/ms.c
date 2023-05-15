@@ -83,6 +83,11 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
   }
   if (strcmp(dot, "so") == 0) {
     type = SHARED_OBJECT;
+    if (sym == NULL || strlen(sym) == 0) {
+      fprintf(stderr, "Must provide a symbol if using a shared object.\n");
+      return -1;
+    }
+
     valid = 1;
   }
 

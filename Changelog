@@ -1,4 +1,5 @@
 version 2.0.2 (TBD)
+	- ms: Checking if there is a symbol, when specifying `.so`s
 	- Fixed a invalid extension check:
         Instead of checking, whether the filename ends with .o,
         the code was only checking if .o is in the filename.
