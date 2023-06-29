@@ -58,7 +58,7 @@ napi_value load_asm_string(napi_env env, napi_callback_info info) {
       0) {
     ms_fprintf_error(ms, stderr);
     return throw_and_return_napi_val(
-        env, "MS error'ed whille loading assemblyString.");
+        env, "MS error'ed while loading assemblyString.");
   };
 
   napi_value napi_result = NULL;
@@ -103,8 +103,8 @@ napi_value load_asm_file(napi_env env, napi_callback_info info) {
   int idAsm = -1;
   if (ms_load_file(ms, ASM, asm_file, NULL, &idAsm) != 0) {
     ms_fprintf_error(ms, stderr);
-    return throw_and_return_napi_val(
-        env, "MS error'ed whille loading assemblyString.");
+    return throw_and_return_napi_val(env,
+                                     "MS error'ed while loading assemblyFile.");
   };
 
   napi_value napi_result = NULL;
