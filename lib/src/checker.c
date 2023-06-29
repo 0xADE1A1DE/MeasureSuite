@@ -36,15 +36,7 @@ int check(size_t len, const uint64_t *data, const uint64_t *check_data) {
 
   // if where is a mistake, print all
   if (res == WRONG) {
-    while (++len < total) {
-#if PRINT_BIN
-      printbin(a, b, len, total);
-#else
-      printhex(data, check_data, len, total);
-#endif
-      data++;
-      check_data++;
-    }
+    pretty_print_results(data, check_data, total);
   }
   // and return the result anyway
   return res;

@@ -1,6 +1,6 @@
 {
   "name": "measuresuite",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Typescript wrapper around libmeasuresuite",
   "main": "./ts/dist/index.js",
   "types": "./ts/dist/dts/index.d.ts",
@@ -47,22 +47,21 @@
     "measuresuite-native-module": "file:./build/Release/measuresuite.node"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.0.0",
-    "@types/node": "^20.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.48.2",
-    "@typescript-eslint/parser": "^5.48.2",
-    "@vitest/coverage-c8": "^0.32.0",
-    "c8": "^8.0.0",
-    "eslint": "^8.32.0",
-    "eslint-config-prettier": "^8.6.0",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@types/node": "^20.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "@vitest/coverage-v8": "^0.32.2",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "node-gyp": "^9.3.1",
-    "prettier": "^2.8.3",
-    "rollup": "^3.10.0",
+    "node-gyp": "^9.4.0",
+    "prettier": "^2.8.8",
+    "rollup": "^3.25.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.2",
-    "vite": "^4.0.4",
-    "vitest": "^0.31.0"
+    "typescript": "^5.1.6",
+    "vite": "^4.3.9",
+    "vitest": "^0.32.2"
   },
   "eslintConfig": {
     "root": true,

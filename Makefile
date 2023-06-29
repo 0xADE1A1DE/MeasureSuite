@@ -12,12 +12,21 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 
+LDLIBS     += -ldl
 # compile with assemblyline if possible
-LIBS_AL = $(shell pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
+LIBS_AL = $(shell which pkg-config >/dev/null && pkg-config --exists assemblyline >/dev/null && echo 1 || echo 0)
 ifeq ($(LIBS_AL), 1)
 LDLIBS     += $(shell pkg-config --libs assemblyline)
 CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
 endif
+
+## Enable debug with make DEBUG=1
+DEBUG ?= 0
+ifneq ($(DEBUG), 0)
+CFLAGS += -g -DENABLE_DEBUG
+endif
+
+# use make -B DEBUG=1 CFLAGS='-g' for debug output and better debugging experience
 
 .PHONY: all check clean 
 
@@ -25,7 +34,7 @@ endif
 
 all: lib/libmeasuresuite.so lib/libmeasuresuite.a ms
 
-lib/libmeasuresuite.a lib/libmeasuresuite.so check:
+lib/libmeasuresuite.a lib/libmeasuresuite.so:
 	$(MAKE) -C lib $(subst lib/,,$(@))
 
 ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a 

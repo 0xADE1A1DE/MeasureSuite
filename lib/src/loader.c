@@ -17,6 +17,7 @@
 #include <assemblyline.h>
 #endif
 #include "alloc_helper.h"
+#include "debug.h"
 #include "error/error.h"
 #include "io/elf_parser.h"
 #include "io/file.h"
@@ -53,9 +54,11 @@ const size_t DEFAULT_CODE_SIZE = 60000;
 static int create_new_function(measuresuite_t ms, enum load_type type,
                                size_t code_size_bytes) {
 
+  DEBUG("Creating new function. type: %d\n", type);
   // check size and allocate more if needed
   if (ms->size_functions <= ms->num_functions) {
     ms->size_functions *= 2;
+    DEBUG("Doubled size_functions to %lu\n", ms->size_functions);
     if (realloc_or_fail(ms, (void **)&ms->functions,
                         ms->size_functions * sizeof(struct function_tuple))) {
       return 1;

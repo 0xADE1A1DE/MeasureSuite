@@ -24,7 +24,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static int get_fdperf(struct perf_event_attr *attr) {
+__attribute_noinline__ static int
+get_fdperf(volatile struct perf_event_attr *attr) {
 
   // Apparently not valid c99, c17..
   /** return (int)syscall(__NR_perf_event_open, attr, 0, -1, -1, 0); */
@@ -38,16 +39,19 @@ static int get_fdperf(struct perf_event_attr *attr) {
                  "syscall\n\t"
                  : "=a"(ret)
                  : "a"(__NR_perf_event_open), "rdi"(attr)
-                 : "%rsi", "%rdx", "%r10", "%r8"
+                 : "rsi", "rdx", "r10", "r8", "memory"
 
   );
   return (int)ret;
 }
-static void init_fdperf(struct measuresuite *ms) {
+
+static void init_fdperf(volatile struct measuresuite *ms) {
   struct perf_event_attr attr = {
       .type = PERF_TYPE_HARDWARE,
       .config = PERF_COUNT_HW_CPU_CYCLES,
       .exclude_kernel = 1,
+      .size = sizeof(struct perf_event_attr),
+      .exclude_hv = 1,
   };
 
   ms->timer.fdperf = get_fdperf(&attr);
@@ -83,7 +87,7 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
     __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
                    : "=a"(result)
                    : "c"(ms->timer.buf->index - 1)
-                   : "%rdx");
+                   : "rdx");
 
     // barrier for cpu
     __asm volatile("lfence;\n\t"

@@ -18,20 +18,11 @@
 #define PRINTER_H
 #include <stddef.h>
 #include <stdint.h>
-/**
- * prints the given number in binary to stdout
- */
-void printbin_single_number(uint64_t num);
 
 /**
- * prints two numbers if they are the same in green and red if they are
- * diffeerent
+ * prints two numbers. if they are the same in green and red if they are
+ * different, will print in HEX and if DEBUG is enabled, also in binary
  */
-void printbin(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
-              size_t total);
-/**
- * same but in hex
- */
-void printhex(uint64_t const *data_a, uint64_t const *data_b, size_t idx,
-              size_t total);
+void pretty_print_results(uint64_t const *data_a, uint64_t const *data_b,
+                          size_t total);
 #endif

@@ -91,11 +91,45 @@ static int test_measure_many_check_ok() {
 
   return 0;
 }
+// 12 so's
+static int test_measure_many_so_check_ok() {
+  measuresuite_t ms = NULL;
+
+  int ids[] = {
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  };
+  int pointer = 0;
+  ms_initialize(&ms, arg_width, arg_num_in, arg_num_out);
+
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+  ms_load_file(ms, SHARED_OBJECT, file_shared_object, symbol, ids + pointer++);
+
+  // SET CHECKING
+  ms_set_checking(ms, 1);
+
+  ms_assert_ok(ms_measure(ms, batch_size, number_of_batches));
+
+  ms_assert_ok(ms_terminate(ms));
+
+  return 0;
+}
 
 int main() {
   SIGILL_SETUP();
   int res = 0;
   res |= test_measure_four_check_ok();
   res |= test_measure_many_check_ok();
+  res |= test_measure_many_so_check_ok();
+
   return res;
 }

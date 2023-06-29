@@ -33,12 +33,12 @@ static void print_usage(char *bin_name) {
          ".asm,"
 #endif
          ".bin,.o,.so}\n\
-          -w=N --width          Number of elements in each array. Defaults to %d.\n\
-          -o=N --out            Number of out-arrays. Defaults to %d.\n\
-          -i=N --in             Number of in-arrays. Defaults to %d.\n\
-          -n=N --num_batches    Number of batches to measure (=number of elements in each of the result json's cycles-property.) Defaults to %d.\n\
-          -b=N --batch_size     Number of iterations of each function per batch. Defaults to %d.\n\
-          -s=SYM --symbol       SYM is the symbol being looked for in all .so and .o files.\n\
+          -w N --width N        Number of elements in each array. Defaults to %d.\n\
+          -o N --out N          Number of out-arrays. Defaults to %d.\n\
+          -i N --in N           Number of in-arrays. Defaults to %d.\n\
+          -n N --num_batches N  Number of batches to measure (=number of elements in each of the result json's cycles-property.) Defaults to %d.\n\
+          -b N --batch_size N   Number of iterations of each function per batch. Defaults to %d.\n\
+          -s SYM --symbol SYM   SYM is the symbol being looked for in all .so and .o files.\n\
                                 Required for .so-files. Will resort in the first found symbol in .o files if SYM omitted.\n\
                                 Will be ignored for .bin"
 #if USE_ASSEMBLYLINE
@@ -65,7 +65,7 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
   enum load_type type = ASM;
   char valid = 0;
 
-  if (strstr(dot, "asm") != NULL) {
+  if (strcmp(dot, "asm") == 0) {
 
 #if USE_ASSEMBLYLINE
     type = ASM;
@@ -77,16 +77,21 @@ static int load(measuresuite_t ms, const char *filename, char *sym) {
 #endif
   }
 
-  if (strstr(dot, "bin") != NULL) {
+  if (strcmp(dot, "bin") == 0) {
     type = BIN;
     valid = 1;
   }
-  if (strstr(dot, "so") != NULL) {
+  if (strcmp(dot, "so") == 0) {
     type = SHARED_OBJECT;
+    if (sym == NULL || strlen(sym) == 0) {
+      fprintf(stderr, "Must provide a symbol if using a shared object.\n");
+      return -1;
+    }
+
     valid = 1;
   }
 
-  if (strstr(dot, "o") != NULL) {
+  if (strcmp(dot, "o") == 0) {
     type = ELF;
     valid = 1;
   }

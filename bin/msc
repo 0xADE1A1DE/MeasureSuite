@@ -1,0 +1,78 @@
+#!/usr/bin/bash
+
+#  Copyright 2023 University of Adelaide
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+set -e
+
+MS_PATH=$(realpath "$(dirname "${0}")/../ms")
+print_usage() {
+
+  echo "Usage:"
+  echo "This is a wrapper-script around the 'ms'-tool."
+  echo "Use this script if you want to compare multiple files against baseline."
+  echo "All parameters are passed to the '${MS_PATH}' binary and after execution the JSON output is parsed."
+  echo "All resulting median values will displayed; the first one is considered the baseline, all others will be divided by that baseline."
+
+  echo -e "\nE.g. ${0} base.asm try-x.asm try-y.asm\n" \
+    "Cycles (#3): 8228 8259 8280\n" \
+    "    8228 / 8228 =   1.0000 (base.asm)\n" \
+    "    8259 / 8228 =   1.0038 (try-x.asm)\n" \
+    "    8280 / 8228 =   1.0063 (try-y.asm)\n"
+
+}
+
+# check arguments
+if [[ ${#} -lt 2 ]]; then
+  print_usage
+  exit 1
+fi
+case $1 in
+"--help")
+  print_usage
+  exit 1
+  ;;
+"-h")
+  print_usage
+  exit 1
+  ;;
+esac
+
+# check dependency programs
+for dependency in jq sed calc; do
+  which ${dependency} >/dev/null || echo "need '${dependency}' to be installed"
+done
+
+# run the measuremets and parse JSON
+read -r -a cycles < <(${MS_PATH} "${@}" |
+  jq --raw-output '.cycles | map(sort) | map(.[14]) | join(" ")')
+
+# find the arguments which are files
+files=()
+for arg in "${@}"; do
+  if [[ ! "${arg}" =~ ^-.* ]]; then
+    ls "${arg}" >/dev/null && files+=("${arg}")
+  fi
+done
+
+# print all the results
+i=0
+echo "Cycles (#${#cycles[@]}): ${cycles[*]}"
+while [ "${i}" -lt "${#cycles[@]}" ]; do
+
+  term="${cycles[${i}]} / ${cycles[0]}"
+  printf "%15s = \033[33m%8.4f\033[0m (%s)\n" "${term}" "$(calc -dp <<<"${term}")" "${files[$i]}"
+
+  i=$((i + 1))
+done
