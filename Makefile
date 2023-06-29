@@ -60,4 +60,5 @@ check: ms
 		./lib/test/test_data/add_two_numbers.asm \
 		./lib/test/test_data/add_two_numbers.bin \
 		./lib/test/test_data/add_two_numbers.so \
-		./lib/test/test_data/add_two_numbers.o
+		./lib/test/test_data/add_two_numbers.o && \
+		echo -e "\nOK."
