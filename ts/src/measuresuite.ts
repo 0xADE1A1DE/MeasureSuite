@@ -21,9 +21,9 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 // import * as ms from "measuresuite-native-module"; // for development and get the types and type completion
 const ms = require("measuresuite-native-module");
+declare function assert(value: unknown): asserts value;
 
 import type { MeasureResult, FunctionType } from "./measure.interface";
-import assert from "assert";
 
 // use with caution
 export const native_ms = {
@@ -131,7 +131,7 @@ export class Measuresuite {
     }
     // load the file with the appropriate filetype
     const loadFunction = this.ft2load.get(filetype);
-    assert(loadFunction, "Filetype unsupported");
+    assert(loadFunction);
     loadFunction(filename, functionSymbol ?? "");
   }
 
