@@ -19,6 +19,7 @@ export default defineConfig({
   test: {
     coverage: {
       reporter: ["text", "json", "html", "cobertura"],
+      provider: "v8",
     },
     include: ["**/test/**/*.test.ts"],
   },
