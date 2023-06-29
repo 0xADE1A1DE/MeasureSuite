@@ -74,29 +74,35 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
   long long result = 0;
   unsigned int seq = 0;
   long long offset = 0;
+  long long index = 0;
+  struct perf_event_mmap_page *buf = ms->timer.buf;
 
   do {
-    seq = ms->timer.buf->lock;
+    seq = buf->lock;
     // barrier for cc
     __asm volatile("" ::: "memory");
-    offset = ms->timer.buf->offset;
-    // barrier for cpu
-    __asm volatile("lfence;\n\t"
-                   "cpuid;\n\t" ::
-                       : "rax", "rbx", "rcx", "rdx");
-    __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
-                   : "=a"(result)
-                   : "c"(ms->timer.buf->index - 1)
-                   : "rdx");
+    offset = buf->offset;
+    index = buf->index;
+    if (buf->cap_user_rdpmc && index) {
 
-    // barrier for cpu
-    __asm volatile("lfence;\n\t"
-                   "cpuid;\n\t" ::
-                       : "rax", "rbx", "rcx", "rdx");
+      // barrier for cpu
+      __asm volatile("lfence;\n\t"
+                     "cpuid;\n\t" ::
+                         : "rax", "rbx", "rcx", "rdx");
+      __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
+                     : "=a"(result)
+                     : "c"(ms->timer.buf->index - 1)
+                     : "rdx");
 
-    // barrier for cc
-    __asm volatile("" ::: "memory");
-  } while (ms->timer.buf->lock != seq);
+      // barrier for cpu
+      __asm volatile("lfence;\n\t"
+                     "cpuid;\n\t" ::
+                         : "rax", "rbx", "rcx", "rdx");
+
+      // barrier for cc
+      __asm volatile("" ::: "memory");
+    }
+  } while (buf->lock != seq);
 
   return result + offset;
 
