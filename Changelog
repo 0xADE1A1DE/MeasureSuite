@@ -1,8 +1,8 @@
-version 2.0.2 (TBD)
+version 2.1.0 (2023-06-29)
 	- lib: Bug worked around, which caused stack smashing. I don't know why this is
 	  happening, but it turns out that if `get_fdperf` is inlined, the syscall
 	  overwrites the canary. If we prevent inlining, this issue does not
-	  appear. Also added some more attibutes like size to the attr.
+	  appear. Also added some more attributes like size to the attr.
 	- ms: Checking if there is a symbol, when specifying `.so`s
 	- msc: Feature: new wrapper script around `./ms`. Give this script a
 		couple filenames and it will report how fast all others are compared
@@ -23,7 +23,7 @@ version 2.0.2 (TBD)
 		Will now always print the hex, and binary if compiled with debug
 
 version 2.0.1 (2023-01-19)
-	- Fixed a bug causeing out-of-memory after repeated calls to 'measure'
+	- Fixed a bug causing out-of-memory after repeated calls to 'measure'
 	  from the typescript wrapper
 	- API: added the unload_{all,last} function to the native module
 
