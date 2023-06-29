@@ -23,6 +23,7 @@ const require = createRequire(import.meta.url);
 const ms = require("measuresuite-native-module");
 
 import type { MeasureResult, FunctionType } from "./measure.interface";
+import assert from "assert";
 
 // use with caution
 export const native_ms = {
@@ -128,12 +129,10 @@ export class Measuresuite {
         );
       }
     }
-
-    if (functionSymbol) {
-      this.ft2load.get(filetype)!(filename, functionSymbol);
-    } else {
-      this.ft2load.get(filetype)!(filename, "");
-    }
+    // load the file with the appropriate filetype
+    const loadFunction = this.ft2load.get(filetype);
+    assert(loadFunction, "Filetype unsupported");
+    loadFunction(filename, functionSymbol ?? "");
   }
 
   public setBounds(bounds: string[]): void {
