@@ -40,6 +40,12 @@ lib/libmeasuresuite.a lib/libmeasuresuite.so:
 ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a 
 	$(CC) $(CFLAGS) -I./lib/src/include $(^) $(CPPFLAGS) $(LDLIBS) -o $(@)
 
+publish: clean
+	 tsc --emitDeclarationOnly -p ./ts/
+	 npm run build
+	 cp Readme.md ./ts/dist
+	 @echo "If you've updated the versions (npm version minor), run 'npm publish' now"
+
 clean:
 	rm -rf ms \
 		ts/coverage \

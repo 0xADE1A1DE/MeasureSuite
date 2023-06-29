@@ -30,3 +30,15 @@
 To enable debug messages, you can pass `-DENABLE_DEBUG` when building
 - C: `CPPFLAGS=-DENABLE_DEBUG make`
 - TS: add `"ENABLE_DEBUG"` to `targets.defines` in `./ts/binding.gyp`, then run `npm install`
+
+## Publish new version
+
+Run all the checks
+- `make check`
+- `npm test`
+- `npm run test-cov`
+- `npm run lint-check`
+- `npm run format-check`
+
+Run the build to build js
+- `npm run build`
