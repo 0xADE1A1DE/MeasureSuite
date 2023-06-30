@@ -43,6 +43,7 @@ export const native_ms = {
   set_bounds: ms.set_bounds,
 
   measure: ms.measure,
+  destroy: ms.destroy,
 };
 
 export class Measuresuite {
@@ -94,6 +95,10 @@ export class Measuresuite {
     this.ft2load.set("ASM", ms.load_asm_file);
     this.ft2load.set("BIN", ms.load_bin_file);
     this.ft2load.set("SHARED_OBJECT", ms.load_shared_object_file);
+  }
+
+  public destroy(): number {
+    return ms.destroy();
   }
 
   // mapping tables

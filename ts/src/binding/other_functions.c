@@ -58,11 +58,25 @@ void init(napi_env env, napi_callback_info info) {
   }
 
   // save the measuresuite_t handle in as the instance data. and set the
-  // finalise callback to call measure end
+  // finalise callback to call ms_teminate
   if (napi_set_instance_data(env, ms, &finalise, NULL) != napi_ok) {
     return throw_error_return_void(
         env, "Unable to set instance data / finalize_cb.");
   }
+}
+napi_value destroy(napi_env env, napi_callback_info info) {
+  void *instance_data = NULL;
+  if (napi_get_instance_data(env, &instance_data) != napi_ok) {
+    return throw_and_return_napi_val(env, "Unable to get instance data.");
+  }
+
+  measuresuite_t ms = (measuresuite_t)instance_data;
+  if (ms_terminate(ms)) {
+    throw_and_return_napi_val(env, "Unable to destroy measuresuite instance.");
+  }
+  napi_value napi_result = NULL;
+  napi_create_int32(env, 0, &napi_result);
+  return napi_result;
 }
 
 napi_value binding_set_bounds(napi_env env, napi_callback_info info) {

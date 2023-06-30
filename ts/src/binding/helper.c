@@ -16,8 +16,8 @@
 
 #include "helper.h"
 // NOLINTNEXTLINE (must declare hint as a valid callback for NODE_API)
-void finalise(napi_env env, void *finalize_data, void *finalize_hint) {
-  if (ms_terminate((measuresuite_t)finalize_data)) {
+void finalise(napi_env env, void *finalise_data, void *finalize_hint) {
+  if (ms_terminate((measuresuite_t)finalise_data)) {
     if (napi_throw_error(env, NULL, "measure_end didnt work.") != napi_ok) {
       fprintf(stderr, "Unable to throw error.\n");
     }

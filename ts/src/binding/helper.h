@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void finalise(napi_env env, void *finalize_data, void *finalize_hint);
+void finalise(napi_env env, void *finalise_data, void *finalize_hint);
 
 void throw_error_return_void(napi_env env, const char *msg);
 

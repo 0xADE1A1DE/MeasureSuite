@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 int init_timer(struct measuresuite *ms);
+int end_timer(struct measuresuite *ms);
 void start_timer(struct measuresuite *ms, uint64_t *start);
 uint64_t stop_timer(struct measuresuite *ms, uint64_t start);
 

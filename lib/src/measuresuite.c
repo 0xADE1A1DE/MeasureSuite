@@ -131,6 +131,7 @@ int ms_get_cycles(measuresuite_t ms, size_t **dest, size_t idx) {
 int ms_terminate(measuresuite_t ms) {
   if (ms_unload_all(ms) // unload all the loaded functions
       || end_random(ms) // free random data spot
+      || end_timer(ms)  // free all timer related data
   ) {
     return 1;
   }

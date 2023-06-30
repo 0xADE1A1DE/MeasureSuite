@@ -178,6 +178,9 @@ static uint64_t measuresuite_time_rdtscp() {
  */
 int init_timer(struct measuresuite *ms) {
 
+  // init timer struct
+  memset(&ms->timer, 0, sizeof(ms->timer));
+
   // try to initialize
   init_fdperf(ms);
 
@@ -190,6 +193,23 @@ int init_timer(struct measuresuite *ms) {
   }
 
   return 0;
+}
+
+/**
+ * This function checks if we used PMC and will then free the mmapped region
+ */
+int end_timer(struct measuresuite *ms) {
+
+  if (ms->timer.fdperf == -1) {
+    // we've used RDTSCP, nothing to be done
+    return 0;
+  }
+  // otherwise we used pmc
+  if (munmap(ms->timer.buf, sysconf(_SC_PAGESIZE)) == 0) {
+    return 0;
+  }
+  perror("munmap of timer buffer (pmc) failed.");
+  return 1;
 }
 
 void start_timer(struct measuresuite *ms, uint64_t *start) {

@@ -32,4 +32,5 @@ declare module "measuresuite-native-module" {
   function set_bounds(bounds: BigUint64Array): void;
 
   function measure(batchSize: number, numBatches: number): string;
+  function destroy(): number;
 }
