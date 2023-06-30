@@ -28,7 +28,7 @@ static void printbin_single_number_bin(uint64_t num, uint64_t compare) {
   const int bitwidth_uint64 = 64;
   int width = bitwidth_uint64; // bits
 
-  printf(" (0x");
+  printf(" (0b");
   while (width--) {
     unsigned long value = (num >> width) & 1;
     unsigned long truth = (compare >> width) & 1;
@@ -39,7 +39,7 @@ static void printbin_single_number_bin(uint64_t num, uint64_t compare) {
       printf(" ");
     }
   }
-  printf("\x1b[0m)\n");
+  printf("\x1b[0m)");
 }
 #endif
 
@@ -69,14 +69,14 @@ void pretty_print_results(uint64_t const *data_a, uint64_t const *data_b,
     uint64_t ground_truth = data_a[i];
     uint64_t val = data_b[i];
     printf("\n\x1b[%dm@ %lu/%lu\x1b[0m:\n"
-           "a:0b",
+           "a:0x",
            color_grn - (val != ground_truth), i, total);
 
     printbin_single_number_hex(ground_truth, ground_truth);
 #ifdef ENABLE_DEBUG
     printbin_single_number_bin(ground_truth, ground_truth);
 #endif
-    printf("\x1b[0mb:0b");
+    printf("\n\x1b[0mb:0x");
 
     printbin_single_number_hex(val, ground_truth);
 #ifdef ENABLE_DEBUG

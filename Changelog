@@ -2,6 +2,7 @@ version 2.1.2-beta
 	- fix build errors
 	- fix segfault caused by incorrect syscall in timer.c
 	- adding `destroy` method to cleanly free/unmap data
+	- fixed printer prefixes and line breaks (in case the check fails)
 
 version 2.1.1 (2023-06-29)
 	- fix package-lock.json file
