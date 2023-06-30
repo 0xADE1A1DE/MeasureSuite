@@ -17,6 +17,7 @@
 #include "timer.h"
 #include <linux/perf_event.h> // PERF_*
 #include <stdio.h>            // NULL
+#include <string.h>           // memset
 #include <sys/ioctl.h>        // ioctl
 #include <sys/mman.h>         // mmap
 #include <sys/syscall.h>      // __NR_perf_event_open
@@ -29,17 +30,21 @@ get_fdperf(volatile struct perf_event_attr *attr) {
 
   // Apparently not valid c99, c17..
   /** return (int)syscall(__NR_perf_event_open, attr, 0, -1, -1, 0); */
+  // SYSTEM V syscall calling convention: rdi rsi rdx rcx r8 r9
 
+  pid_t pid = 0;
+  uint64_t cpu = -1;
+  uint64_t group_fd = -1;
+  unsigned long flags = 0;
   // I'll do it myself then for x64
   long ret = -1;
-  __asm volatile("mov $0, %%rsi\n\t"
-                 "mov $-1, %%rdx\n\t"
-                 "mov $-1, %%r10\n\t"
-                 "mov $0, %%r8\n\t"
+  __asm volatile("mov %[groupfd], %%r8\n\t"
+                 "mov %[flags], %%r9\n\t"
                  "syscall\n\t"
                  : "=a"(ret)
-                 : "a"(__NR_perf_event_open), "rdi"(attr)
-                 : "rsi", "rdx", "r10", "r8", "memory"
+                 : "rdi"(__NR_perf_event_open), "rsi"(attr), "rdx"(pid),
+                   "rcx"(cpu), [groupfd] "rmi"(group_fd), [flags] "rmi"(flags)
+                 : "memory", "r8", "r9"
 
   );
   return (int)ret;
