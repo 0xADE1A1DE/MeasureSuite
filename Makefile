@@ -42,6 +42,7 @@ ms:  bin/arg_parse.c bin/ms.c lib/libmeasuresuite.a
 
 publish: clean
 	 tsc --emitDeclarationOnly -p ./ts/
+	 npm install
 	 npm run build
 	 cp Readme.md ./ts/dist
 	 @echo "If you've updated the versions (npm version minor), run 'npm publish' now"
