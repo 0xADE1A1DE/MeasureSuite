@@ -1,4 +1,4 @@
-version 2.1.2-beta
+version 2.1.2 (2023-06-30)
 	- fix build errors
 	- fix segfault caused by incorrect syscall in timer.c
 	- adding `destroy` method to cleanly free/unmap data
