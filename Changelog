@@ -1,6 +1,12 @@
 version 2.2.0 (2023-07-??)
 	- FEATURE: add ms_get_timer (lib) and .timer (getter in TS) to see which
 		timer has been used.  Will also write that into the JSON (.stats.timer)
+	- Bugfix: (Segfaults) The last change caused essentially only RDTSCP to be
+	used. Now the assembly to get SYS_perf_event_open should be correct  as
+	well as the assembly to `rdpmc`. Some reasons were that, when specifying
+	e.g. 'rax' in inline asm, cc only saw the 'r' and moved the value into
+	"some" register. This probbaly also caused the stack smashing in earlier
+	versions.
 
 version 2.1.2 (2023-06-30)
 	- fix build errors

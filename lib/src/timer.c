@@ -23,33 +23,33 @@
 #include <string.h>           // memset
 #include <sys/ioctl.h>        // ioctl
 #include <sys/mman.h>         // mmap
-#include <sys/syscall.h>      // __NR_perf_event_open
+#include <sys/syscall.h>      // SYS_perf_event_open
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-__attribute_noinline__ static int
-get_fdperf(volatile struct perf_event_attr *attr) {
+static int get_fdperf(volatile struct perf_event_attr *attr) {
 
-  // Apparently not valid c99, c17..
-  /** return (int)syscall(__NR_perf_event_open, attr, 0, -1, -1, 0); */
-  // SYSTEM V syscall calling convention: rdi rsi rdx rcx r8 r9
+  const pid_t pid = 0;
+  const int cpu = -1;
+  const int group_fd = -1;
+  const unsigned long flags = 0;
+  /**
+   * To use this we'd need to #define _GNU_SOURCE, which I don't know the
+   * sideffects of:
+   * return (int)syscall(SYS_perf_event_open, attr, pid, cpu, group_fd, flags);
+   */
 
-  pid_t pid = 0;
-  uint64_t cpu = -1;
-  uint64_t group_fd = -1;
-  unsigned long flags = 0;
-  // I'll do it myself then for x64
-  long ret = -1;
-  __asm volatile("mov %[groupfd], %%r8\n\t"
-                 "mov %[flags], %%r9\n\t"
+  long long ret = -1;
+
+  /** https://man7.org/linux/man-pages/man2/syscall.2.html */
+  __asm volatile("mov %[groupfd], %%r10\n\t"
+                 "mov %[flags], %%r8\n\t"
                  "syscall\n\t"
                  : "=a"(ret)
-                 : "rdi"(__NR_perf_event_open), "rsi"(attr), "rdx"(pid),
-                   "rcx"(cpu), [groupfd] "rmi"(group_fd), [flags] "rmi"(flags)
-                 : "memory", "r8", "r9"
-
-  );
+                 : "a"(SYS_perf_event_open), "D"(attr), "S"(pid),
+                   "d"(cpu), [groupfd] "rmi"(group_fd), [flags] "rmi"(flags)
+                 : "memory", "r8", "r10", "r11", "rcx", "cc");
   return (int)ret;
 }
 
@@ -92,23 +92,22 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
     offset = buf->offset;
     index = buf->index;
     if (buf->cap_user_rdpmc && index) {
+      DEBUG("The index is %lld, offset: %lld, result %lld\n", index, offset,
+            result);
 
-      // barrier for cpu
-      __asm volatile("lfence;\n\t"
-                     "cpuid;\n\t" ::
-                         : "rax", "rbx", "rcx", "rdx");
-      __asm volatile("rdpmc;shlq $32,%%rdx;orq %%rdx,%%rax"
-                     : "=a"(result)
-                     : "c"(ms->timer.buf->index - 1)
-                     : "rdx");
-
-      // barrier for cpu
-      __asm volatile("lfence;\n\t"
-                     "cpuid;\n\t" ::
-                         : "rax", "rbx", "rcx", "rdx");
-
-      // barrier for cc
-      __asm volatile("" ::: "memory");
+      __asm__ volatile("lfence\n\t"
+                       "cpuid\n\t"
+                       "mov %q0,%%rcx\n\t"
+                       "dec %%rcx\n\t"
+                       "rdpmc\n\t"
+                       "shlq $32,%%rdx\n\t"
+                       "orq %%rdx,%%rax\n\t"
+                       "mov %%rax, %q1\n\t"
+                       "lfence\n\t"
+                       "cpuid\n\t"
+                       : "=&m"(index), "=&m"(result)
+                       :
+                       : "rax", "rbx", "rcx", "rdx", "memory", "cc");
     }
   } while (buf->lock != seq);
 
