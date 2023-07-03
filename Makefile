@@ -56,7 +56,7 @@ clean:
 
 check: ms
 	$(MAKE) -C lib test
-	./ms  \
+	@./ms  \
 		-s add_two_numbers \
 		./lib/test/test_data/add_two_numbers.asm \
 		./lib/test/test_data/add_two_numbers.bin \
