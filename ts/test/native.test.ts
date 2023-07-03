@@ -34,6 +34,7 @@ describe("native_ms", () => {
       "enable_chunk_counting",
       "set_bounds",
       "measure",
+      "destroy",
       "get_timer",
     ] as Array<keyof typeof native_ms>;
     props.forEach((property) => {
