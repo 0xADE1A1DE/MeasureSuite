@@ -93,7 +93,7 @@ static void run_batch(struct measuresuite *ms, struct function_tuple *fct,
   }
 
   *count = stop_timer(ms, start_time);
-  DEBUG("Done. Ran for %lu cycles.\n", count);
+  DEBUG("Done. Ran for %lu cycles.\n", *count);
 }
 
 int run_measurement(struct measuresuite *ms) {
