@@ -191,6 +191,7 @@ enum TIMER ms_get_timer(measuresuite_t ms);
 
 /**
  * Will release all resources allocated with @param ms
+ * can be called with NULL, then no operation will be done.
  */
 int ms_terminate(measuresuite_t ms);
 

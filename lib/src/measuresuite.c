@@ -134,8 +134,12 @@ enum TIMER ms_get_timer(measuresuite_t ms) {
 /**
  * frees memory used for randomness and scratches
  * frees memory and mmaps
+ * can be called with NULL, then no operation will be done.
  */
 int ms_terminate(measuresuite_t ms) {
+  if (ms == NULL) {
+    return 0;
+  }
   if (ms_unload_all(ms) // unload all the loaded functions
       || end_random(ms) // free random data spot
       || end_timer(ms)  // free all timer related data

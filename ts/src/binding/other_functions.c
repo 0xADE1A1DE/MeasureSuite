@@ -71,7 +71,7 @@ napi_value destroy(napi_env env, napi_callback_info info) {
   }
 
   measuresuite_t ms = (measuresuite_t)instance_data;
-  if (ms_terminate(ms)) {
+  if (ms != NULL && ms_terminate(ms)) {
     throw_and_return_napi_val(env, "Unable to destroy measuresuite instance.");
   }
   napi_value napi_result = NULL;

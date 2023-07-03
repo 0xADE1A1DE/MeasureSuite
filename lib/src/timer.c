@@ -15,6 +15,8 @@
  */
 
 #include "timer.h"
+#include "assert.h"
+#include "debug.h"
 #include "measuresuite.h"
 #include <linux/perf_event.h> // PERF_*
 #include <stdio.h>            // NULL
@@ -61,6 +63,7 @@ static void init_fdperf(volatile struct measuresuite *ms) {
   };
 
   ms->timer.fdperf = get_fdperf(&attr);
+  DEBUG("fdperf for the PERF Event page: %d.\n", ms->timer.fdperf);
 
   if (ms->timer.fdperf == -1) {
     return;
@@ -70,12 +73,11 @@ static void init_fdperf(volatile struct measuresuite *ms) {
   // NOLINTNEXTLINE (mmap - api)
   if (ms->timer.buf == MAP_FAILED) {
     ms->timer.fdperf = -1;
+    perror("mmap (for performance counter) failed");
   }
 }
 
 static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
-  // eax: low 32
-  // edx: high 32
 #if defined(__x86_64__) || defined(__amd64__)
   long long result = 0;
   unsigned int seq = 0;
@@ -110,6 +112,8 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
     }
   } while (buf->lock != seq);
 
+  DEBUG("The index is %lld, offset: %lld, result %lld\n", index, offset,
+        result);
   return result + offset;
 
   // ARM on Darwin does not support mrc p15.
@@ -158,19 +162,17 @@ uint64_t current_timestamp() {
 
 // NOLINTNEXTLINE (the inlineasm is not analyzed with clang tidy)
 static uint64_t measuresuite_time_rdtscp() {
-
+  // eax: low 32
+  // edx: high 32
   uint64_t result = 0;
-  // barrier for cc
-  __asm volatile("" ::: "memory");
-  __asm__ __volatile__("LFENCE;\n\t"
-                       "RDTSCP;\n\t"
+  __asm__ __volatile__("lfence;\n\t"
+                       "rdtscp;\n\t"
                        "shl $0x20, %%rdx; \n\t"
                        "or %%rdx, %%rax; \n\t"
                        "mov %%rax, %[time]; \n\t"
-                       "CPUID; \n\t"
-                       : [time] "=&m"(result)::"rax", "rbx", "rcx", "rdx");
-  // barrier for cc
-  __asm volatile("" ::: "memory");
+                       "cpuid; \n\t"
+                       : [time] "=&m"(result)::"rax", "rbx", "rcx", "rdx",
+                         "memory");
   return result;
 }
 
@@ -206,7 +208,12 @@ int end_timer(struct measuresuite *ms) {
   }
 
   // otherwise we used pmc
+  assert(ms->timer.buf != NULL); // and  the buffer shall not be NULL
+
   if (munmap(ms->timer.buf, sysconf(_SC_PAGESIZE)) == 0) {
+    ms->timer.buf = NULL;
+    ioctl(ms->timer.fdperf, PERF_EVENT_IOC_DISABLE, 0);
+    close(ms->timer.fdperf);
     return 0;
   }
   perror("munmap of timer buffer (pmc) failed.");

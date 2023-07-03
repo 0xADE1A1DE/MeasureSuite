@@ -79,6 +79,9 @@ int realloc_rwx_or_fail(struct measuresuite *ms, void **dest, size_t old_len,
 }
 
 int unmap(struct measuresuite *ms, void *dest, size_t old_len) {
+  if (dest == NULL) {
+    return 0;
+  }
   if (munmap(dest, old_len)) {
     ms->errorno = E_INTERNAL_MEASURE__AI__ALLOC;
     ms->additional_info = strerror(errno);
