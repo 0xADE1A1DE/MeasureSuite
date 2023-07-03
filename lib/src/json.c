@@ -40,10 +40,15 @@ int generate_json(struct measuresuite *ms, uint64_t delta_in_seconds,
         "\"numFunctions\":%" PRIu64 ","
         "\"runtime\":%" PRIu64 "," // in seconds
         "\"incorrect\":%" PRIu64
-        "}," // if incorrect is '0', all functions calculate the same, otherwise
-             // the index of which function is incorrect to the previous one.
+        "," // index
+            // if incorrect is '0', all functions calculate the same, otherwise
+            // the index of which function is incorrect to the previous one.
+
+        "\"timer\":\"%s\"" // string "RDTSCP" or "PMC"
+        "},"
         "\"functions\":[",
-        ms->num_functions, delta_in_seconds, check_result);
+        ms->num_functions, delta_in_seconds, check_result,
+        ms_get_timer(ms) == PMC ? "PMC" : "RDTSCP");
 
   // print function meta data
   //

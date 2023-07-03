@@ -1,3 +1,7 @@
+version 2.2.0 (2023-07-??)
+	- FEATURE: add ms_get_timer (lib) and .timer (getter in TS) to see which
+		timer has been used.  Will also write that into the JSON (.stats.timer)
+
 version 2.1.2 (2023-06-30)
 	- fix build errors
 	- fix segfault caused by incorrect syscall in timer.c

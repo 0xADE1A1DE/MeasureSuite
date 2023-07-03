@@ -49,7 +49,8 @@ static int test_measure_long_json_ok() {
   ms_assert(len > many_nob * strlen("123,"));
 
   assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":1,\"runtime\":");
-  assert_string_in_json(ms, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\","
+  assert_string_in_json(ms, "\"incorrect\":0,\"timer\":");
+  assert_string_in_json(ms, "},\"functions\":[{\"type\":\"ASM\","
                             " \"chunks\":0}],\"cycles\":[[");
 
   ms_assert_ok(ms_terminate(ms));
@@ -82,9 +83,9 @@ static int test_measure_two_ok() {
   //"chunks":0},{"type":"SHARED_OBJECT"}],"cycles":[[1721,1714,1589,1701,1704,2589,2550,2589,2584,2593],[2403,1674,1639,1674,1782,1751,2597,2594,2598,2589]]}
 
   assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":2,\"runtime\":");
-
+  assert_string_in_json(ms, "\"incorrect\":0,\"timer\":\"");
   assert_string_in_json(
-      ms, "\"incorrect\":0},\"functions\":[{\"type\":\"ASM\", "
+      ms, "},\"functions\":[{\"type\":\"ASM\", "
           "\"chunks\":0},{\"type\":\"SHARED_OBJECT\"}],\"cycles\":[[");
 
   ms_assert_ok(ms_terminate(ms));

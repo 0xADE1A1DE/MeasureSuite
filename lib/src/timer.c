@@ -15,6 +15,7 @@
  */
 
 #include "timer.h"
+#include "measuresuite.h"
 #include <linux/perf_event.h> // PERF_*
 #include <stdio.h>            // NULL
 #include <string.h>           // memset
@@ -200,10 +201,10 @@ int init_timer(struct measuresuite *ms) {
  */
 int end_timer(struct measuresuite *ms) {
 
-  if (ms->timer.fdperf == -1) {
-    // we've used RDTSCP, nothing to be done
+  if (ms_get_timer(ms) == RDTSCP) {
     return 0;
   }
+
   // otherwise we used pmc
   if (munmap(ms->timer.buf, sysconf(_SC_PAGESIZE)) == 0) {
     return 0;

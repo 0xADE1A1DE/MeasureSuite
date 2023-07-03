@@ -58,6 +58,10 @@ describe("general with test_lib", () => {
     // Because all the functions calculate the same result, the id of the incorrect function shall be 0
     expect(measurementResult.stats.incorrect).toBe(0);
 
+    // Should either have used RDTCSP or PMC
+    expect(["RDTSCP", "PMC"]).toContain(measurementResult.stats.timer);
+    expect(ms.timer).toBe(measurementResult.stats.timer);
+
     // should have used two ASM functions and one Shared Object
     expect(measurementResult.stats).toBeTruthy();
     expect(measurementResult.stats.numFunctions).toBe(3);

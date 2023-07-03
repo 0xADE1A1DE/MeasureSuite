@@ -60,14 +60,13 @@ static int test_measure_load_check_ok() {
   //{"stats":{"numFunctions":2,"runtime":0,"incorrect":0},"functions":[{"type":"ASM",
   //"chunks":0},{"type":"SHARED_OBJECT"}],"cycles":[[1721,1714,1589,1701,1704,2589,2550,2589,2584,2593],[2403,1674,1639,1674,1782,1751,2597,2594,2598,2589]]}
 
-  char *pos = strstr(json, "{\"stats\":{\"numFunctions\":3,\"runtime\":");
-  assert(pos != NULL);
-  pos = strstr(json, "\"incorrect\":0},\"functions\":["
-                     "{\"type\":\"SHARED_OBJECT\"},"
-                     "{\"type\":\"ASM\", \"chunks\":0},"
-                     "{\"type\":\"ASM\", \"chunks\":0}"
-                     "],\"cycles\":[[");
-  assert(pos != NULL);
+  assert_string_in_json(ms, "{\"stats\":{\"numFunctions\":3,\"runtime\":");
+  assert_string_in_json(ms, "\"incorrect\":0,\"timer\":\"");
+  assert_string_in_json(ms, "},\"functions\":["
+                            "{\"type\":\"SHARED_OBJECT\"},"
+                            "{\"type\":\"ASM\", \"chunks\":0},"
+                            "{\"type\":\"ASM\", \"chunks\":0}"
+                            "],\"cycles\":[[");
 
   ms_assert_ok(ms_terminate(ms));
 

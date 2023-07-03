@@ -182,6 +182,13 @@ void ms_get_json(measuresuite_t ms, const char **json, size_t *json_len);
  */
 int ms_get_cycles(measuresuite_t ms, uint64_t **dest, size_t idx);
 
+enum TIMER { PMC, RDTSCP };
+/**
+ * will return the used timer. Only valid if MS has been initialized
+ * (ms_initialize has been called)
+ */
+enum TIMER ms_get_timer(measuresuite_t ms);
+
 /**
  * Will release all resources allocated with @param ms
  */

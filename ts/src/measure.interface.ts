@@ -20,7 +20,8 @@ export interface MeasureResult {
   //  "stats": {
   //    "numFunctions": 2,
   //    "runtime": 0,
-  //    "incorrect": 0
+  //    "incorrect": 0,
+  //    "timer": "PMC"|"RDTSCP"
   //  },
   //  "functions": [
   //    {
@@ -41,6 +42,7 @@ export interface MeasureResult {
     numFunctions: number;
     runtime: number;
     incorrect: number;
+    timer: "PMC" | "RDTSCP";
   };
   functions: FunctionSummary[];
 
@@ -70,6 +72,7 @@ interface BaseSummary<T extends FunctionType> {
                        // i.e. 0 means all correct (as there is no previous)
                        // i.e. 1 means function 1 calculated a different result thant function 0
                        // i.e. x means function x calculated a different result thant function x-1,  and functions 0..x-1 all calculated the same.
+    "timer": "RDTSCP" // using the timestamp counter
   },
   "cycles":           // has the same length as functions and as specified in numFunctions
                       // each element contains num_batches numbers of the cyclecounts for the respective loaded function

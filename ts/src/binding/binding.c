@@ -66,6 +66,9 @@ napi_value Init(napi_env env, napi_value exports) {
   // measure(batchSize: number, numBatches: number): string;
   register_function(env, exports, measure, "measure");
 
+  // get_timer(): number;
+  register_function(env, exports, get_timer, "get_timer");
+
   // destroy(): number;
   register_function(env, exports, destroy, "destroy");
 

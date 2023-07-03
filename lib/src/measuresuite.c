@@ -124,6 +124,13 @@ int ms_get_cycles(measuresuite_t ms, size_t **dest, size_t idx) {
   return 0;
 }
 
+enum TIMER ms_get_timer(measuresuite_t ms) {
+  if (ms->timer.fdperf == -1) {
+    return RDTSCP;
+  }
+  return PMC;
+}
+
 /**
  * frees memory used for randomness and scratches
  * frees memory and mmaps

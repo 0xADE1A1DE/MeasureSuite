@@ -79,6 +79,29 @@ napi_value destroy(napi_env env, napi_callback_info info) {
   return napi_result;
 }
 
+napi_value get_timer(napi_env env, napi_callback_info info) {
+  void *instance_data = NULL;
+  if (napi_get_instance_data(env, &instance_data) != napi_ok &&
+      instance_data != NULL) {
+    return throw_and_return_napi_val(env, "Unable to get instance data.");
+  }
+
+  measuresuite_t ms = (measuresuite_t)instance_data;
+  enum TIMER timer = ms_get_timer(ms);
+  napi_value napi_result = NULL;
+
+  if (timer == PMC) {
+    napi_create_int32(env, 0, &napi_result);
+    return napi_result;
+  }
+  if (timer == RDTSCP) {
+    napi_create_int32(env, 1, &napi_result);
+    return napi_result;
+  }
+  napi_create_int32(env, -1, &napi_result);
+  return napi_result;
+}
+
 napi_value binding_set_bounds(napi_env env, napi_callback_info info) {
   // getting back the instance
   void *instance_data = NULL;

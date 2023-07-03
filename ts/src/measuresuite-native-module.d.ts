@@ -30,6 +30,7 @@ declare module "measuresuite-native-module" {
   function enable_checking(): void;
   function enable_chunk_counting(chunkSize: number): void;
   function set_bounds(bounds: BigUint64Array): void;
+  function get_timer(): 0 | 1 | -1; //0: uses pmc, 1: uses RDTSCP; -1: fail
 
   function measure(batchSize: number, numBatches: number): string;
   function destroy(): number;

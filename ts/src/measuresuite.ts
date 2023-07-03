@@ -44,6 +44,7 @@ export const native_ms = {
 
   measure: ms.measure,
   destroy: ms.destroy,
+  get_timer: ms.get_timer,
 };
 
 export class Measuresuite {
@@ -95,6 +96,17 @@ export class Measuresuite {
     this.ft2load.set("ASM", ms.load_asm_file);
     this.ft2load.set("BIN", ms.load_bin_file);
     this.ft2load.set("SHARED_OBJECT", ms.load_shared_object_file);
+  }
+
+  public get timer(): "PMC" | "RDTSCP" {
+    const timer = ms.get_timer();
+    if (timer === 0) {
+      return "PMC";
+    }
+    if (timer === 1) {
+      return "RDTSCP";
+    }
+    throw new Error("Could not get timer information from native module.");
   }
 
   public destroy(): number {
