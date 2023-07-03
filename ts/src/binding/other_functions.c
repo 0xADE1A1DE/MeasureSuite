@@ -74,6 +74,9 @@ napi_value destroy(napi_env env, napi_callback_info info) {
   if (ms != NULL && ms_terminate(ms)) {
     throw_and_return_napi_val(env, "Unable to destroy measuresuite instance.");
   }
+  if (napi_set_instance_data(env, NULL, &finalise, NULL) != napi_ok) {
+    throw_and_return_napi_val(env, "Unable to set instance_data to NULL.");
+  }
   napi_value napi_result = NULL;
   napi_create_int32(env, 0, &napi_result);
   return napi_result;
