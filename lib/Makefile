@@ -38,7 +38,7 @@ endif
 
 
 
-.PHONY: all check test report clean deepclean install-uiCA
+.PHONY: all check test report clean deepclean
 
 .PRECIOUS: libmeasuresuite.so libmeasuresuite.a
 
@@ -72,7 +72,7 @@ test/%.tst: test/%.c Makefile test/helper.o libmeasuresuite.so
 
 clean: cleantest
 	rm -rf $(C_COV_DIR)
-	find . -type f -not -path "./uiCA/*" \( -name "*.gcda" -o -name "*.gcno" -o -name "*.a" -o -name "*.o" -o -name "*.so" -o -name "*.html" \) -delete
+	find . -type f \( -name "*.gcda" -o -name "*.gcno" -o -name "*.a" -o -name "*.o" -o -name "*.so" -o -name "*.html" \) -delete
 
 test_data:
 	$(MAKE) -C ./test/test_data
@@ -83,11 +83,4 @@ cleantest:
 
 deepclean: clean
 	rm -rf libmeasuresuite.a libmeasuresuite.so
-
-install-uiCA: uiCA/setup.sh
-	cd uiCA && git apply ../uiCA.patch
-	cd uiCA && (test -d instrData || ./setup.sh)
-
-uiCA/setup.sh:
-	git submodule update --init
 
