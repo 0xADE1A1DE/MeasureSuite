@@ -79,10 +79,10 @@ static void init_fdperf(volatile struct measuresuite *ms) {
 
 static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
 #if defined(__x86_64__) || defined(__amd64__)
-  long long result = 0;
+  uint64_t pmc = 0;
   unsigned int seq = 0;
-  long long offset = 0;
-  long long index = 0;
+  int64_t offset = 0;
+  uint32_t index = 0;
   struct perf_event_mmap_page *buf = ms->timer.buf;
 
   do {
@@ -92,8 +92,7 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
     offset = buf->offset;
     index = buf->index;
     if (buf->cap_user_rdpmc && index) {
-      DEBUG("The index is %lld, offset: %lld, result %lld\n", index, offset,
-            result);
+      DEBUG("The index is %d, offset: %ld, pmc %lu\n", index, offset, pmc);
 
       __asm__ volatile("lfence\n\t"
                        "cpuid\n\t"
@@ -105,15 +104,29 @@ static uint64_t measuresuite_time_pmc(struct measuresuite *ms) {
                        "mov %%rax, %q1\n\t"
                        "lfence\n\t"
                        "cpuid\n\t"
-                       : "=&m"(index), "=&m"(result)
+                       : "=&m"(index), "=&m"(pmc)
                        :
                        : "rax", "rbx", "rcx", "rdx", "memory", "cc");
     }
   } while (buf->lock != seq);
 
-  DEBUG("The index is %lld, offset: %lld, result %lld\n", index, offset,
-        result);
-  return result + offset;
+  // ...
+  // so uuuusually offset is something like
+  // offset: ffff7ffffff9dee4, pmc 0000800000064193, result: 8311
+  // however sometime (roughly 1 in 10000 maybe?)
+  // offset is 0x00007ffffffd26c7
+  // which I don't understand.
+  // I can't find documentation on what this offset is or when it is being set
+  // If you know what's going on here, please fix.
+  // My workaround is very pragmatic:
+
+  const uint64_t workaround = 0xffff000000000000;
+  offset |= (int64_t)workaround;
+
+  DEBUG("The index is %d, offset: %016lx, pmc %016lx, result: %lu \n", index,
+        offset, pmc, (uint64_t)(pmc + offset));
+
+  return (uint64_t)(pmc + offset);
 
   // ARM on Darwin does not support mrc p15.
   // clang complains with:
@@ -221,7 +234,8 @@ int end_timer(struct measuresuite *ms) {
 
 void start_timer(struct measuresuite *ms, uint64_t *start) {
   // we need to reset the PMC if we are using them.
-  if (ms->timer.timer_function == measuresuite_time_pmc) {
+
+  if (ms_get_timer(ms) == PMC) {
     ioctl(ms->timer.fdperf, PERF_EVENT_IOC_RESET, 0);
   }
   *start = ms->timer.timer_function(ms);
